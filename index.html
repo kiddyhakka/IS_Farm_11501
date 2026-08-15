@@ -37,7 +37,6 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
     }
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -82,21 +81,27 @@
   <!-- Navigation Tabs -->
   <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto py-2" id="main-tabs">
+      <nav class="flex space-x-2 sm:space-x-6 overflow-x-auto py-2" id="main-tabs">
         <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn text-brand-600 border-brand-600 border-b-2 py-2 px-3 text-sm font-semibold flex items-center whitespace-nowrap">
           <i class="fa-solid fa-chart-pie mr-2"></i> 系統總覽
+        </button>
+        <button onclick="switchTab('field')" id="tab-field" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-wheat-awn mr-2"></i> 0. 田間作業與採收
         </button>
         <button onclick="switchTab('inbound')" id="tab-inbound" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
           <i class="fa-solid fa-truck-ramp-box mr-2"></i> 1. 原料採收入庫
         </button>
-        <button onclick="switchTab('processing')" id="tab-processing" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
-          <i class="fa-solid fa-boxes-packing mr-2"></i> 2. 加工與分裝
-        </button>
         <button onclick="switchTab('shipping')" id="tab-shipping" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
-          <i class="fa-solid fa-paper-plane mr-2"></i> 3. 訂單出貨銷帳
+          <i class="fa-solid fa-boxes-packing mr-2"></i> 2. 加工分裝與訂單出貨
+        </button>
+        <button onclick="switchTab('channels')" id="tab-channels" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-store mr-2"></i> 3. 出貨通路管理
         </button>
         <button onclick="switchTab('coldroom')" id="tab-coldroom" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
           <i class="fa-solid fa-snowflake mr-2"></i> 冷藏庫存看板
+        </button>
+        <button onclick="switchTab('units')" id="tab-units" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-scale-balanced mr-2"></i> 單位換算設定
         </button>
         <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
           <i class="fa-solid fa-database mr-2"></i> Google Sheets 設定
@@ -189,36 +194,124 @@
         <!-- System Flow Guide Card -->
         <div class="bg-gradient-to-br from-brand-900 to-brand-800 text-white rounded-xl p-5 shadow-sm flex flex-col justify-between">
           <div>
-            <span class="bg-brand-700 text-brand-200 text-xs px-2.5 py-1 rounded-full font-medium">標準作業流程指南</span>
+            <span class="bg-brand-700 text-brand-200 text-xs px-2.5 py-1 rounded-full font-medium">義勝農場標準作業流程</span>
             <h4 class="text-lg font-bold mt-3">生鮮蔬果管理 4 步驟</h4>
-            <ul class="text-xs text-brand-100 space-y-2.5 mt-4">
+            <ul class="text-xs text-brand-100 space-y-2.5 mt-3">
+              <li class="flex items-start">
+                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">0</span>
+                <span><strong>田間歷程：</strong>登記種植、施肥、1/2次用藥與採收公斤數。</span>
+              </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">1</span>
-                <span><strong>採收入庫：</strong>登記田間原始公斤數與儲位，自動產生母批號。</span>
+                <span><strong>採收入庫：</strong>採收直接一鍵連動轉入冷藏庫，產生母批號。</span>
               </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">2</span>
-                <span><strong>冷藏儲位：</strong>監控在庫天數，優先分裝入庫較久的批次。</span>
+                <span><strong>出貨通路管理：</strong>建立合作通路（超市/盤商/餐廳/直銷）。</span>
               </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">3</span>
-                <span><strong>加工分裝：</strong>選取原料批號，輸入扣抵重量與包裝規格，算耗損率。</span>
-              </li>
-              <li class="flex items-start">
-                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">4</span>
-                <span><strong>訂單出貨：</strong>輸入客戶名稱與出貨包數，系統自動扣減成品存量。</span>
+                <span><strong>多品項出貨銷帳：</strong>單次出貨可混搭多種蔬菜與單位，自動算重扣庫。</span>
               </li>
             </ul>
-          </div>
-          <div class="mt-6 pt-4 border-t border-brand-700/50 flex justify-between items-center text-xs text-brand-200">
-            <span>資料庫狀態: <span id="db-type-label">Local Memory / Sheet API</span></span>
-            <button onclick="switchTab('settings')" class="underline hover:text-white">綁定試算表</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. RAW INBOUND VIEW -->
+    <!-- 0. FIELD MANAGEMENT VIEW -->
+    <section id="view-field" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Field Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+            <i class="fa-solid fa-seedling text-brand-600 mr-2"></i> 田間作業與採收登記
+          </h3>
+          <form id="form-field" class="space-y-3" onsubmit="handleFieldSubmit(event)">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">蔬菜種類 <span class="text-rose-500">*</span></label>
+              <select id="field-veg-type" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <!-- Dynamic choices populated in JS -->
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">地塊/網室編號</label>
+                <input type="text" id="field-plot" placeholder="例：A1網室" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">種植日期 <span class="text-rose-500">*</span></label>
+                <input type="date" id="field-date-plant" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
+              <h4 class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-calendar-days text-brand-600 mr-1.5"></i> 作業階段日期設定
+              </h4>
+              
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] text-slate-500">施肥日期</label>
+                  <input type="date" id="field-date-fertilize" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-500">第一次用藥日期</label>
+                  <input type="date" id="field-date-pesticide1" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] text-slate-500">第二次用藥日期</label>
+                  <input type="date" id="field-date-pesticide2" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-500 font-semibold text-brand-700">採收日期</label>
+                  <input type="date" id="field-date-harvest" class="w-full text-xs border border-brand-300 rounded p-1.5 bg-white font-medium">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">採收數量 (kg)</label>
+              <input type="number" step="0.1" id="field-harvest-weight" placeholder="採收後輸入實測重量" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+
+            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
+              <i class="fa-solid fa-floppy-disk mr-2"></i> 儲存田間管理紀錄
+            </button>
+          </form>
+        </div>
+
+        <!-- Field List -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 text-lg">蔬菜田間履歷與採收動態</h3>
+            <span class="text-xs text-slate-500">點擊「轉入冷藏」可直接生成原料入庫單</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                <tr>
+                  <th class="px-3 py-2.5">蔬菜品項 / 地塊</th>
+                  <th class="px-3 py-2.5">種植/施肥</th>
+                  <th class="px-3 py-2.5">1/2次用藥</th>
+                  <th class="px-3 py-2.5">採收日 / 採收量</th>
+                  <th class="px-3 py-2.5 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="field-records-list" class="divide-y divide-slate-100">
+                <!-- JS inserted rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. RAW INBOUND VIEW -->
     <section id="view-inbound" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Inbound Form -->
@@ -229,7 +322,9 @@
           <form id="form-inbound" class="space-y-4" onsubmit="handleInboundSubmit(event)">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">農產品項名稱 <span class="text-rose-500">*</span></label>
-              <input type="text" id="inbound-item" required placeholder="例如：有機有機高麗菜 / 青花菜" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <select id="inbound-item" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <!-- Dynamic vegetable choices -->
+              </select>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -239,7 +334,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">田區/來源地塊</label>
-                <input type="text" id="inbound-source" placeholder="如：A3地塊 / 合作農場" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <input type="text" id="inbound-source" placeholder="如：A3地塊 / 網室01" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
               </div>
             </div>
 
@@ -261,7 +356,7 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">備註/驗收品質狀況</label>
-              <textarea id="inbound-note" rows="2" placeholder="例：蟲害輕微、外葉完好..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+              <textarea id="inbound-note" rows="2" placeholder="例：採收完畢良好..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
             </div>
 
             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
@@ -271,115 +366,25 @@
         </div>
 
         <!-- Inbound Table List -->
-        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold text-slate-800 text-lg">原料進貨批次紀錄</h3>
-              <span class="text-xs text-slate-500">自動產生 RAW-YYYYMMDD 批號</span>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm text-left text-slate-600">
-                <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
-                  <tr>
-                    <th class="px-3 py-2.5">原料批號</th>
-                    <th class="px-3 py-2.5">品項/日期</th>
-                    <th class="px-3 py-2.5">來源</th>
-                    <th class="px-3 py-2.5">原始/剩餘量</th>
-                    <th class="px-3 py-2.5">冷藏儲位</th>
-                    <th class="px-3 py-2.5 text-center">條碼預覽</th>
-                  </tr>
-                </thead>
-                <tbody id="raw-inbound-list" class="divide-y divide-slate-100">
-                  <!-- JS rows -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. PROCESSING VIEW -->
-    <section id="view-processing" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Packaging Form -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
-            <i class="fa-solid fa-scissors text-amber-600 mr-2"></i> 登記加工與包裝分裝
-          </h3>
-          <form id="form-processing" class="space-y-4" onsubmit="handleProcessingSubmit(event)">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">選擇投入的原料批次 (母批) <span class="text-rose-500">*</span></label>
-              <select id="proc-raw-lot" required onchange="calculateProcessLoss()" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <option value="">-- 請選擇原料批次 --</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">分裝作業日期</label>
-                <input type="date" id="proc-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">作業人員</label>
-                <input type="text" id="proc-operator" placeholder="例：王小明" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-              </div>
-            </div>
-
-            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-amber-900 mb-1">耗用原料重 (kg)</label>
-                  <input type="number" step="0.1" id="proc-raw-used" required oninput="calculateProcessLoss()" placeholder="0.0" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-amber-900 mb-1">產出包裝規格</label>
-                  <select id="proc-spec-weight" onchange="calculateProcessLoss()" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
-                    <option value="0.25">250g / 包</option>
-                    <option value="0.30">300g / 包</option>
-                    <option value="0.50">500g / 包</option>
-                    <option value="1.00">1.0kg / 營業包</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-amber-900 mb-1">產出包數 (包)</label>
-                  <input type="number" id="proc-output-count" required oninput="calculateProcessLoss()" placeholder="0" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-amber-900 mb-1">計算自動損耗重</label>
-                  <input type="text" id="proc-loss-display" readonly value="0.0 kg (0%)" class="w-full text-sm border border-slate-200 rounded-lg p-2 bg-amber-100/60 text-amber-900 font-bold">
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
-              <i class="fa-solid fa-box mr-2"></i> 完成分裝並產生成品批號
-            </button>
-          </form>
-        </div>
-
-        <!-- Processing Table List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-slate-800 text-lg">分裝與加工歷史紀錄</h3>
-            <span class="text-xs text-slate-500">自動產生 PKG-YYYYMMDD 子批號</span>
+            <h3 class="font-bold text-slate-800 text-lg">冷藏原料入庫批次 (母批)</h3>
+            <span class="text-xs text-slate-500">自動產生 RAW-YYYYMMDD 批號</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-slate-600">
               <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
                 <tr>
-                  <th class="px-3 py-2.5">成品批號</th>
-                  <th class="px-3 py-2.5">來源母批</th>
-                  <th class="px-3 py-2.5">分裝日期</th>
-                  <th class="px-3 py-2.5">產出規格/包數</th>
-                  <th class="px-3 py-2.5">損耗量(率)</th>
-                  <th class="px-3 py-2.5">作業員</th>
+                  <th class="px-3 py-2.5">原料批號</th>
+                  <th class="px-3 py-2.5">品項 / 來源地塊</th>
+                  <th class="px-3 py-2.5">入庫日期</th>
+                  <th class="px-3 py-2.5">原始重量</th>
+                  <th class="px-3 py-2.5">剩餘重量</th>
+                  <th class="px-3 py-2.5">儲位</th>
+                  <th class="px-3 py-2.5 text-right">操作</th>
                 </tr>
               </thead>
-              <tbody id="processing-list" class="divide-y divide-slate-100">
+              <tbody id="inbound-list" class="divide-y divide-slate-100">
                 <!-- JS inserted rows -->
               </tbody>
             </table>
@@ -388,39 +393,29 @@
       </div>
     </section>
 
-    <!-- 4. SHIPPING VIEW -->
+    <!-- 5.5 UNIT CONVERSION VIEW -->
+    <section id="view-units" class="tab-content hidden space-y-6">
+    <!-- 2 & 3. COMBINED PROCESSING & SHIPPING VIEW -->
     <section id="view-shipping" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Shipping Form -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
-            <i class="fa-solid fa-truck-fast text-blue-600 mr-2"></i> 登記訂單出貨 (扣成品庫存)
+        <!-- Shipping Form (Multi-item) -->
+        <div class="lg:col-span-1 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 text-lg flex items-center">
+            <i class="fa-solid fa-truck-fast text-blue-600 mr-2"></i> 登記加工分裝與訂單出貨
           </h3>
           <form id="form-shipping" class="space-y-4" onsubmit="handleShippingSubmit(event)">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">選擇欲出貨成品批號 (子批) <span class="text-rose-500">*</span></label>
-              <select id="ship-finished-lot" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <option value="">-- 請選擇分裝成品批號 --</option>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">選擇出貨通路/客戶 <span class="text-rose-500">*</span></label>
+              <select id="ship-channel" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <!-- Populated dynamically via JS -->
               </select>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">客戶/通路名稱 <span class="text-rose-500">*</span></label>
-              <input type="text" id="ship-customer" required placeholder="例：全聯-高雄總倉 / 主婦聯盟" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">出貨日期</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">出貨日期 <span class="text-rose-500">*</span></label>
                 <input type="date" id="ship-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
               </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">出貨數量 (包) <span class="text-rose-500">*</span></label>
-                <input type="number" id="ship-count" required placeholder="0" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">配送溫層</label>
                 <select id="ship-temp" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
@@ -429,14 +424,38 @@
                   <option value="冷凍 (-18℃)">冷凍 (-18℃)</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">物流單號/配送司機</label>
-                <input type="text" id="ship-logistics" placeholder="例：黑貓 9081234..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">物流單號 / 司機</label>
+              <input type="text" id="ship-logistics" placeholder="例：黑貓 9081234..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Dynamic Vegetables Line Items Section -->
+            <div class="border-t border-slate-200 pt-3 space-y-3">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-bold text-slate-700 flex items-center">
+                  <i class="fa-solid fa-basket-shopping text-brand-600 mr-1.5"></i> 出貨蔬菜品項明細
+                </label>
+                <button type="button" onclick="addShipmentItemRow()" class="text-xs bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold px-2.5 py-1 rounded border border-brand-200 transition">
+                  <i class="fa-solid fa-plus mr-1"></i> 新增品項
+                </button>
+              </div>
+
+              <!-- Line Items Container -->
+              <div id="shipment-items-container" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <!-- JS inserted dynamic rows -->
+              </div>
+
+              <!-- Total Weight Summary Badge -->
+              <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg flex justify-between items-center text-xs">
+                <span class="font-semibold text-blue-900">本次出貨估算扣庫總重：</span>
+                <span id="shipment-total-weight" class="font-bold font-mono text-base text-blue-700">0.00 kg</span>
               </div>
             </div>
 
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
-              <i class="fa-solid fa-paper-plane mr-2"></i> 確認出貨並銷帳扣庫
+              <i class="fa-solid fa-paper-plane mr-2"></i> 確認出貨並自動扣庫銷帳
             </button>
           </form>
         </div>
@@ -444,19 +463,18 @@
         <!-- Shipping Table List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-slate-800 text-lg">出貨履歷明細表</h3>
-            <span class="text-xs text-slate-500">完成銷帳出貨紀錄</span>
+            <h3 class="font-bold text-slate-800 text-lg">出貨銷帳紀錄歷史明細</h3>
+            <span class="text-xs text-slate-500">支援單次多品項出貨履歷</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-slate-600">
               <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
                 <tr>
                   <th class="px-3 py-2.5">出貨單號</th>
-                  <th class="px-3 py-2.5">客戶名稱</th>
-                  <th class="px-3 py-2.5">扣抵成品批號</th>
-                  <th class="px-3 py-2.5">數量</th>
-                  <th class="px-3 py-2.5">出貨日期</th>
-                  <th class="px-3 py-2.5">溫層/物流</th>
+                  <th class="px-3 py-2.5">出貨通路/客戶</th>
+                  <th class="px-3 py-2.5">出貨蔬菜明細內容</th>
+                  <th class="px-3 py-2.5">總扣庫重量</th>
+                  <th class="px-3 py-2.5">日期/溫層</th>
                 </tr>
               </thead>
               <tbody id="shipping-list" class="divide-y divide-slate-100">
@@ -468,7 +486,91 @@
       </div>
     </section>
 
-    <!-- 5. COLD STORAGE BOARD VIEW -->
+    <!-- 3. NEW SALES CHANNELS VIEW -->
+    <section id="view-channels" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Channel Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 text-lg flex items-center">
+            <i class="fa-solid fa-store text-emerald-600 mr-2"></i> 新增出貨通路 / 客戶
+          </h3>
+          <form id="form-channel" class="space-y-3" onsubmit="handleChannelSubmit(event)">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">通路 / 客戶名稱 <span class="text-rose-500">*</span></label>
+              <input type="text" id="channel-name" required placeholder="例：全聯-高雄總倉 / 主婦聯盟" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">通路類別</label>
+                <select id="channel-type" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                  <option value="連鎖超市">連鎖超市</option>
+                  <option value="有機/合作社">有機/合作社</option>
+                  <option value="批發盤商">批發盤商</option>
+                  <option value="餐飲/飯店">餐飲/飯店</option>
+                  <option value="官網/直銷">官網/直銷</option>
+                  <option value="團購/其他">團購/其他</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">聯絡人</label>
+                <input type="text" id="channel-contact" placeholder="例：張經理" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">聯絡電話</label>
+                <input type="tel" id="channel-phone" placeholder="0912-345-678" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">預設配送溫層</label>
+                <select id="channel-default-temp" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                  <option value="冷藏 (2℃~7℃)">冷藏 (2℃~7℃)</option>
+                  <option value="常溫短程">常溫短程</option>
+                  <option value="冷凍 (-18℃)">冷凍 (-18℃)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">送貨地址 / 備註</label>
+              <textarea id="channel-address" rows="2" placeholder="送貨地址或特殊配送要求..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
+              <i class="fa-solid fa-plus mr-2"></i> 建立通路資料
+            </button>
+          </form>
+        </div>
+
+        <!-- Channel Table List -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 text-lg">合作出貨通路列表</h3>
+            <span class="text-xs text-slate-500">可在出貨表單中直接下拉選取</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                <tr>
+                  <th class="px-3 py-2.5">通路名稱</th>
+                  <th class="px-3 py-2.5">類別</th>
+                  <th class="px-3 py-2.5">聯絡資訊</th>
+                  <th class="px-3 py-2.5">預設溫層 / 地址</th>
+                  <th class="px-3 py-2.5 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="channels-list" class="divide-y divide-slate-100">
+                <!-- JS inserted rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. COLD STORAGE BOARD VIEW -->
     <section id="view-coldroom" class="tab-content hidden space-y-6">
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -491,7 +593,7 @@
       </div>
     </section>
 
-    <!-- 6. GOOGLE SHEETS SETTINGS VIEW -->
+    <!-- 5. GOOGLE SHEETS SETTINGS VIEW -->
     <section id="view-settings" class="tab-content hidden space-y-6">
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
         <div>
@@ -567,9 +669,8 @@ function doPost(e) {
       <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
         <p class="text-xs text-slate-400 uppercase tracking-widest font-mono mb-1">PRODUCE LOT TAG</p>
         <h4 class="font-mono text-xl font-bold text-brand-800" id="modal-lot-no">RAW-20260815-001</h4>
-        <p class="text-sm text-slate-700 font-semibold mt-1" id="modal-item-name">有機高麗菜</p>
+        <p class="text-sm text-slate-700 font-semibold mt-1" id="modal-item-name">小白菜</p>
         <div class="my-3 flex justify-center">
-          <!-- Mock QR barcode block -->
           <div class="w-32 h-32 bg-slate-800 rounded flex flex-col items-center justify-center text-white p-2 text-center text-xs">
             <i class="fa-solid fa-qrcode text-5xl mb-1 text-slate-200"></i>
             <span class="text-[9px] font-mono">SCAN FOR TRACE</span>
@@ -590,271 +691,284 @@ function doPost(e) {
   <script>
     // --- Application State ---
     let state = {
+      vegetableTypes: [
+        "小白菜", "油菜", "青梗白菜", "小芥菜", "蕹菜", "芥籃芽", "莧菜", "葉萵苣", "菠菜"
+      ],
+      fieldRecords: [
+        { id: 1, vegType: "小白菜", plot: "A1網室", datePlant: "2026-07-20", dateFertilize: "2026-07-25", datePesticide1: "2026-07-28", datePesticide2: "2026-08-05", dateHarvest: "2026-08-12", harvestWeight: 300, isTransferred: true },
+        { id: 2, vegType: "油菜", plot: "B2網室", datePlant: "2026-07-25", dateFertilize: "2026-07-30", datePesticide1: "2026-08-02", datePesticide2: "", dateHarvest: "2026-08-14", harvestWeight: 150, isTransferred: true },
+        { id: 3, vegType: "青梗白菜", plot: "C1網室", datePlant: "2026-08-01", dateFertilize: "2026-08-06", datePesticide1: "2026-08-08", datePesticide2: "", dateHarvest: "2026-08-15", harvestWeight: 200, isTransferred: false }
+      ],
+      unitConversions: {
+        "包": 0.30,
+        "把": 0.25,
+        "斤": 0.60,
+        "籃": 12.00,
+        "袋": 5.00,
+        "kg": 1.00
+      },
+      // Channels List
+      channels: [
+        { id: 1, name: "全聯-高雄總倉", type: "連鎖超市", contact: "張經理", phone: "0912-345-678", temp: "冷藏 (2℃~7℃)", address: "高雄市仁武區物流路1號" },
+        { id: 2, name: "主婦聯盟生活消費合作社", type: "有機/合作社", contact: "林專員", phone: "07-3311223", temp: "冷藏 (2℃~7℃)", address: "高雄市鳳山區..." },
+        { id: 3, name: "鳳山鳳頂批發市場-陳老大", type: "批發盤商", contact: "陳老闆", phone: "0988-112-233", temp: "常溫短程", address: "鳳頂路市場攤位12號" }
+      ],
       rawInbound: [
-        { id: 1, lotNo: "RAW-20260812-001", item: "有機高麗菜", date: "2026-08-12", source: "A1地塊", weight: 300, zone: "A區冷藏庫-架01", note: "首批產出良好" },
-        { id: 2, lotNo: "RAW-20260814-002", item: "履歷青花菜", date: "2026-08-14", source: "B2合作場", weight: 150, zone: "B區預冷室-棧01", note: "無蟲害" }
+        { id: 1, lotNo: "RAW-20260812-001", item: "小白菜", date: "2026-08-12", source: "A1網室", weight: 300, zone: "A區冷藏庫-架01", note: "採收完畢良好" },
+        { id: 2, lotNo: "RAW-20260814-002", item: "油菜", date: "2026-08-14", source: "B2網室", weight: 150, zone: "B區預冷室-棧01", note: "品質佳" }
       ],
-      processing: [
-        { id: 1, finishedLotNo: "PKG-20260813-001", rawLotNo: "RAW-20260812-001", date: "2026-08-13", rawWeightUsed: 100, spec: 0.3, packageCount: 300, lossWeight: 10, lossRate: 10.0, operator: "陳大明" }
-      ],
+      // Shipping Orders (Multi-item supported)
       shipping: [
-        { id: 1, shipNo: "OUT-20260814-01", customer: "全聯高雄總倉", finishedLotNo: "PKG-20260813-001", count: 120, date: "2026-08-14", temp: "冷藏 (2℃~7℃)", logistics: "黑貓冷藏 8812" }
+        {
+          id: 1,
+          shipNo: "OUT-20260814-01",
+          customer: "全聯-高雄總倉",
+          date: "2026-08-14",
+          temp: "冷藏 (2℃~7℃)",
+          logistics: "黑貓冷藏 8812",
+          totalKg: 90,
+          items: [
+            { rawLotNo: "RAW-20260812-001", vegType: "小白菜", unit: "包", count: 300, unitKg: 0.3, calculatedKg: 90 }
+          ]
+        }
       ],
       gasUrl: localStorage.getItem("gas_app_url") || ""
     };
 
-    // --- Initialization ---
-    window.onload = function() {
-      // Set default dates to today
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('inbound-date').value = today;
-      document.getElementById('proc-date').value = today;
-      document.getElementById('ship-date').value = today;
-
-      if(state.gasUrl) {
-        document.getElementById('gas-url-input').value = state.gasUrl;
-        updateSyncStatus(true, "已設定 Google Sheets API");
-      }
-
-      renderAll();
-    };
-
-    // --- STREAMING_CHUNK: Implementing tab switching logic ---
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
-        btn.classList.add('text-slate-500', 'font-medium');
+      const tabs = ['dashboard', 'field', 'inbound', 'shipping', 'channels', 'coldroom', 'units', 'settings'];
+      tabs.forEach(id => {
+        const view = document.getElementById(`view-${id}`);
+        const btn = document.getElementById(`tab-${id}`);
+        if (view) {
+          if (id === tabId) view.classList.remove('hidden');
+          else view.classList.add('hidden');
+        }
+        if (btn) {
+          if (id === tabId) {
+            btn.className = "tab-btn text-brand-600 border-brand-600 border-b-2 py-2 px-3 text-sm font-semibold flex items-center whitespace-nowrap";
+          } else {
+            btn.className = "tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap";
+          }
+        }
       });
-
-      document.getElementById(`view-${tabId}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`tab-${tabId}`);
-      activeBtn.classList.add('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
-      activeBtn.classList.remove('text-slate-500', 'font-medium');
-
-      renderAll();
     }
 
-    // --- STREAMING_CHUNK: Logic for calculating raw and finished inventory ---
-    // Calculate raw remaining weight for a raw lot
-    function getRawRemainingWeight(rawLotNo) {
-      const raw = state.rawInbound.find(r => r.lotNo === rawLotNo);
-      if(!raw) return 0;
-      const totalUsed = state.processing
-        .filter(p => p.rawLotNo === rawLotNo)
-        .reduce((sum, p) => sum + Number(p.rawWeightUsed), 0);
-      return Math.max(0, raw.weight - totalUsed);
-    }
-
-    // Calculate finished inventory remaining package count
-    function getFinishedRemainingCount(finishedLotNo) {
-      const proc = state.processing.find(p => p.finishedLotNo === finishedLotNo);
-      if(!proc) return 0;
-      const totalShipped = state.shipping
-        .filter(s => s.finishedLotNo === finishedLotNo)
-        .reduce((sum, s) => sum + Number(s.count), 0);
-      return Math.max(0, proc.packageCount - totalShipped);
-    }
-
-    // Calculate Aging days
     function getDaysInStorage(dateStr) {
-      const inboundDate = new Date(dateStr);
+      if (!dateStr) return 0;
+      const start = new Date(dateStr);
       const today = new Date();
-      const diffTime = Math.abs(today - inboundDate);
+      const diffTime = Math.abs(today - start);
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    // --- STREAMING_CHUNK: Form submit handlers for inbound, processing, shipping ---
-    // 1. Raw Inbound Handler
-    function handleInboundSubmit(e) {
+    function getRawRemainingWeight(lotNo) {
+      const raw = state.rawInbound.find(r => r.lotNo === lotNo);
+      if (!raw) return 0;
+
+      let shippedWeight = 0;
+      state.shipping.forEach(s => {
+        if (s.items && Array.isArray(s.items)) {
+          s.items.forEach(item => {
+            if (item.rawLotNo === lotNo) {
+              shippedWeight += (parseFloat(item.calculatedKg) || 0);
+            }
+          });
+        }
+      });
+
+      return Math.max(0, raw.weight - shippedWeight);
+    }
+
+    // Add Dynamic Item Row for Shipping
+    function addShipmentItemRow() {
+      const container = document.getElementById('shipment-items-container');
+      if(!container) return;
+
+      const rowIndex = Date.now();
+      const rowDiv = document.createElement('div');
+      rowDiv.className = "ship-item-row p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2 relative";
+      rowDiv.dataset.id = rowIndex;
+
+      // Filter available raw lots
+      let lotOptions = '<option value="">-- 選擇冷藏原料批次 --</option>';
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        if(rem > 0) {
+          lotOptions += `<option value="${r.lotNo}">${r.lotNo} - ${r.item} (餘 ${rem.toFixed(1)}kg)</option>`;
+        }
+      });
+
+      // Unit options
+      let unitOptions = '';
+      Object.keys(state.unitConversions).forEach(u => {
+        unitOptions += `<option value="${u}">${u} (${state.unitConversions[u]}kg)</option>`;
+      });
+
+      rowDiv.innerHTML = `
+        <button type="button" onclick="this.parentElement.remove(); updateShipmentTotals();" class="absolute top-2 right-2 text-slate-400 hover:text-rose-500 text-xs">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600">蔬菜品項 / 冷藏批次 <span class="text-rose-500">*</span></label>
+          <select required onchange="updateShipmentTotals()" class="item-lot-select w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
+            ${lotOptions}
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600">出貨單位</label>
+            <select onchange="updateShipmentTotals()" class="item-unit-select w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
+              ${unitOptions}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600">數量 <span class="text-rose-500">*</span></label>
+            <input type="number" step="1" min="1" value="10" required oninput="updateShipmentTotals()" class="item-count-input w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
+          </div>
+        </div>
+        <div class="text-right text-[11px] font-semibold text-brand-700">
+          估計扣庫: <span class="item-calc-kg font-bold font-mono">0.00</span> kg
+        </div>
+      `;
+
+      container.appendChild(rowDiv);
+      updateShipmentTotals();
+    }
+
+    function updateShipmentTotals() {
+      const rows = document.querySelectorAll('.ship-item-row');
+      let totalKg = 0;
+
+      rows.forEach(row => {
+        const lotNo = row.querySelector('.item-lot-select').value;
+        const unit = row.querySelector('.item-unit-select').value;
+        const count = parseFloat(row.querySelector('.item-count-input').value) || 0;
+        const unitKg = state.unitConversions[unit] || 1;
+
+        const lineKg = count * unitKg;
+        row.querySelector('.item-calc-kg').innerText = lineKg.toFixed(2);
+        totalKg += lineKg;
+      });
+
+      const totalDisplay = document.getElementById('shipment-total-weight');
+      if(totalDisplay) totalDisplay.innerText = `${totalKg.toFixed(2)} kg`;
+    }
+
+    function handleChannelSubmit(e) {
       e.preventDefault();
-      const item = document.getElementById('inbound-item').value;
-      const date = document.getElementById('inbound-date').value;
-      const source = document.getElementById('inbound-source').value || '未填';
-      const weight = parseFloat(document.getElementById('inbound-weight').value);
-      const zone = document.getElementById('inbound-zone').value;
-      const note = document.getElementById('inbound-note').value;
+      const name = document.getElementById('channel-name').value.trim();
+      const type = document.getElementById('channel-type').value;
+      const contact = document.getElementById('channel-contact').value.trim();
+      const phone = document.getElementById('channel-phone').value.trim();
+      const temp = document.getElementById('channel-default-temp').value;
+      const address = document.getElementById('channel-address').value.trim();
 
-      const lotNo = `RAW-${date.replace(/-/g, '')}-${String(state.rawInbound.length + 1).padStart(3, '0')}`;
-
-      const newRecord = { id: Date.now(), lotNo, item, date, source, weight, zone, note };
-      state.rawInbound.unshift(newRecord);
-
-      // Async post to Google Sheets
-      syncToGoogleSheets("addRaw", newRecord);
-
-      showToast(`原料入庫成功！生成批號：${lotNo}`);
-      document.getElementById('form-inbound').reset();
-      document.getElementById('inbound-date').value = new Date().toISOString().split('T')[0];
+      const newChannel = { id: Date.now(), name, type, contact, phone, temp, address };
+      state.channels.unshift(newChannel);
+      showToast(`已成功新增出貨通路：${name}`);
+      document.getElementById('form-channel').reset();
       renderAll();
     }
 
-    // 2. Processing & Packaging Handler
-    function calculateProcessLoss() {
-      const rawLotNo = document.getElementById('proc-raw-lot').value;
-      const rawWeightUsed = parseFloat(document.getElementById('proc-raw-used').value) || 0;
-      const specWeight = parseFloat(document.getElementById('proc-spec-weight').value) || 0.3;
-      const outputCount = parseInt(document.getElementById('proc-output-count').value) || 0;
-
-      const outputWeight = outputCount * specWeight;
-      const lossWeight = Math.max(0, rawWeightUsed - outputWeight);
-      const lossRate = rawWeightUsed > 0 ? ((lossWeight / rawWeightUsed) * 100).toFixed(1) : 0;
-
-      document.getElementById('proc-loss-display').value = `${lossWeight.toFixed(1)} kg (${lossRate}%)`;
-      return { lossWeight, lossRate };
-    }
-
-    function handleProcessingSubmit(e) {
-      e.preventDefault();
-      const rawLotNo = document.getElementById('proc-raw-lot').value;
-      const date = document.getElementById('proc-date').value;
-      const operator = document.getElementById('proc-operator').value || '未填';
-      const rawWeightUsed = parseFloat(document.getElementById('proc-raw-used').value);
-      const spec = parseFloat(document.getElementById('proc-spec-weight').value);
-      const packageCount = parseInt(document.getElementById('proc-output-count').value);
-
-      // Check raw weight availability
-      const available = getRawRemainingWeight(rawLotNo);
-      if (rawWeightUsed > available) {
-        showToast(`錯誤：原料剩餘重量僅 ${available} kg，不足扣抵！`, 'error');
-        return;
-      }
-
-      const { lossWeight, lossRate } = calculateProcessLoss();
-      const finishedLotNo = `PKG-${date.replace(/-/g, '')}-${String(state.processing.length + 1).padStart(3, '0')}`;
-
-      const newRecord = {
-        id: Date.now(), finishedLotNo, rawLotNo, date, rawWeightUsed, spec, packageCount, lossWeight, lossRate, operator
-      };
-
-      state.processing.unshift(newRecord);
-      syncToGoogleSheets("addProcess", newRecord);
-
-      showToast(`分裝成功！成品批號：${finishedLotNo}`);
-      document.getElementById('form-processing').reset();
-      document.getElementById('proc-date').value = new Date().toISOString().split('T')[0];
-      calculateProcessLoss();
-      renderAll();
-    }
-
-    // 3. Shipping Handler
     function handleShippingSubmit(e) {
       e.preventDefault();
-      const finishedLotNo = document.getElementById('ship-finished-lot').value;
-      const customer = document.getElementById('ship-customer').value;
+      const channel = document.getElementById('ship-channel').value;
       const date = document.getElementById('ship-date').value;
-      const count = parseInt(document.getElementById('ship-count').value);
       const temp = document.getElementById('ship-temp').value;
-      const logistics = document.getElementById('ship-logistics').value || '自提/未填';
+      const logistics = document.getElementById('ship-logistics').value;
 
-      const available = getFinishedRemainingCount(finishedLotNo);
-      if (count > available) {
-        showToast(`錯誤：成品庫存不足！現存僅 ${available} 包`, 'error');
+      const rows = document.querySelectorAll('.ship-item-row');
+      if (rows.length === 0) {
+        showToast("請至少新增一項出貨蔬菜品項明細！", "warning");
         return;
       }
 
-      const shipNo = `OUT-${date.replace(/-/g, '')}-${String(state.shipping.length + 1).padStart(2, '0')}`;
-      const newRecord = { id: Date.now(), shipNo, customer, finishedLotNo, count, date, temp, logistics };
+      const items = [];
+      let totalKg = 0;
+      let hasError = false;
 
-      state.shipping.unshift(newRecord);
-      syncToGoogleSheets("addShipment", newRecord);
+      rows.forEach(row => {
+        const rawLotNo = row.querySelector('.item-lot-select').value;
+        const unit = row.querySelector('.item-unit-select').value;
+        const count = parseInt(row.querySelector('.item-count-input').value) || 0;
 
-      showToast(`出貨成功！銷帳單號：${shipNo}`);
+        if(!rawLotNo) {
+          hasError = true;
+          showToast("請選擇蔬果的冷藏批號！", "error");
+          return;
+        }
+
+        const raw = state.rawInbound.find(r => r.lotNo === rawLotNo);
+        const remWeight = getRawRemainingWeight(rawLotNo);
+        const unitKg = state.unitConversions[unit] || 1;
+        const calculatedKg = count * unitKg;
+
+        if (calculatedKg > remWeight) {
+          hasError = true;
+          showToast(`批號 ${rawLotNo} 扣庫量 (${calculatedKg.toFixed(1)}kg) 超出剩餘庫存 (${remWeight.toFixed(1)}kg)！`, 'error');
+          return;
+        }
+
+        items.push({
+          rawLotNo,
+          vegType: raw ? raw.item : "未知蔬菜",
+          unit,
+          count,
+          unitKg,
+          calculatedKg
+        });
+
+        totalKg += calculatedKg;
+      });
+
+      if (hasError) return;
+
+      const shipNo = `OUT-${date.replace(/-/g, '')}-${String(state.shipping.length + 1).padStart(3, '0')}`;
+      const record = { id: Date.now(), shipNo, customer: channel, date, temp, logistics, totalKg, items };
+
+      state.shipping.unshift(record);
+      syncToGoogleSheets('addShipment', record);
+      showToast(`訂單出貨銷帳成功！單號: ${shipNo}，扣庫: ${totalKg.toFixed(1)}kg`);
+      
+      // Reset Form
       document.getElementById('form-shipping').reset();
       document.getElementById('ship-date').value = new Date().toISOString().split('T')[0];
+      
+      // Re-initialize dynamic rows
+      const container = document.getElementById('shipment-items-container');
+      if(container) container.innerHTML = '';
+      addShipmentItemRow();
+
       renderAll();
     }
 
-    // --- Render Dashboard and Tables ---
-    function renderAll() {
-      renderStats();
-      renderRawInboundTable();
-      renderProcessingTable();
-      renderShippingTable();
-      renderColdStorageGrid();
-      populateDropdowns();
-    }
+    function renderChannelsTable() {
+      const body = document.getElementById('channels-list');
+      if (!body) return;
+      body.innerHTML = '';
 
-    function renderStats() {
-      // Total active raw kg
-      let totalRawRemaining = 0;
-      let warningCount = 0;
-      state.rawInbound.forEach(r => {
-        const rem = getRawRemainingWeight(r.lotNo);
-        totalRawRemaining += rem;
-        if (rem > 0 && getDaysInStorage(r.date) >= 3) {
-          warningCount++;
-        }
-      });
-
-      // Total active finished packages
-      let totalFinishedRemaining = 0;
-      state.processing.forEach(p => {
-        totalFinishedRemaining += getFinishedRemainingCount(p.finishedLotNo);
-      });
-
-      // Average loss rate
-      let avgLossRate = 0;
-      if (state.processing.length > 0) {
-        const sumLoss = state.processing.reduce((acc, curr) => acc + Number(curr.lossRate), 0);
-        avgLossRate = (sumLoss / state.processing.length).toFixed(1);
+      if(state.channels.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" class="px-3 py-4 text-center text-slate-400 italic">尚無合作通路，請於左側新增</td></tr>`;
+        return;
       }
 
-      document.getElementById('stat-raw-weight').innerText = `${totalRawRemaining.toFixed(1)} kg`;
-      document.getElementById('stat-finished-count').innerText = `${totalFinishedRemaining} 包`;
-      document.getElementById('stat-loss-rate').innerText = `${avgLossRate} %`;
-      document.getElementById('stat-warning-count').innerText = `${warningCount} 批次`;
-
-      // Render Dashboard warning table
-      const warnBody = document.getElementById('dashboard-warning-table');
-      warnBody.innerHTML = '';
-      state.rawInbound.forEach(r => {
-        const rem = getRawRemainingWeight(r.lotNo);
-        if (rem > 0) {
-          const days = getDaysInStorage(r.date);
-          let badgeClass = 'bg-emerald-100 text-emerald-800';
-          if (days >= 5) badgeClass = 'bg-rose-100 text-rose-800 font-bold';
-          else if (days >= 3) badgeClass = 'bg-amber-100 text-amber-800 font-semibold';
-
-          warnBody.innerHTML += `
-            <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2 font-mono font-medium text-brand-700">${r.lotNo}</td>
-              <td class="px-3 py-2">${r.item} <span class="text-xs text-slate-400">(${r.source})</span></td>
-              <td class="px-3 py-2 text-xs">${r.zone}</td>
-              <td class="px-3 py-2 font-bold text-slate-700">${rem.toFixed(1)} kg</td>
-              <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs ${badgeClass}">${days} 天</span></td>
-              <td class="px-3 py-2 text-right">
-                <button onclick="switchTab('processing'); prefillProcessing('${r.lotNo}')" class="text-xs bg-brand-50 hover:bg-brand-100 text-brand-700 px-2 py-1 rounded border border-brand-200">
-                  前往分裝
-                </button>
-              </td>
-            </tr>
-          `;
-        }
-      });
-    }
-
-    function renderRawInboundTable() {
-      const body = document.getElementById('raw-inbound-list');
-      body.innerHTML = '';
-      state.rawInbound.forEach(r => {
-        const rem = getRawRemainingWeight(r.lotNo);
+      state.channels.forEach(c => {
         body.innerHTML += `
-          <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2 font-mono font-bold text-brand-800">${r.lotNo}</td>
-            <td class="px-3 py-2">
-              <div class="font-medium text-slate-800">${r.item}</div>
-              <div class="text-xs text-slate-400">${r.date}</div>
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2.5 font-bold text-slate-800">${c.name}</td>
+            <td class="px-3 py-2.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${c.type}</span></td>
+            <td class="px-3 py-2.5">
+              <div class="font-semibold">${c.contact || '-'}</div>
+              <div class="text-slate-400">${c.phone || '-'}</div>
             </td>
-            <td class="px-3 py-2">${r.source}</td>
-            <td class="px-3 py-2">
-              <span class="font-bold ${rem > 0 ? 'text-slate-800' : 'text-slate-400 line-through'}">${rem.toFixed(1)}</span>
-              <span class="text-xs text-slate-400"> / ${r.weight} kg</span>
+            <td class="px-3 py-2.5">
+              <div class="text-blue-700 font-medium">${c.temp}</div>
+              <div class="text-slate-400 text-[11px] truncate max-w-xs">${c.address || '-'}</div>
             </td>
-            <td class="px-3 py-2 text-xs">${r.zone}</td>
-            <td class="px-3 py-2 text-center">
-              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="text-slate-500 hover:text-slate-800">
-                <i class="fa-solid fa-qrcode text-base"></i>
+            <td class="px-3 py-2.5 text-right">
+              <button onclick="prefillShippingForChannel('${c.name}', '${c.temp}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1 rounded shadow-sm">
+                快速出貨 ➔
               </button>
             </td>
           </tr>
@@ -862,54 +976,223 @@ function doPost(e) {
       });
     }
 
-    function renderProcessingTable() {
-      const body = document.getElementById('processing-list');
-      body.innerHTML = '';
-      state.processing.forEach(p => {
-        const remPackages = getFinishedRemainingCount(p.finishedLotNo);
-        body.innerHTML += `
-          <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2 font-mono font-bold text-amber-800">${p.finishedLotNo}</td>
-            <td class="px-3 py-2 text-xs font-mono text-slate-500">${p.rawLotNo}</td>
-            <td class="px-3 py-2 text-xs">${p.date}</td>
-            <td class="px-3 py-2">
-              <span class="font-bold text-slate-800">${p.spec}kg</span> × 
-              <span class="font-bold text-blue-600">${remPackages}</span>
-              <span class="text-xs text-slate-400">/${p.packageCount}包</span>
-            </td>
-            <td class="px-3 py-2 text-xs">
-              <span class="text-amber-700 font-medium">${p.lossWeight}kg</span> 
-              <span class="text-slate-400">(${p.lossRate}%)</span>
-            </td>
-            <td class="px-3 py-2 text-xs">${p.operator}</td>
-          </tr>
-        `;
+    function prefillShippingForChannel(channelName, temp) {
+      switchTab('shipping');
+      const channelSelect = document.getElementById('ship-channel');
+      const tempSelect = document.getElementById('ship-temp');
+      if (channelSelect) channelSelect.value = channelName;
+      if (tempSelect) tempSelect.value = temp;
+    }
+
+    function populateChannelDropdowns() {
+      const channelSelect = document.getElementById('ship-channel');
+      if (!channelSelect) return;
+      channelSelect.innerHTML = '<option value="">-- 請選擇合作通路 / 客戶 --</option>';
+      state.channels.forEach(c => {
+        channelSelect.innerHTML += `<option value="${c.name}">${c.name} (${c.type})</option>`;
       });
     }
 
     function renderShippingTable() {
       const body = document.getElementById('shipping-list');
+      if (!body) return;
       body.innerHTML = '';
+
+      if(state.shipping.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" class="px-3 py-4 text-center text-slate-400 italic">無出貨銷帳紀錄</td></tr>`;
+        return;
+      }
+
       state.shipping.forEach(s => {
+        let itemsSummary = '';
+        if (s.items && Array.isArray(s.items)) {
+          itemsSummary = s.items.map(i => `<span class="inline-block bg-slate-100 border border-slate-200 text-slate-800 px-2 py-0.5 rounded text-[11px] mr-1 mb-1"><strong>${i.vegType}</strong>: ${i.count}${i.unit} (${i.calculatedKg.toFixed(1)}kg)</span>`).join('');
+        } else {
+          itemsSummary = `<span class="text-slate-400">標準出貨明細</span>`;
+        }
+
         body.innerHTML += `
-          <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2 font-mono font-bold text-blue-800">${s.shipNo}</td>
-            <td class="px-3 py-2 font-medium text-slate-800">${s.customer}</td>
-            <td class="px-3 py-2 font-mono text-xs text-slate-500">${s.finishedLotNo}</td>
-            <td class="px-3 py-2 font-bold text-slate-800">${s.count} 包</td>
-            <td class="px-3 py-2 text-xs">${s.date}</td>
-            <td class="px-3 py-2 text-xs">
-              <div>${s.temp}</div>
-              <div class="text-slate-400">${s.logistics}</div>
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2.5 font-mono font-bold text-blue-800">${s.shipNo}</td>
+            <td class="px-3 py-2.5 font-bold text-slate-800">${s.customer}</td>
+            <td class="px-3 py-2.5">${itemsSummary}</td>
+            <td class="px-3 py-2.5 font-bold text-emerald-700">${(s.totalKg || 0).toFixed(1)} kg</td>
+            <td class="px-3 py-2.5">
+              <div>${s.date}</div>
+              <div class="text-slate-400 text-[11px]">${s.temp}</div>
             </td>
           </tr>
         `;
       });
     }
 
-    // Cold storage visualization
+    function renderStats() {
+      let totalRawWeight = 0;
+      state.rawInbound.forEach(r => {
+        totalRawWeight += getRawRemainingWeight(r.lotNo);
+      });
+      const elRaw = document.getElementById('stat-raw-weight');
+      if (elRaw) elRaw.innerText = `${totalRawWeight.toFixed(1)} kg`;
+
+      let totalShippedCount = 0;
+      state.shipping.forEach(s => {
+        if(s.items) {
+          s.items.forEach(i => totalShippedCount += i.count);
+        }
+      });
+      const elFin = document.getElementById('stat-finished-count');
+      if (elFin) elFin.innerText = `${totalShippedCount} 件`;
+
+      const elLoss = document.getElementById('stat-loss-rate');
+      if (elLoss) elLoss.innerText = `${state.shipping.length} 筆`;
+
+      let warningCount = 0;
+      state.rawInbound.forEach(r => {
+        if (getRawRemainingWeight(r.lotNo) > 0 && getDaysInStorage(r.date) >= 3) {
+          warningCount++;
+        }
+      });
+      const elWarn = document.getElementById('stat-warning-count');
+      if (elWarn) elWarn.innerText = `${warningCount} 批次`;
+    }
+
+    function renderDashboardWarningTable() {
+      const body = document.getElementById('dashboard-warning-table');
+      if (!body) return;
+      body.innerHTML = '';
+
+      const activeBatches = state.rawInbound.filter(r => getRawRemainingWeight(r.lotNo) > 0);
+      if (activeBatches.length === 0) {
+        body.innerHTML = `<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400 italic">目前冷藏庫無未處理原料</td></tr>`;
+        return;
+      }
+
+      activeBatches.forEach(r => {
+        const days = getDaysInStorage(r.date);
+        const rem = getRawRemainingWeight(r.lotNo);
+        let badge = `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs">${days} 天</span>`;
+        if (days >= 5) {
+          badge = `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-xs animate-pulse">${days} 天 (告急)</span>`;
+        } else if (days >= 3) {
+          badge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-xs">${days} 天 (預警)</span>`;
+        }
+
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2 font-mono font-bold text-slate-800">${r.lotNo}</td>
+            <td class="px-3 py-2">
+              <div class="font-semibold text-slate-800">${r.item}</div>
+              <div class="text-slate-400">${r.source || '田區未填'}</div>
+            </td>
+            <td class="px-3 py-2 text-slate-600">${r.zone}</td>
+            <td class="px-3 py-2 font-bold text-brand-700">${rem.toFixed(1)} kg</td>
+            <td class="px-3 py-2">${badge}</td>
+            <td class="px-3 py-2 text-right">
+              <button onclick="switchTab('shipping')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">
+                出貨
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderRawInboundTable() {
+      const body = document.getElementById('inbound-list');
+      if (!body) return;
+      body.innerHTML = '';
+
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2 font-mono font-bold text-brand-800">${r.lotNo}</td>
+            <td class="px-3 py-2">
+              <div class="font-bold text-slate-800">${r.item}</div>
+              <div class="text-slate-400">${r.source}</div>
+            </td>
+            <td class="px-3 py-2">${r.date}</td>
+            <td class="px-3 py-2 font-semibold text-slate-700">${r.weight} kg</td>
+            <td class="px-3 py-2 font-bold text-emerald-600">${rem.toFixed(1)} kg</td>
+            <td class="px-3 py-2 text-slate-600">${r.zone}</td>
+            <td class="px-3 py-2 text-right space-x-1">
+              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-2 py-1 rounded text-xs">
+                <i class="fa-solid fa-barcode mr-1"></i>標籤
+              </button>
+              <button onclick="switchTab('shipping')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">
+                出貨
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderFieldRecordsTable() {
+      const body = document.getElementById('field-records-list');
+      if(!body) return;
+      body.innerHTML = '';
+
+      state.fieldRecords.forEach(f => {
+        let actionBtn = f.isTransferred 
+          ? `<span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>已轉入庫</span>`
+          : `<button onclick="transferFieldToInbound(${f.id})" class="text-xs bg-brand-600 hover:bg-brand-700 text-white px-2.5 py-1 rounded shadow-sm">
+               轉入冷藏 ➔
+             </button>`;
+
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2 font-medium text-slate-800">
+              <div class="font-bold text-sm text-brand-800">${f.vegType}</div>
+              <div class="text-slate-400">${f.plot}</div>
+            </td>
+            <td class="px-3 py-2">
+              <div>種植: ${f.datePlant || '-'}</div>
+              <div class="text-slate-400">施肥: ${f.dateFertilize || '-'}</div>
+            </td>
+            <td class="px-3 py-2">
+              <div>用藥(1): ${f.datePesticide1 || '-'}</div>
+              <div class="text-slate-400">用藥(2): ${f.datePesticide2 || '-'}</div>
+            </td>
+            <td class="px-3 py-2">
+              <div class="font-bold text-slate-700">${f.dateHarvest || '未採收'}</div>
+              <div class="font-semibold text-brand-700">${f.harvestWeight ? f.harvestWeight + ' kg' : '-'}</div>
+            </td>
+            <td class="px-3 py-2 text-right">
+              ${actionBtn}
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderUnitConversions() {
+      const container = document.getElementById('unit-conversion-cards');
+      if(!container) return;
+      container.innerHTML = '';
+
+      Object.keys(state.unitConversions).forEach(unit => {
+        const val = state.unitConversions[unit];
+        container.innerHTML += `
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-800 text-sm">單位: ${unit}</span>
+              <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono font-bold">${val} kg</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <input type="number" step="0.01" value="${val}" id="unit-val-${unit}" class="w-full text-xs border border-slate-300 rounded p-1.5">
+              <button onclick="updateUnitConversion('${unit}', document.getElementById('unit-val-${unit}').value)" class="bg-slate-700 text-white text-xs px-2 py-1.5 rounded hover:bg-slate-800">
+                修改
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
     function renderColdStorageGrid() {
       const grid = document.getElementById('cold-storage-grid');
+      if(!grid) return;
       grid.innerHTML = '';
 
       const zones = ['A區冷藏庫-架01', 'A區冷藏庫-架02', 'B區預冷室-棧01', 'C區低溫保鮮庫'];
@@ -963,31 +1246,54 @@ function doPost(e) {
       });
     }
 
-    function populateDropdowns() {
-      // Processing raw lot select
-      const procSelect = document.getElementById('proc-raw-lot');
-      procSelect.innerHTML = '<option value="">-- 請選擇原料批次 --</option>';
-      state.rawInbound.forEach(r => {
-        const rem = getRawRemainingWeight(r.lotNo);
-        if (rem > 0) {
-          procSelect.innerHTML += `<option value="${r.lotNo}">${r.lotNo} - ${r.item} (剩餘 ${rem.toFixed(1)}kg)</option>`;
-        }
-      });
-
-      // Shipping finished lot select
-      const shipSelect = document.getElementById('ship-finished-lot');
-      shipSelect.innerHTML = '<option value="">-- 請選擇分裝成品批號 --</option>';
-      state.processing.forEach(p => {
-        const rem = getFinishedRemainingCount(p.finishedLotNo);
-        if (rem > 0) {
-          shipSelect.innerHTML += `<option value="${p.finishedLotNo}">${p.finishedLotNo} (規格:${p.spec}kg / 剩餘 ${rem}包)</option>`;
-        }
-      });
+    function renderAll() {
+      renderStats();
+      renderDashboardWarningTable();
+      renderFieldRecordsTable();
+      renderRawInboundTable();
+      renderShippingTable();
+      renderChannelsTable();
+      renderColdStorageGrid();
+      renderUnitConversions();
+      populateChannelDropdowns();
     }
 
-    function prefillProcessing(rawLotNo) {
-      document.getElementById('proc-raw-lot').value = rawLotNo;
-      calculateProcessLoss();
+    function transferFieldToInbound(fieldId) {
+      const rec = state.fieldRecords.find(f => f.id === fieldId);
+      if(!rec) return;
+
+      if (!rec.harvestWeight || rec.harvestWeight <= 0) {
+        showToast("請先輸入採收重量 (kg) 後再進行轉入冷藏！", "warning");
+        return;
+      }
+
+      switchTab('inbound');
+      document.getElementById('inbound-item').value = rec.vegType;
+      document.getElementById('inbound-source').value = rec.plot;
+      document.getElementById('inbound-weight').value = rec.harvestWeight;
+      document.getElementById('inbound-date').value = rec.dateHarvest || new Date().toISOString().split('T')[0];
+
+      rec.isTransferred = true;
+      renderAll();
+      showToast(`已載入採收資料：${rec.vegType} ${rec.harvestWeight}kg，請確認冷藏儲位後存檔！`);
+    }
+
+    function updateUnitConversion(unit, weight) {
+      state.unitConversions[unit] = parseFloat(weight) || 0;
+      showToast(`已更新「${unit}」單位重量為 ${weight} kg`);
+      renderAll();
+    }
+
+    function initVegetableDropdowns() {
+      const fieldSelect = document.getElementById('field-veg-type');
+      const inboundSelect = document.getElementById('inbound-item');
+      
+      if(fieldSelect) {
+        fieldSelect.innerHTML = state.vegetableTypes.map(v => `<option value="${v}">${v}</option>`).join('');
+      }
+      if(inboundSelect) {
+        inboundSelect.innerHTML = state.vegetableTypes.map(v => `<option value="${v}">${v}</option>`).join('');
+      }
     }
 
     function saveGasUrl() {
@@ -1025,16 +1331,13 @@ function doPost(e) {
     function updateSyncStatus(isLive, message) {
       const badge = document.getElementById('sync-status');
       const text = document.getElementById('sync-text');
-      const label = document.getElementById('db-type-label');
-      if(isLive) {
+      if(isLive && badge && text) {
         badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/30";
         badge.querySelector('span').className = "w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse";
         text.innerText = "Google Sheets 連線中";
-        if(label) label.innerText = "Google Sheets 雲端連線";
       }
     }
 
-    // Modal and Toast Helpers
     function openBarcodeModal(lotNo, item, zone) {
       document.getElementById('modal-lot-no').innerText = lotNo;
       document.getElementById('modal-item-name').innerText = item;
@@ -1058,6 +1361,8 @@ function doPost(e) {
       const toastMsg = document.getElementById('toast-msg');
       const toastIcon = document.getElementById('toast-icon');
 
+      if (!toast || !toastMsg || !toastIcon) return;
+
       toastMsg.innerText = msg;
       if(type === 'error') {
         toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
@@ -1072,6 +1377,24 @@ function doPost(e) {
         toast.classList.add('translate-y-20', 'opacity-0');
       }, 3000);
     }
+
+    // --- Initialization ---
+    window.onload = function() {
+      const today = new Date().toISOString().split('T')[0];
+      if(document.getElementById('inbound-date')) document.getElementById('inbound-date').value = today;
+      if(document.getElementById('ship-date')) document.getElementById('ship-date').value = today;
+      if(document.getElementById('field-date-plant')) document.getElementById('field-date-plant').value = today;
+
+      if(state.gasUrl) {
+        const gasInput = document.getElementById('gas-url-input');
+        if (gasInput) gasInput.value = state.gasUrl;
+        updateSyncStatus(true, "已設定 Google Sheets API");
+      }
+
+      initVegetableDropdowns();
+      addShipmentItemRow(); // Add default item row for shipping
+      renderAll();
+    };
   </script>
 </body>
 </html>
