@@ -1,844 +1,1077 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鬧(Now)打八音 - 八音拼貼</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f5f5f4; /* stone-100 */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>義勝農場 - 冷藏履歷與進出庫管理系統</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Microsoft JhengHei', 'sans-serif'],
+          }
         }
-        /* Grid Highlight Animation */
-        .grid-cell.active-step {
-            box-shadow: 0 0 0 2px #60a5fa; /* ring-2 ring-blue-400 */
-            z-index: 10;
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body class="text-stone-800 p-4 md:p-8">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-stone-200 relative">
-        
-        <!-- Error Toast Notification Container -->
-        <div id="error-container" class="absolute top-4 right-4 z-50 flex flex-col gap-2"></div>
-
-        <!-- Header -->
-        <div class="bg-red-800 text-amber-50 p-6 text-center border-b-4 border-amber-600 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-            <h1 class="text-3xl md:text-4xl font-bold tracking-widest mb-2 relative z-10 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> 六堆客家八音 <i class="fa-solid fa-wand-magic-sparkles"></i>
-            </h1>
-            <p class="text-amber-200/80 text-sm md:text-base relative z-10">立體殘響與人性化律動・專業級原音取樣引擎</p>
+  <!-- Header Bar -->
+  <header class="bg-brand-800 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-brand-600 p-2 rounded-lg text-white shadow">
+          <i class="fa-solid font-bold fa-leaf text-xl"></i>
         </div>
-
-        <!-- 全域載入中遮罩 -->
-        <div id="loading-overlay" class="absolute inset-0 bg-white/60 backdrop-blur-sm z-40 flex items-center justify-center rounded-2xl hidden">
-            <div class="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-2xl flex items-center gap-3">
-                <i class="fa-solid fa-cloud-arrow-down animate-bounce text-xl"></i>
-                正在自動載入八音雲端音庫...
-            </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-wide">義勝農場冷藏履歷管理系統</h1>
+          <p class="text-xs text-brand-200">田間採收 ➔ 冷藏庫存 ➔ 加工分裝 ➔ 銷貨出貨</p>
         </div>
+      </div>
 
-        <div class="p-6 md:p-8 space-y-8">
-            
-            <!-- 第一區塊：樂器預覽試聽區 -->
-            <section>
-                <div class="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-4">
-                    <h2 class="text-xl font-bold text-stone-700 flex items-center gap-2">
-                        <i class="fa-solid fa-volume-high text-stone-500"></i> 1. 樂器與聲相預覽
-                    </h2>
-                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-xs text-stone-600 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-blue-500 text-lg"></i>
-                        <span>🎧 戴上耳機試聽，每個樂器都已設定真實方位的 <strong>3D 立體聲相 (Panning)</strong>。</span>
-                    </div>
-                </div>
-                <!-- 預覽按鈕容器 -->
-                <div id="preview-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    <!-- Buttons generated by JS -->
-                </div>
-            </section>
-
-            <hr class="border-stone-200" />
-
-            <!-- 第二區塊：12 軌節奏拼貼編排 -->
-            <section>
-                <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-stone-700 mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-music text-stone-500"></i>
-                            2. 12 軌合奏編排
-                        </h2>
-                    </div>
-                    <div class="bg-stone-50 p-2 rounded-xl border border-stone-200 shadow-sm flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-bold text-stone-600 px-2 whitespace-nowrap">畫筆：</span>
-                        <div id="tool-container" class="flex gap-1">
-                            <!-- Tools generated by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto pb-4">
-                    <div id="grid-container" class="min-w-[800px] space-y-1.5">
-                        <!-- Grid tracks generated by JS -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- 音樂性混音控制台 -->
-            <section class="bg-stone-800 p-4 md:p-6 rounded-xl border border-stone-900 flex flex-col xl:flex-row items-center justify-between gap-6 shadow-lg text-white">
-                
-                <!-- 播放控制 -->
-                <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-center xl:justify-start">
-                    <button id="btn-play" class="flex items-center gap-2 px-8 py-3 rounded-full font-extrabold text-white transition-all shadow-md active:scale-95 bg-emerald-500 hover:bg-emerald-400">
-                        <i id="icon-play" class="fa-solid fa-play"></i>
-                        <span id="text-play">播放合奏</span>
-                    </button>
-                    <button id="btn-load-example" class="flex items-center gap-2 px-4 py-3 rounded-full font-bold text-stone-200 bg-stone-700 hover:bg-stone-600 transition-all active:scale-95 border border-stone-600">
-                        <i class="fa-solid fa-folder-open"></i> 載入大夥房範例
-                    </button>
-                    <button id="btn-clear" class="flex items-center gap-2 px-4 py-3 rounded-full font-bold text-red-400 bg-stone-700 hover:bg-stone-600 border border-stone-600 transition-all active:scale-95">
-                        <i class="fa-solid fa-trash-can"></i> 清空網格
-                    </button>
-                </div>
-
-                <!-- 音樂性微調 -->
-                <div class="flex flex-col md:flex-row items-center gap-6 w-full xl:w-auto bg-stone-900 p-4 rounded-xl border border-stone-700/50">
-                    
-                    <!-- 人性化開關 -->
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <div id="humanize-bg" class="w-10 h-6 rounded-full transition-colors flex items-center px-1 bg-emerald-500">
-                            <div id="humanize-knob" class="w-4 h-4 rounded-full bg-white transition-transform translate-x-4"></div>
-                        </div>
-                        <input type="checkbox" id="humanize-toggle" class="hidden" checked />
-                        <span class="text-sm font-bold text-stone-300 group-hover:text-white flex items-center gap-1">
-                            <i id="humanize-icon" class="fa-solid fa-wind text-emerald-400"></i> 人性化律動
-                        </span>
-                    </label>
-
-                    <div class="w-px h-8 bg-stone-700 hidden md:block"></div>
-
-                    <!-- 速度 BPM -->
-                    <div class="flex items-center gap-3">
-                        <label class="text-sm font-bold text-stone-300 whitespace-nowrap flex items-center gap-1">
-                            <i class="fa-solid fa-sliders"></i> 速度: <span id="bpm-display">105</span>
-                        </label>
-                        <input type="range" id="bpm-slider" min="60" max="160" value="105" class="w-24 md:w-32 h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
-                    </div>
-
-                    <div class="w-px h-8 bg-stone-700 hidden md:block"></div>
-
-                    <!-- 空間殘響 Reverb -->
-                    <div class="flex items-center gap-3">
-                        <label class="text-sm font-bold text-stone-300 whitespace-nowrap flex items-center gap-1">
-                            <i id="reverb-icon" class="fa-solid fa-water text-blue-400"></i> 空間殘響
-                        </label>
-                        <input type="range" id="reverb-slider" min="0" max="1" step="0.05" value="0.4" class="w-24 md:w-32 h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                    </div>
-
-                </div>
-            </section>
-
+      <!-- Sync Status Badge & Quick Action -->
+      <div class="flex items-center space-x-3">
+        <div id="sync-status" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-200 border border-amber-400/30">
+          <span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>
+          <span id="sync-text">展示模式 (離線)</span>
         </div>
+        <button onclick="syncData()" class="bg-brand-700 hover:bg-brand-600 text-xs text-white px-3 py-1.5 rounded-md flex items-center transition">
+          <i class="fa-solid fa-rotate mr-1.5 text-xs"></i> 立即同步
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- 核心 JavaScript 邏輯 -->
-    <script>
-        // --- 核心設定資料 ---
-        const PENTATONIC_SCALE = [
-            { label: '高Do', freq: 523.25 }, // C5
-            { label: 'La', freq: 440.00 },   // A4
-            { label: 'Sol', freq: 392.00 },  // G4
-            { label: 'Mi', freq: 329.63 },   // E4
-            { label: 'Re', freq: 293.66 },   // D4
-            { label: 'Do', freq: 261.63 }    // C4
-        ];
+  <!-- Navigation Tabs -->
+  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto py-2" id="main-tabs">
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn text-brand-600 border-brand-600 border-b-2 py-2 px-3 text-sm font-semibold flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-chart-pie mr-2"></i> 系統總覽
+        </button>
+        <button onclick="switchTab('inbound')" id="tab-inbound" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-truck-ramp-box mr-2"></i> 1. 原料採收入庫
+        </button>
+        <button onclick="switchTab('processing')" id="tab-processing" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-boxes-packing mr-2"></i> 2. 加工與分裝
+        </button>
+        <button onclick="switchTab('shipping')" id="tab-shipping" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-paper-plane mr-2"></i> 3. 訂單出貨銷帳
+        </button>
+        <button onclick="switchTab('coldroom')" id="tab-coldroom" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-snowflake mr-2"></i> 冷藏庫存看板
+        </button>
+        <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-database mr-2"></i> Google Sheets 設定
+        </button>
+      </nav>
+    </div>
+  </div>
 
-        const STEPS = 16;
-        const DEFAULT_GRID = [
-            [true, null, null, null, true, null, null, null, true, null, null, null, true, null, null, null], // bigGong
-            [null, null, true, null, null, null, true, null, null, null, true, null, null, null, true, null], // smallGong
-            [null, true, null, true, null, true, null, true, null, true, null, true, null, true, null, true], // dingDang
-            [null, null, null, null, true, null, null, null, null, null, null, null, true, null, null, null], // bo
-            [true, null, null, true, null, true, null, null, true, null, null, true, null, true, null, null], // tanggu
-            [null, true, null, null, true, null, true, null, null, true, null, null, true, null, true, null], // bangziLow
-            [true, null, true, null, null, true, null, true, true, null, true, null, null, true, null, true], // bangziHigh
-            [2, null, 3, null, 2, null, 1, null, 0, null, 1, null, 2, null, 3, null], // recorder
-            [2, 'tie', 'tie', 'tie', 2, 'tie', 'tie', 'tie', 0, 'tie', 'tie', 'tie', 2, 'tie', 'tie', 'tie'], // panghu
-            [null, 2, null, 2, null, 1, null, 1, null, 0, null, 0, null, 2, null, 2], // yehu
-            [2, null, null, null, null, null, null, null, 3, null, null, null, null, null, null, null], // suonaLow
-            [2, null, 3, 4, 2, null, 1, 2, 0, null, 1, 2, 2, null, 3, 4], // suonaHigh
-        ];
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
 
-        // --- 狀態變數 ---
-        let isPlaying = false;
-        let bpm = 105;
-        let currentStep = 0;
-        let selectedTool = 2; // Default 2 (Sol)
-        let grid = JSON.parse(JSON.stringify(DEFAULT_GRID));
-        let reverbLevel = 0.4;
-        let humanize = true;
-        let uploadedFiles = {};
-        let isProcessing = false;
-        let timerId = null;
+    <!-- 1. DASHBOARD VIEW -->
+    <section id="view-dashboard" class="tab-content space-y-6">
+      <!-- KPI Stats Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏原料在庫量</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-raw-weight">0 kg</h3>
+            <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-arrow-up mr-1"></i>可用母批原料</p>
+          </div>
+          <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-seedling"></i>
+          </div>
+        </div>
 
-        // --- Web Audio API 引擎 ---
-        const AudioEngine = {
-            ctx: null,
-            customBuffers: {}, 
-            customBaseFreqs: {}, 
-            customSlices: {}, 
-            masterGain: null,
-            reverbNode: null,
-            dryGain: null,
-            wetGain: null,
-            panners: {},
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">成品包裝在庫量</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-finished-count">0 包</h3>
+            <p class="text-xs text-blue-600 mt-1"><i class="fa-solid fa-check-double mr-1"></i>可直接出貨成品</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+        </div>
 
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.masterGain = this.ctx.createGain();
-                    this.dryGain = this.ctx.createGain();
-                    this.wetGain = this.ctx.createGain();
-                    
-                    this.reverbNode = this.ctx.createConvolver();
-                    this.reverbNode.buffer = this.createReverbBuffer(this.ctx, 2.5, 3.0); 
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">平均加工耗損率</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-loss-rate">0.0 %</h3>
+            <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-chart-line mr-1"></i>採收整理與削切耗損</p>
+          </div>
+          <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-trash-can"></i>
+          </div>
+        </div>
 
-                    this.masterGain.connect(this.dryGain);
-                    this.masterGain.connect(this.reverbNode);
-                    this.reverbNode.connect(this.wetGain);
-                    
-                    this.dryGain.connect(this.ctx.destination);
-                    this.wetGain.connect(this.ctx.destination);
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏天數預警</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-warning-count">0 批次</h3>
+            <p class="text-xs text-rose-600 mt-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>在庫超過 3 天以上</p>
+          </div>
+          <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+        </div>
+      </div>
 
-                    this.wetGain.gain.value = 0.3; 
-                    this.dryGain.gain.value = 0.8; 
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            },
+      <!-- Quick Action Panels & Storage Warning -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Cold Storage Warning List -->
+        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 flex items-center">
+              <i class="fa-solid fa-temperature-arrow-down text-blue-500 mr-2"></i> 冷藏在庫庫存與警示 (FIFO 優先處理)
+            </h3>
+            <button onclick="switchTab('coldroom')" class="text-xs text-brand-600 font-semibold hover:underline">檢視完整儲位 ➔</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                <tr>
+                  <th class="px-3 py-2">原料批號</th>
+                  <th class="px-3 py-2">品項 / 來源地塊</th>
+                  <th class="px-3 py-2">儲位</th>
+                  <th class="px-3 py-2">剩餘重量</th>
+                  <th class="px-3 py-2">在庫天數</th>
+                  <th class="px-3 py-2 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-warning-table" class="divide-y divide-slate-100">
+                <!-- JS inserted rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-            setReverbLevel(level) {
-                if (this.wetGain) this.wetGain.gain.value = level;
-            },
+        <!-- System Flow Guide Card -->
+        <div class="bg-gradient-to-br from-brand-900 to-brand-800 text-white rounded-xl p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="bg-brand-700 text-brand-200 text-xs px-2.5 py-1 rounded-full font-medium">標準作業流程指南</span>
+            <h4 class="text-lg font-bold mt-3">生鮮蔬果管理 4 步驟</h4>
+            <ul class="text-xs text-brand-100 space-y-2.5 mt-4">
+              <li class="flex items-start">
+                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">1</span>
+                <span><strong>採收入庫：</strong>登記田間原始公斤數與儲位，自動產生母批號。</span>
+              </li>
+              <li class="flex items-start">
+                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">2</span>
+                <span><strong>冷藏儲位：</strong>監控在庫天數，優先分裝入庫較久的批次。</span>
+              </li>
+              <li class="flex items-start">
+                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">3</span>
+                <span><strong>加工分裝：</strong>選取原料批號，輸入扣抵重量與包裝規格，算耗損率。</span>
+              </li>
+              <li class="flex items-start">
+                <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">4</span>
+                <span><strong>訂單出貨：</strong>輸入客戶名稱與出貨包數，系統自動扣減成品存量。</span>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-6 pt-4 border-t border-brand-700/50 flex justify-between items-center text-xs text-brand-200">
+            <span>資料庫狀態: <span id="db-type-label">Local Memory / Sheet API</span></span>
+            <button onclick="switchTab('settings')" class="underline hover:text-white">綁定試算表</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            createReverbBuffer(ctx, length = 2, decay = 2) {
-                const sampleRate = ctx.sampleRate;
-                const lengthFrames = sampleRate * length;
-                const impulse = ctx.createBuffer(2, lengthFrames, sampleRate);
-                for (let i = 0; i < 2; i++) {
-                    const channel = impulse.getChannelData(i);
-                    for (let j = 0; j < lengthFrames; j++) {
-                        channel[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / lengthFrames, decay);
-                    }
-                }
-                return impulse;
-            },
+    <!-- 2. RAW INBOUND VIEW -->
+    <section id="view-inbound" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Inbound Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+            <i class="fa-solid fa-cart-flatbed text-brand-600 mr-2"></i> 登記採收入庫 (母批)
+          </h3>
+          <form id="form-inbound" class="space-y-4" onsubmit="handleInboundSubmit(event)">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">農產品項名稱 <span class="text-rose-500">*</span></label>
+              <input type="text" id="inbound-item" required placeholder="例如：有機有機高麗菜 / 青花菜" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
 
-            getPanner(trackId, panValue) {
-                if (!this.panners[trackId]) {
-                    const panner = this.ctx.createStereoPanner();
-                    panner.pan.value = panValue;
-                    panner.connect(this.masterGain);
-                    this.panners[trackId] = panner;
-                }
-                return this.panners[trackId];
-            },
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">採收/進場日期</label>
+                <input type="date" id="inbound-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">田區/來源地塊</label>
+                <input type="text" id="inbound-source" placeholder="如：A3地塊 / 合作農場" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
 
-            autoCorrelate(buffer, sampleRate) {
-                const SIZE = Math.min(buffer.length, 8192); 
-                let rms = 0;
-                for (let i = 0; i < SIZE; i++) rms += buffer[i] * buffer[i];
-                rms = Math.sqrt(rms / SIZE);
-                if (rms < 0.01) return -1; 
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">採收毛重/總重 (kg) <span class="text-rose-500">*</span></label>
+                <input type="number" step="0.1" id="inbound-weight" required placeholder="0.0" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">冷藏儲位放置</label>
+                <select id="inbound-zone" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                  <option value="A區冷藏庫-架01">A區冷藏庫-架01</option>
+                  <option value="A區冷藏庫-架02">A區冷藏庫-架02</option>
+                  <option value="B區預冷室-棧01">B區預冷室-棧01</option>
+                  <option value="C區低溫保鮮庫">C區低溫保鮮庫</option>
+                </select>
+              </div>
+            </div>
 
-                let r1 = 0, r2 = SIZE - 1, thres = 0.2;
-                for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buffer[i]) < thres) { r1 = i; break; }
-                for (let i = 1; i < SIZE / 2; i++) if (Math.abs(buffer[SIZE - i]) < thres) { r2 = SIZE - i; break; }
-                
-                const buf = buffer.slice(r1, r2);
-                const newSize = buf.length;
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">備註/驗收品質狀況</label>
+              <textarea id="inbound-note" rows="2" placeholder="例：蟲害輕微、外葉完好..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+            </div>
 
-                let c = new Array(newSize).fill(0);
-                for (let i = 0; i < newSize; i++) {
-                    for (let j = 0; j < newSize - i; j++) c[i] += buf[j] * buf[j + i];
-                }
-                let d = 0;
-                while (c[d] > c[d + 1]) d++;
-                let maxval = -1, maxpos = -1;
-                for (let i = d; i < newSize; i++) {
-                    if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
-                }
-                let T0 = maxpos;
-                return sampleRate / T0;
-            },
+            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
+              <i class="fa-solid fa-plus mr-2"></i> 建立採收入庫資料
+            </button>
+          </form>
+        </div>
 
-            async loadSmartSample(trackId, arrayBuffer, isMelodic) {
-                this.init();
-                const bufferCopy = arrayBuffer.slice(0);
-                const audioBuffer = await this.ctx.decodeAudioData(bufferCopy);
-                
-                if (!this.customSlices[trackId]) this.customSlices[trackId] = {};
-                let notesExtracted = [];
+        <!-- Inbound Table List -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-800 text-lg">原料進貨批次紀錄</h3>
+              <span class="text-xs text-slate-500">自動產生 RAW-YYYYMMDD 批號</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-slate-600">
+                <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                  <tr>
+                    <th class="px-3 py-2.5">原料批號</th>
+                    <th class="px-3 py-2.5">品項/日期</th>
+                    <th class="px-3 py-2.5">來源</th>
+                    <th class="px-3 py-2.5">原始/剩餘量</th>
+                    <th class="px-3 py-2.5">冷藏儲位</th>
+                    <th class="px-3 py-2.5 text-center">條碼預覽</th>
+                  </tr>
+                </thead>
+                <tbody id="raw-inbound-list" class="divide-y divide-slate-100">
+                  <!-- JS rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-                const data = audioBuffer.getChannelData(0);
-                const sampleRate = audioBuffer.sampleRate;
+    <!-- 3. PROCESSING VIEW -->
+    <section id="view-processing" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Packaging Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+            <i class="fa-solid fa-scissors text-amber-600 mr-2"></i> 登記加工與包裝分裝
+          </h3>
+          <form id="form-processing" class="space-y-4" onsubmit="handleProcessingSubmit(event)">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">選擇投入的原料批次 (母批) <span class="text-rose-500">*</span></label>
+              <select id="proc-raw-lot" required onchange="calculateProcessLoss()" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <option value="">-- 請選擇原料批次 --</option>
+              </select>
+            </div>
 
-                let maxAmplitude = 0;
-                for (let i = 0; i < data.length; i++) {
-                    const absVal = Math.abs(data[i]);
-                    if (absVal > maxAmplitude) maxAmplitude = absVal;
-                }
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">分裝作業日期</label>
+                <input type="date" id="proc-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">作業人員</label>
+                <input type="text" id="proc-operator" placeholder="例：王小明" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
 
-                if (!isMelodic) {
-                    let peakIndex = 0;
-                    for (let i = 0; i < data.length; i++) {
-                        if (Math.abs(data[i]) >= maxAmplitude * 0.99) { peakIndex = i; break; }
-                    }
-                    let startIdx = peakIndex;
-                    while (startIdx > 0 && Math.abs(data[startIdx]) > maxAmplitude * 0.05) startIdx--;
-                    startIdx = Math.max(0, startIdx - Math.floor(sampleRate * 0.02));
+            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-amber-900 mb-1">耗用原料重 (kg)</label>
+                  <input type="number" step="0.1" id="proc-raw-used" required oninput="calculateProcessLoss()" placeholder="0.0" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-amber-900 mb-1">產出包裝規格</label>
+                  <select id="proc-spec-weight" onchange="calculateProcessLoss()" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
+                    <option value="0.25">250g / 包</option>
+                    <option value="0.30">300g / 包</option>
+                    <option value="0.50">500g / 包</option>
+                    <option value="1.00">1.0kg / 營業包</option>
+                  </select>
+                </div>
+              </div>
 
-                    const cleanBuffer = this.ctx.createBuffer(audioBuffer.numberOfChannels, data.length - startIdx, sampleRate);
-                    for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
-                        cleanBuffer.copyToChannel(audioBuffer.getChannelData(c).slice(startIdx), c);
-                    }
-                    this.customBuffers[trackId] = cleanBuffer;
-                    return { extracted: ['原音入庫'] };
-                }
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-amber-900 mb-1">產出包數 (包)</label>
+                  <input type="number" id="proc-output-count" required oninput="calculateProcessLoss()" placeholder="0" class="w-full text-sm border border-amber-300 rounded-lg p-2 focus:outline-none bg-white">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-amber-900 mb-1">計算自動損耗重</label>
+                  <input type="text" id="proc-loss-display" readonly value="0.0 kg (0%)" class="w-full text-sm border border-slate-200 rounded-lg p-2 bg-amber-100/60 text-amber-900 font-bold">
+                </div>
+              </div>
+            </div>
 
-                const windowSize = Math.floor(sampleRate * 0.05); 
-                let isPlaying = false;
-                let segments = [];
-                let currentStart = 0;
-                const threshold = maxAmplitude * 0.15; 
+            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
+              <i class="fa-solid fa-box mr-2"></i> 完成分裝並產生成品批號
+            </button>
+          </form>
+        </div>
 
-                for (let i = 0; i < data.length; i += windowSize) {
-                    let sum = 0;
-                    for (let j = 0; j < windowSize && i + j < data.length; j++) sum += data[i + j] * data[i + j];
-                    let rms = Math.sqrt(sum / windowSize);
+        <!-- Processing Table List -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 text-lg">分裝與加工歷史紀錄</h3>
+            <span class="text-xs text-slate-500">自動產生 PKG-YYYYMMDD 子批號</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                <tr>
+                  <th class="px-3 py-2.5">成品批號</th>
+                  <th class="px-3 py-2.5">來源母批</th>
+                  <th class="px-3 py-2.5">分裝日期</th>
+                  <th class="px-3 py-2.5">產出規格/包數</th>
+                  <th class="px-3 py-2.5">損耗量(率)</th>
+                  <th class="px-3 py-2.5">作業員</th>
+                </tr>
+              </thead>
+              <tbody id="processing-list" class="divide-y divide-slate-100">
+                <!-- JS inserted rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
-                    if (rms > threshold && !isPlaying) {
-                        isPlaying = true;
-                        currentStart = i;
-                    } else if (rms < threshold / 2 && isPlaying) {
-                        isPlaying = false;
-                        if (i - currentStart > sampleRate * 0.15) segments.push({ start: currentStart, end: i });
-                    }
-                }
-                if (isPlaying && data.length - currentStart > sampleRate * 0.15) {
-                    segments.push({ start: currentStart, end: data.length });
-                }
-                if (segments.length === 0) segments = [{ start: 0, end: data.length }];
+    <!-- 4. SHIPPING VIEW -->
+    <section id="view-shipping" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Shipping Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+            <i class="fa-solid fa-truck-fast text-blue-600 mr-2"></i> 登記訂單出貨 (扣成品庫存)
+          </h3>
+          <form id="form-shipping" class="space-y-4" onsubmit="handleShippingSubmit(event)">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">選擇欲出貨成品批號 (子批) <span class="text-rose-500">*</span></label>
+              <select id="ship-finished-lot" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <option value="">-- 請選擇分裝成品批號 --</option>
+              </select>
+            </div>
 
-                segments.forEach(seg => {
-                    const sliceData = data.slice(seg.start, seg.end);
-                    const freq = this.autoCorrelate(sliceData, sampleRate);
-                    
-                    if (freq > 50 && freq < 3000) {
-                        let closestIdx = -1;
-                        let minDiff = Infinity;
-                        PENTATONIC_SCALE.forEach((note, idx) => {
-                            const diff = Math.abs(Math.log2(freq / note.freq));
-                            if (diff < minDiff) { minDiff = diff; closestIdx = idx; }
-                        });
-                        if (minDiff < 5/12) {
-                            const length = seg.end - seg.start;
-                            const newBuffer = this.ctx.createBuffer(audioBuffer.numberOfChannels, length, sampleRate);
-                            for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
-                                newBuffer.copyToChannel(audioBuffer.getChannelData(c).slice(seg.start, seg.end), c);
-                            }
-                            this.customSlices[trackId][closestIdx] = newBuffer;
-                            const label = PENTATONIC_SCALE[closestIdx].label;
-                            if (!notesExtracted.includes(label)) notesExtracted.push(label);
-                        }
-                    }
-                });
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">客戶/通路名稱 <span class="text-rose-500">*</span></label>
+              <input type="text" id="ship-customer" required placeholder="例：全聯-高雄總倉 / 主婦聯盟" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
 
-                const firstSegmentLength = segments[0].end - segments[0].start;
-                const cleanFallbackBuffer = this.ctx.createBuffer(audioBuffer.numberOfChannels, firstSegmentLength, sampleRate);
-                for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
-                    cleanFallbackBuffer.copyToChannel(audioBuffer.getChannelData(c).slice(segments[0].start, segments[0].end), c);
-                }
-                this.customBuffers[trackId] = cleanFallbackBuffer;
-                this.customBaseFreqs[trackId] = this.autoCorrelate(data.slice(segments[0].start, segments[0].end), sampleRate) || 261.63;
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">出貨日期</label>
+                <input type="date" id="ship-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">出貨數量 (包) <span class="text-rose-500">*</span></label>
+                <input type="number" id="ship-count" required placeholder="0" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
 
-                return { extracted: notesExtracted.length > 0 ? notesExtracted : ['單音 (已變速)'] };
-            },
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">配送溫層</label>
+                <select id="ship-temp" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                  <option value="冷藏 (2℃~7℃)">冷藏 (2℃~7℃)</option>
+                  <option value="常溫短程">常溫短程</option>
+                  <option value="冷凍 (-18℃)">冷凍 (-18℃)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">物流單號/配送司機</label>
+                <input type="text" id="ship-logistics" placeholder="例：黑貓 9081234..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
 
-            playRealSample(trackId, targetFreq, isMelodic, duration = 1.0, pan = 0, velocity = 1.0, startTimeOffset = 0) {
-                if (!this.ctx) return;
-                let bufferToPlay = null;
-                let playbackRate = 1;
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
+              <i class="fa-solid fa-paper-plane mr-2"></i> 確認出貨並銷帳扣庫
+            </button>
+          </form>
+        </div>
 
-                if (isMelodic && targetFreq) {
-                    const noteIndex = PENTATONIC_SCALE.findIndex(n => n.freq === targetFreq);
-                    if (this.customSlices[trackId] && this.customSlices[trackId][noteIndex]) {
-                        bufferToPlay = this.customSlices[trackId][noteIndex];
-                        playbackRate = 1; 
-                    } else if (this.customBuffers[trackId]) {
-                        bufferToPlay = this.customBuffers[trackId];
-                        const baseFreq = this.customBaseFreqs[trackId] || 261.63;
-                        playbackRate = targetFreq / baseFreq;
-                    }
-                } else {
-                    bufferToPlay = this.customBuffers[trackId];
-                }
+        <!-- Shipping Table List -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 text-lg">出貨履歷明細表</h3>
+            <span class="text-xs text-slate-500">完成銷帳出貨紀錄</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-slate-600">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold">
+                <tr>
+                  <th class="px-3 py-2.5">出貨單號</th>
+                  <th class="px-3 py-2.5">客戶名稱</th>
+                  <th class="px-3 py-2.5">扣抵成品批號</th>
+                  <th class="px-3 py-2.5">數量</th>
+                  <th class="px-3 py-2.5">出貨日期</th>
+                  <th class="px-3 py-2.5">溫層/物流</th>
+                </tr>
+              </thead>
+              <tbody id="shipping-list" class="divide-y divide-slate-100">
+                <!-- JS inserted rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
-                if (!bufferToPlay) return;
+    <!-- 5. COLD STORAGE BOARD VIEW -->
+    <section id="view-coldroom" class="tab-content hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+              <i class="fa-solid fa-snowflake text-blue-500 mr-2"></i> 冷藏庫存儲位視覺化看板
+            </h3>
+            <p class="text-xs text-slate-500">依先進先出 (FIFO) 原則，控管冷藏天數防止蔬果黃化或腐爛</p>
+          </div>
+          <div class="flex items-center space-x-3 text-xs">
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 mr-1"></span> 1-2 天 (安全)</span>
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 mr-1"></span> 3-4 天 (警示)</span>
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-rose-500 mr-1"></span> 5天以上 (告急)</span>
+          </div>
+        </div>
 
-                const source = this.ctx.createBufferSource();
-                const gainNode = this.ctx.createGain();
-                const pannerNode = this.getPanner(trackId, pan);
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="cold-storage-grid">
+          <!-- JS inserted zone cards -->
+        </div>
+      </div>
+    </section>
 
-                source.buffer = bufferToPlay;
-                source.playbackRate.value = playbackRate;
+    <!-- 6. GOOGLE SHEETS SETTINGS VIEW -->
+    <section id="view-settings" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg flex items-center">
+            <i class="fa-solid fa-file-excel text-emerald-600 mr-2"></i> Google Sheets 雲端試算表串接設定
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">貼上您的 Google Apps Script 網頁應用程式 URL，系統將會將入庫、分裝與出貨即時儲存至您的 Google 試算表中。</p>
+        </div>
 
-                const attack = isMelodic ? 0.08 : 0.01;
-                const release = isMelodic ? 0.35 : 0.15; 
-                const actualStartTime = this.ctx.currentTime + startTimeOffset;
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <label class="block text-xs font-semibold text-slate-700">Google Apps Script Web App Endpoint URL</label>
+          <div class="flex gap-2">
+            <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="flex-1 text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <button onclick="saveGasUrl()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2.5 rounded-lg text-sm transition">
+              儲存並測試連線
+            </button>
+          </div>
+        </div>
 
-                gainNode.gain.setValueAtTime(0, actualStartTime);
-                gainNode.gain.linearRampToValueAtTime(velocity, actualStartTime + attack);
-                gainNode.gain.setValueAtTime(velocity, actualStartTime + Math.max(attack, duration - release));
-                gainNode.gain.linearRampToValueAtTime(0.001, actualStartTime + duration + release);
+        <!-- Copyable Google Apps Script -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-slate-800 text-sm">步驟指南：如何建立免費 Google Sheets 後端 API</h4>
+            <button onclick="copyGasCode()" class="text-xs bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded flex items-center">
+              <i class="fa-regular fa-copy mr-1"></i> 複製 Apps Script 程式碼
+            </button>
+          </div>
+          <ol class="list-decimal list-inside text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <li>開啟全新的 <a href="https://sheets.new" target="_blank" class="text-brand-600 underline">Google 試算表</a>，並於上方分頁建立三張工作表：<code class="bg-slate-200 px-1 rounded">RawInbound</code>, <code class="bg-slate-200 px-1 rounded">Processing</code>, <code class="bg-slate-200 px-1 rounded">Shipping</code>。</li>
+            <li>點選上方選單 <strong>「擴充功能」 ➔ 「Apps Script」</strong>。</li>
+            <li>清空原有程式碼，貼上右下方點擊「複製程式碼」獲得的腳本。</li>
+            <li>點擊右上角 <strong>「部署」 ➔ 「新增部署」</strong>，選擇類型為 <strong>「網頁應用程式」</strong>。</li>
+            <li>「誰有存取權」請務必選為 <strong>「所有人 (Anyone)」</strong>，最後點擊「部署」並複製 URL 填入上方欄位即可！</li>
+          </ol>
 
-                source.connect(gainNode);
-                gainNode.connect(pannerNode);
+          <pre id="gas-code-block" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs overflow-x-auto max-h-60 leading-relaxed font-mono">
+// Google Apps Script 後端腳本
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Google Sheet API Ready" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-                source.start(actualStartTime);
-                source.stop(actualStartTime + duration + release + 0.1);
-            },
+function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var data = JSON.parse(e.postData.contents);
+  var action = data.action;
 
-            playSynth(type, freq, duration, pan, velocity, startTimeOffset) {
-                if(!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gainNode = this.ctx.createGain();
-                const pannerNode = this.getPanner('synth', pan);
-                osc.type = type; osc.frequency.setValueAtTime(freq || 200, this.ctx.currentTime + startTimeOffset);
-                const actualStartTime = this.ctx.currentTime + startTimeOffset;
-                gainNode.gain.setValueAtTime(0, actualStartTime);
-                gainNode.gain.linearRampToValueAtTime(velocity * 0.5, actualStartTime + 0.05);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, actualStartTime + duration);
-                osc.connect(gainNode); gainNode.connect(pannerNode);
-                osc.start(actualStartTime); osc.stop(actualStartTime + duration);
-            }
-        };
+  if (action === "addRaw") {
+    var sheet = ss.getSheetByName("RawInbound");
+    sheet.appendRow([data.lotNo, data.item, data.date, data.source, data.weight, data.zone, data.note]);
+  } else if (action === "addProcess") {
+    var sheet = ss.getSheetByName("Processing");
+    sheet.appendRow([data.finishedLotNo, data.rawLotNo, data.date, data.rawWeightUsed, data.spec, data.packageCount, data.lossWeight, data.lossRate, data.operator]);
+  } else if (action === "addShipment") {
+    var sheet = ss.getSheetByName("Shipping");
+    sheet.appendRow([data.shipNo, data.customer, data.finishedLotNo, data.count, data.date, data.temp, data.logistics]);
+  }
 
-        const TRACKS = [
-            { id: 'bigGong', name: '大鑼', isMelodic: false, pan: 0.0, color: 'bg-amber-700', hoverColor: 'hover:bg-amber-600' },
-            { id: 'smallGong', name: '小鑼', isMelodic: false, pan: 0.3, color: 'bg-amber-500', hoverColor: 'hover:bg-amber-400' },
-            { id: 'dingDang', name: '叮噹', isMelodic: false, pan: -0.4, color: 'bg-yellow-500', hoverColor: 'hover:bg-yellow-400' },
-            { id: 'bo', name: '鈸', isMelodic: false, pan: 0.5, color: 'bg-orange-500', hoverColor: 'hover:bg-orange-400' },
-            { id: 'tanggu', name: '堂鼓', isMelodic: false, pan: -0.2, color: 'bg-red-700', hoverColor: 'hover:bg-red-600' },
-            { id: 'bangziLow', name: '梆子(低)', isMelodic: false, pan: -0.6, color: 'bg-stone-700', hoverColor: 'hover:bg-stone-600' },
-            { id: 'bangziHigh', name: '梆子(高)', isMelodic: false, pan: -0.5, color: 'bg-stone-500', hoverColor: 'hover:bg-stone-400' },
-            { id: 'recorder', name: '直笛', isMelodic: true, pan: 0.6, color: 'bg-emerald-600', hoverColor: 'hover:bg-emerald-500' },
-            { id: 'panghu', name: '胖胡', isMelodic: true, pan: -0.5, color: 'bg-rose-600', hoverColor: 'hover:bg-rose-500' },
-            { id: 'yehu', name: '椰胡', isMelodic: true, pan: 0.4, color: 'bg-cyan-600', hoverColor: 'hover:bg-cyan-500' },
-            { id: 'suonaLow', name: '嗩吶(低)', isMelodic: true, pan: -0.3, color: 'bg-orange-600', hoverColor: 'hover:bg-orange-500' },
-            { id: 'suonaHigh', name: '嗩吶(高)', isMelodic: true, pan: 0.2, color: 'bg-yellow-600', hoverColor: 'hover:bg-yellow-500' }
-        ];
+  return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+          </pre>
+        </div>
+      </div>
+    </section>
 
-        function playTrack(track, freq, dur, velocity = 1.0, timeOffset = 0) {
-            if (AudioEngine.customBuffers[track.id] || (AudioEngine.customSlices[track.id] && Object.keys(AudioEngine.customSlices[track.id]).length > 0)) {
-                AudioEngine.playRealSample(track.id, freq, track.isMelodic, dur, track.pan, velocity, timeOffset);
-            } else {
-                AudioEngine.playSynth('sine', freq, dur, track.pan, velocity, timeOffset);
-            }
+  </main>
+
+  <!-- Barcode Modal -->
+  <div id="barcode-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl border border-slate-100 text-center space-y-4">
+      <h3 class="font-bold text-slate-800 text-lg">批號標籤與條碼預覽</h3>
+      <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+        <p class="text-xs text-slate-400 uppercase tracking-widest font-mono mb-1">PRODUCE LOT TAG</p>
+        <h4 class="font-mono text-xl font-bold text-brand-800" id="modal-lot-no">RAW-20260815-001</h4>
+        <p class="text-sm text-slate-700 font-semibold mt-1" id="modal-item-name">有機高麗菜</p>
+        <div class="my-3 flex justify-center">
+          <!-- Mock QR barcode block -->
+          <div class="w-32 h-32 bg-slate-800 rounded flex flex-col items-center justify-center text-white p-2 text-center text-xs">
+            <i class="fa-solid fa-qrcode text-5xl mb-1 text-slate-200"></i>
+            <span class="text-[9px] font-mono">SCAN FOR TRACE</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500" id="modal-zone">冷藏儲位: A區冷藏庫-架01</p>
+      </div>
+      <button onclick="closeModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg text-sm">關閉預覽</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-3 text-sm">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-msg">操作成功</span>
+  </div>
+
+  <script>
+    // --- Application State ---
+    let state = {
+      rawInbound: [
+        { id: 1, lotNo: "RAW-20260812-001", item: "有機高麗菜", date: "2026-08-12", source: "A1地塊", weight: 300, zone: "A區冷藏庫-架01", note: "首批產出良好" },
+        { id: 2, lotNo: "RAW-20260814-002", item: "履歷青花菜", date: "2026-08-14", source: "B2合作場", weight: 150, zone: "B區預冷室-棧01", note: "無蟲害" }
+      ],
+      processing: [
+        { id: 1, finishedLotNo: "PKG-20260813-001", rawLotNo: "RAW-20260812-001", date: "2026-08-13", rawWeightUsed: 100, spec: 0.3, packageCount: 300, lossWeight: 10, lossRate: 10.0, operator: "陳大明" }
+      ],
+      shipping: [
+        { id: 1, shipNo: "OUT-20260814-01", customer: "全聯高雄總倉", finishedLotNo: "PKG-20260813-001", count: 120, date: "2026-08-14", temp: "冷藏 (2℃~7℃)", logistics: "黑貓冷藏 8812" }
+      ],
+      gasUrl: localStorage.getItem("gas_app_url") || ""
+    };
+
+    // --- Initialization ---
+    window.onload = function() {
+      // Set default dates to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('inbound-date').value = today;
+      document.getElementById('proc-date').value = today;
+      document.getElementById('ship-date').value = today;
+
+      if(state.gasUrl) {
+        document.getElementById('gas-url-input').value = state.gasUrl;
+        updateSyncStatus(true, "已設定 Google Sheets API");
+      }
+
+      renderAll();
+    };
+
+    // --- STREAMING_CHUNK: Implementing tab switching logic ---
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
+        btn.classList.add('text-slate-500', 'font-medium');
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      activeBtn.classList.add('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
+      activeBtn.classList.remove('text-slate-500', 'font-medium');
+
+      renderAll();
+    }
+
+    // --- STREAMING_CHUNK: Logic for calculating raw and finished inventory ---
+    // Calculate raw remaining weight for a raw lot
+    function getRawRemainingWeight(rawLotNo) {
+      const raw = state.rawInbound.find(r => r.lotNo === rawLotNo);
+      if(!raw) return 0;
+      const totalUsed = state.processing
+        .filter(p => p.rawLotNo === rawLotNo)
+        .reduce((sum, p) => sum + Number(p.rawWeightUsed), 0);
+      return Math.max(0, raw.weight - totalUsed);
+    }
+
+    // Calculate finished inventory remaining package count
+    function getFinishedRemainingCount(finishedLotNo) {
+      const proc = state.processing.find(p => p.finishedLotNo === finishedLotNo);
+      if(!proc) return 0;
+      const totalShipped = state.shipping
+        .filter(s => s.finishedLotNo === finishedLotNo)
+        .reduce((sum, s) => sum + Number(s.count), 0);
+      return Math.max(0, proc.packageCount - totalShipped);
+    }
+
+    // Calculate Aging days
+    function getDaysInStorage(dateStr) {
+      const inboundDate = new Date(dateStr);
+      const today = new Date();
+      const diffTime = Math.abs(today - inboundDate);
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // --- STREAMING_CHUNK: Form submit handlers for inbound, processing, shipping ---
+    // 1. Raw Inbound Handler
+    function handleInboundSubmit(e) {
+      e.preventDefault();
+      const item = document.getElementById('inbound-item').value;
+      const date = document.getElementById('inbound-date').value;
+      const source = document.getElementById('inbound-source').value || '未填';
+      const weight = parseFloat(document.getElementById('inbound-weight').value);
+      const zone = document.getElementById('inbound-zone').value;
+      const note = document.getElementById('inbound-note').value;
+
+      const lotNo = `RAW-${date.replace(/-/g, '')}-${String(state.rawInbound.length + 1).padStart(3, '0')}`;
+
+      const newRecord = { id: Date.now(), lotNo, item, date, source, weight, zone, note };
+      state.rawInbound.unshift(newRecord);
+
+      // Async post to Google Sheets
+      syncToGoogleSheets("addRaw", newRecord);
+
+      showToast(`原料入庫成功！生成批號：${lotNo}`);
+      document.getElementById('form-inbound').reset();
+      document.getElementById('inbound-date').value = new Date().toISOString().split('T')[0];
+      renderAll();
+    }
+
+    // 2. Processing & Packaging Handler
+    function calculateProcessLoss() {
+      const rawLotNo = document.getElementById('proc-raw-lot').value;
+      const rawWeightUsed = parseFloat(document.getElementById('proc-raw-used').value) || 0;
+      const specWeight = parseFloat(document.getElementById('proc-spec-weight').value) || 0.3;
+      const outputCount = parseInt(document.getElementById('proc-output-count').value) || 0;
+
+      const outputWeight = outputCount * specWeight;
+      const lossWeight = Math.max(0, rawWeightUsed - outputWeight);
+      const lossRate = rawWeightUsed > 0 ? ((lossWeight / rawWeightUsed) * 100).toFixed(1) : 0;
+
+      document.getElementById('proc-loss-display').value = `${lossWeight.toFixed(1)} kg (${lossRate}%)`;
+      return { lossWeight, lossRate };
+    }
+
+    function handleProcessingSubmit(e) {
+      e.preventDefault();
+      const rawLotNo = document.getElementById('proc-raw-lot').value;
+      const date = document.getElementById('proc-date').value;
+      const operator = document.getElementById('proc-operator').value || '未填';
+      const rawWeightUsed = parseFloat(document.getElementById('proc-raw-used').value);
+      const spec = parseFloat(document.getElementById('proc-spec-weight').value);
+      const packageCount = parseInt(document.getElementById('proc-output-count').value);
+
+      // Check raw weight availability
+      const available = getRawRemainingWeight(rawLotNo);
+      if (rawWeightUsed > available) {
+        showToast(`錯誤：原料剩餘重量僅 ${available} kg，不足扣抵！`, 'error');
+        return;
+      }
+
+      const { lossWeight, lossRate } = calculateProcessLoss();
+      const finishedLotNo = `PKG-${date.replace(/-/g, '')}-${String(state.processing.length + 1).padStart(3, '0')}`;
+
+      const newRecord = {
+        id: Date.now(), finishedLotNo, rawLotNo, date, rawWeightUsed, spec, packageCount, lossWeight, lossRate, operator
+      };
+
+      state.processing.unshift(newRecord);
+      syncToGoogleSheets("addProcess", newRecord);
+
+      showToast(`分裝成功！成品批號：${finishedLotNo}`);
+      document.getElementById('form-processing').reset();
+      document.getElementById('proc-date').value = new Date().toISOString().split('T')[0];
+      calculateProcessLoss();
+      renderAll();
+    }
+
+    // 3. Shipping Handler
+    function handleShippingSubmit(e) {
+      e.preventDefault();
+      const finishedLotNo = document.getElementById('ship-finished-lot').value;
+      const customer = document.getElementById('ship-customer').value;
+      const date = document.getElementById('ship-date').value;
+      const count = parseInt(document.getElementById('ship-count').value);
+      const temp = document.getElementById('ship-temp').value;
+      const logistics = document.getElementById('ship-logistics').value || '自提/未填';
+
+      const available = getFinishedRemainingCount(finishedLotNo);
+      if (count > available) {
+        showToast(`錯誤：成品庫存不足！現存僅 ${available} 包`, 'error');
+        return;
+      }
+
+      const shipNo = `OUT-${date.replace(/-/g, '')}-${String(state.shipping.length + 1).padStart(2, '0')}`;
+      const newRecord = { id: Date.now(), shipNo, customer, finishedLotNo, count, date, temp, logistics };
+
+      state.shipping.unshift(newRecord);
+      syncToGoogleSheets("addShipment", newRecord);
+
+      showToast(`出貨成功！銷帳單號：${shipNo}`);
+      document.getElementById('form-shipping').reset();
+      document.getElementById('ship-date').value = new Date().toISOString().split('T')[0];
+      renderAll();
+    }
+
+    // --- Render Dashboard and Tables ---
+    function renderAll() {
+      renderStats();
+      renderRawInboundTable();
+      renderProcessingTable();
+      renderShippingTable();
+      renderColdStorageGrid();
+      populateDropdowns();
+    }
+
+    function renderStats() {
+      // Total active raw kg
+      let totalRawRemaining = 0;
+      let warningCount = 0;
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        totalRawRemaining += rem;
+        if (rem > 0 && getDaysInStorage(r.date) >= 3) {
+          warningCount++;
+        }
+      });
+
+      // Total active finished packages
+      let totalFinishedRemaining = 0;
+      state.processing.forEach(p => {
+        totalFinishedRemaining += getFinishedRemainingCount(p.finishedLotNo);
+      });
+
+      // Average loss rate
+      let avgLossRate = 0;
+      if (state.processing.length > 0) {
+        const sumLoss = state.processing.reduce((acc, curr) => acc + Number(curr.lossRate), 0);
+        avgLossRate = (sumLoss / state.processing.length).toFixed(1);
+      }
+
+      document.getElementById('stat-raw-weight').innerText = `${totalRawRemaining.toFixed(1)} kg`;
+      document.getElementById('stat-finished-count').innerText = `${totalFinishedRemaining} 包`;
+      document.getElementById('stat-loss-rate').innerText = `${avgLossRate} %`;
+      document.getElementById('stat-warning-count').innerText = `${warningCount} 批次`;
+
+      // Render Dashboard warning table
+      const warnBody = document.getElementById('dashboard-warning-table');
+      warnBody.innerHTML = '';
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        if (rem > 0) {
+          const days = getDaysInStorage(r.date);
+          let badgeClass = 'bg-emerald-100 text-emerald-800';
+          if (days >= 5) badgeClass = 'bg-rose-100 text-rose-800 font-bold';
+          else if (days >= 3) badgeClass = 'bg-amber-100 text-amber-800 font-semibold';
+
+          warnBody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 font-mono font-medium text-brand-700">${r.lotNo}</td>
+              <td class="px-3 py-2">${r.item} <span class="text-xs text-slate-400">(${r.source})</span></td>
+              <td class="px-3 py-2 text-xs">${r.zone}</td>
+              <td class="px-3 py-2 font-bold text-slate-700">${rem.toFixed(1)} kg</td>
+              <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs ${badgeClass}">${days} 天</span></td>
+              <td class="px-3 py-2 text-right">
+                <button onclick="switchTab('processing'); prefillProcessing('${r.lotNo}')" class="text-xs bg-brand-50 hover:bg-brand-100 text-brand-700 px-2 py-1 rounded border border-brand-200">
+                  前往分裝
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+      });
+    }
+
+    function renderRawInboundTable() {
+      const body = document.getElementById('raw-inbound-list');
+      body.innerHTML = '';
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2 font-mono font-bold text-brand-800">${r.lotNo}</td>
+            <td class="px-3 py-2">
+              <div class="font-medium text-slate-800">${r.item}</div>
+              <div class="text-xs text-slate-400">${r.date}</div>
+            </td>
+            <td class="px-3 py-2">${r.source}</td>
+            <td class="px-3 py-2">
+              <span class="font-bold ${rem > 0 ? 'text-slate-800' : 'text-slate-400 line-through'}">${rem.toFixed(1)}</span>
+              <span class="text-xs text-slate-400"> / ${r.weight} kg</span>
+            </td>
+            <td class="px-3 py-2 text-xs">${r.zone}</td>
+            <td class="px-3 py-2 text-center">
+              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-qrcode text-base"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderProcessingTable() {
+      const body = document.getElementById('processing-list');
+      body.innerHTML = '';
+      state.processing.forEach(p => {
+        const remPackages = getFinishedRemainingCount(p.finishedLotNo);
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2 font-mono font-bold text-amber-800">${p.finishedLotNo}</td>
+            <td class="px-3 py-2 text-xs font-mono text-slate-500">${p.rawLotNo}</td>
+            <td class="px-3 py-2 text-xs">${p.date}</td>
+            <td class="px-3 py-2">
+              <span class="font-bold text-slate-800">${p.spec}kg</span> × 
+              <span class="font-bold text-blue-600">${remPackages}</span>
+              <span class="text-xs text-slate-400">/${p.packageCount}包</span>
+            </td>
+            <td class="px-3 py-2 text-xs">
+              <span class="text-amber-700 font-medium">${p.lossWeight}kg</span> 
+              <span class="text-slate-400">(${p.lossRate}%)</span>
+            </td>
+            <td class="px-3 py-2 text-xs">${p.operator}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderShippingTable() {
+      const body = document.getElementById('shipping-list');
+      body.innerHTML = '';
+      state.shipping.forEach(s => {
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2 font-mono font-bold text-blue-800">${s.shipNo}</td>
+            <td class="px-3 py-2 font-medium text-slate-800">${s.customer}</td>
+            <td class="px-3 py-2 font-mono text-xs text-slate-500">${s.finishedLotNo}</td>
+            <td class="px-3 py-2 font-bold text-slate-800">${s.count} 包</td>
+            <td class="px-3 py-2 text-xs">${s.date}</td>
+            <td class="px-3 py-2 text-xs">
+              <div>${s.temp}</div>
+              <div class="text-slate-400">${s.logistics}</div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Cold storage visualization
+    function renderColdStorageGrid() {
+      const grid = document.getElementById('cold-storage-grid');
+      grid.innerHTML = '';
+
+      const zones = ['A區冷藏庫-架01', 'A區冷藏庫-架02', 'B區預冷室-棧01', 'C區低溫保鮮庫'];
+
+      zones.forEach(zone => {
+        const items = state.rawInbound.filter(r => r.zone === zone && getRawRemainingWeight(r.lotNo) > 0);
+        
+        let cardHtml = `
+          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <h4 class="font-bold text-slate-700 text-sm flex items-center">
+                  <i class="fa-solid fa-warehouse mr-1.5 text-slate-400"></i> ${zone}
+                </h4>
+                <span class="text-xs bg-slate-200 px-2 py-0.5 rounded text-slate-600">${items.length} 批次</span>
+              </div>
+              <div class="space-y-2.5">
+        `;
+
+        if (items.length === 0) {
+          cardHtml += `<p class="text-xs text-slate-400 italic py-4 text-center">目前無存放原料</p>`;
+        } else {
+          items.forEach(item => {
+            const days = getDaysInStorage(item.date);
+            const rem = getRawRemainingWeight(item.lotNo);
+            let borderClass = 'border-emerald-300 bg-emerald-50';
+            if(days >= 5) borderClass = 'border-rose-400 bg-rose-50';
+            else if(days >= 3) borderClass = 'border-amber-300 bg-amber-50';
+
+            cardHtml += `
+              <div class="p-2.5 rounded-lg border ${borderClass} text-xs space-y-1">
+                <div class="flex justify-between font-bold">
+                  <span class="text-slate-800">${item.item}</span>
+                  <span class="font-mono text-brand-800">${rem.toFixed(1)} kg</span>
+                </div>
+                <div class="flex justify-between text-slate-500 text-[11px]">
+                  <span>${item.lotNo}</span>
+                  <span>在庫 ${days} 天</span>
+                </div>
+              </div>
+            `;
+          });
         }
 
-        // --- DOM 更新與渲染 ---
+        cardHtml += `
+              </div>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += cardHtml;
+      });
+    }
 
-        function renderTools() {
-            const container = document.getElementById('tool-container');
-            container.innerHTML = '';
-            
-            PENTATONIC_SCALE.forEach((pitch, index) => {
-                const btn = document.createElement('button');
-                btn.innerText = pitch.label;
-                btn.className = `px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${selectedTool === index ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'}`;
-                btn.onclick = () => {
-                    selectedTool = index;
-                    renderTools(); // re-render tools to update active state
-                };
-                container.appendChild(btn);
-            });
-
-            const divider = document.createElement('div');
-            divider.className = 'w-px h-6 bg-stone-300 mx-1';
-            container.appendChild(divider);
-
-            const tieBtn = document.createElement('button');
-            tieBtn.innerText = '延音 (—)';
-            tieBtn.className = `px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${selectedTool === 'tie' ? 'bg-indigo-600 text-white shadow-md transform scale-105' : 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100'}`;
-            tieBtn.onclick = () => {
-                selectedTool = 'tie';
-                renderTools();
-            };
-            container.appendChild(tieBtn);
+    function populateDropdowns() {
+      // Processing raw lot select
+      const procSelect = document.getElementById('proc-raw-lot');
+      procSelect.innerHTML = '<option value="">-- 請選擇原料批次 --</option>';
+      state.rawInbound.forEach(r => {
+        const rem = getRawRemainingWeight(r.lotNo);
+        if (rem > 0) {
+          procSelect.innerHTML += `<option value="${r.lotNo}">${r.lotNo} - ${r.item} (剩餘 ${rem.toFixed(1)}kg)</option>`;
         }
+      });
 
-        function renderPreviewButtons() {
-            const container = document.getElementById('preview-container');
-            container.innerHTML = '';
-
-            TRACKS.forEach(track => {
-                const hasCustomSample = !!uploadedFiles[track.id];
-                const btn = document.createElement('button');
-                
-                const baseClasses = "text-white py-3 rounded-xl shadow-md transition-all active:scale-95 flex flex-col items-center justify-center gap-1 relative overflow-hidden";
-                const colorClasses = hasCustomSample ? 'bg-emerald-600 hover:bg-emerald-500 ring-2 ring-emerald-300 ring-offset-2 shadow-emerald-200/50' : `${track.color} ${track.hoverColor}`;
-                
-                btn.className = `${baseClasses} ${colorClasses}`;
-                
-                let innerHTML = `<span class="text-sm font-bold z-10">${track.name}</span>`;
-                if (hasCustomSample) {
-                    innerHTML += `<i class="fa-solid fa-circle-check text-emerald-200 z-10 text-sm"></i>`;
-                }
-                btn.innerHTML = innerHTML;
-
-                btn.onclick = () => {
-                    AudioEngine.init();
-                    if(track.isMelodic) {
-                        const pitchIndex = selectedTool === 'tie' ? 2 : selectedTool; 
-                        playTrack(track, PENTATONIC_SCALE[pitchIndex].freq, 1.0, 1.0, 0);
-                    } else {
-                        playTrack(track, null, 1.0, 1.0, 0);
-                    }
-                };
-
-                container.appendChild(btn);
-            });
+      // Shipping finished lot select
+      const shipSelect = document.getElementById('ship-finished-lot');
+      shipSelect.innerHTML = '<option value="">-- 請選擇分裝成品批號 --</option>';
+      state.processing.forEach(p => {
+        const rem = getFinishedRemainingCount(p.finishedLotNo);
+        if (rem > 0) {
+          shipSelect.innerHTML += `<option value="${p.finishedLotNo}">${p.finishedLotNo} (規格:${p.spec}kg / 剩餘 ${rem}包)</option>`;
         }
+      });
+    }
 
-        function renderGrid() {
-            const container = document.getElementById('grid-container');
-            container.innerHTML = '';
+    function prefillProcessing(rawLotNo) {
+      document.getElementById('proc-raw-lot').value = rawLotNo;
+      calculateProcessLoss();
+    }
 
-            TRACKS.forEach((track, trackIndex) => {
-                const hasCustomSample = !!uploadedFiles[track.id];
-                const trackBaseColor = hasCustomSample ? 'bg-emerald-500' : track.color;
+    function saveGasUrl() {
+      const url = document.getElementById('gas-url-input').value.trim();
+      if (!url) return;
+      localStorage.setItem('gas_app_url', url);
+      state.gasUrl = url;
+      updateSyncStatus(true, "已成功連線試算表 API");
+      showToast("Google Sheets 網址已儲存！");
+    }
 
-                const trackRow = document.createElement('div');
-                trackRow.className = "flex items-center gap-2 group";
+    function syncToGoogleSheets(action, payload) {
+      if (!state.gasUrl) return;
 
-                // Label
-                const labelDiv = document.createElement('div');
-                labelDiv.className = `w-24 text-center font-bold text-white text-xs px-2 py-2 rounded shadow-sm flex flex-col items-center justify-center ${trackBaseColor}`;
-                labelDiv.innerHTML = `<span>${track.name}</span>`;
-                trackRow.appendChild(labelDiv);
+      fetch(state.gasUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...payload })
+      }).then(() => {
+        console.log("Synced to Google Sheets successfully");
+      }).catch(err => {
+        console.error("Sync failed", err);
+      });
+    }
 
-                // Grid Cells
-                const cellsContainer = document.createElement('div');
-                cellsContainer.className = "flex-1 flex gap-1 bg-stone-100 p-1.5 rounded-lg border border-stone-200 group-hover:bg-stone-200/50 transition-colors relative";
-                
-                grid[trackIndex].forEach((cellValue, stepIndex) => {
-                    const btn = document.createElement('button');
-                    const isActive = cellValue !== null;
-                    const isTie = cellValue === 'tie';
-                    
-                    let activeClasses = isTie 
-                        ? `${trackBaseColor} opacity-70 shadow-inner scale-[0.98] border-transparent text-white rounded-l-none border-l-0` 
-                        : `${trackBaseColor} shadow-inner scale-[0.97] border-transparent text-white`;
+    function syncData() {
+      if(!state.gasUrl) {
+        showToast("請先至「Google Sheets 設定」頁面綁定 URL", "warning");
+      } else {
+        showToast("已成功與雲端試算表同步資料！");
+      }
+    }
 
-                    let baseClasses = `grid-cell flex-1 h-10 rounded transition-all duration-150 border flex items-center justify-center ${stepIndex % 4 === 0 && !isActive ? 'border-stone-400' : 'border-stone-200'}`;
-                    
-                    if (isActive) {
-                        baseClasses += ` ${activeClasses}`;
-                    } else {
-                        baseClasses += ` bg-white hover:bg-stone-50`;
-                    }
-                    
-                    if (currentStep === stepIndex && isPlaying) {
-                        baseClasses += ` active-step`;
-                    }
+    function updateSyncStatus(isLive, message) {
+      const badge = document.getElementById('sync-status');
+      const text = document.getElementById('sync-text');
+      const label = document.getElementById('db-type-label');
+      if(isLive) {
+        badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/30";
+        badge.querySelector('span').className = "w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse";
+        text.innerText = "Google Sheets 連線中";
+        if(label) label.innerText = "Google Sheets 雲端連線";
+      }
+    }
 
-                    btn.className = baseClasses;
-                    btn.id = `cell-${trackIndex}-${stepIndex}`;
+    // Modal and Toast Helpers
+    function openBarcodeModal(lotNo, item, zone) {
+      document.getElementById('modal-lot-no').innerText = lotNo;
+      document.getElementById('modal-item-name').innerText = item;
+      document.getElementById('modal-zone').innerText = `冷藏儲位: ${zone}`;
+      document.getElementById('barcode-modal').classList.remove('hidden');
+    }
 
-                    if (isActive && track.isMelodic && !isTie) {
-                        btn.innerHTML = `<span class="text-[10px] font-bold drop-shadow-md">${PENTATONIC_SCALE[cellValue].label}</span>`;
-                    } else if (isActive && track.isMelodic && isTie) {
-                        btn.innerHTML = `<span class="text-[10px] font-bold opacity-75">—</span>`;
-                    }
+    function closeModal() {
+      document.getElementById('barcode-modal').classList.add('hidden');
+    }
 
-                    btn.onclick = () => {
-                        AudioEngine.init();
-                        toggleCell(trackIndex, stepIndex);
-                    };
+    function copyGasCode() {
+      const code = document.getElementById('gas-code-block').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Apps Script 程式碼已複製到剪貼簿！");
+      });
+    }
 
-                    cellsContainer.appendChild(btn);
-                });
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
 
-                trackRow.appendChild(cellsContainer);
-                container.appendChild(trackRow);
-            });
-        }
+      toastMsg.innerText = msg;
+      if(type === 'error') {
+        toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
+      } else if (type === 'warning') {
+        toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+      } else {
+        toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+      }
 
-        // 優化：只更新需要改變外觀的元素，不重繪整個 Grid 以避免閃爍
-        function updateGridHighlight() {
-            for (let t = 0; t < TRACKS.length; t++) {
-                for (let s = 0; s < STEPS; s++) {
-                    const btn = document.getElementById(`cell-${t}-${s}`);
-                    if (btn) {
-                        if (s === currentStep && isPlaying) {
-                            btn.classList.add('active-step');
-                        } else {
-                            btn.classList.remove('active-step');
-                        }
-                    }
-                }
-            }
-        }
-
-        // --- 邏輯操作 ---
-
-        function toggleCell(trackIndex, stepIndex) {
-            const track = TRACKS[trackIndex];
-            const currentVal = grid[trackIndex][stepIndex];
-
-            if (track.isMelodic) {
-                if (currentVal === selectedTool) {
-                    grid[trackIndex][stepIndex] = null; 
-                } else {
-                    grid[trackIndex][stepIndex] = selectedTool;
-                    if (selectedTool !== 'tie') {
-                        playTrack(track, PENTATONIC_SCALE[selectedTool].freq, 0.5, 1.0, 0); 
-                    }
-                }
-            } else {
-                if (currentVal) {
-                    grid[trackIndex][stepIndex] = null;
-                } else {
-                    grid[trackIndex][stepIndex] = true;
-                    playTrack(track, null, 0.5, 1.0, 0); 
-                }
-            }
-            // 完全重繪那一個 Row 的按鈕即可，簡單起見全繪
-            renderGrid();
-        }
-
-        function playStep(step) {
-            const stepDurationSec = (60000 / bpm / 4) / 1000;
-
-            TRACKS.forEach((track, trackIndex) => {
-                const cellValue = grid[trackIndex][step];
-                
-                if (cellValue !== null && cellValue !== 'tie') {
-                    let tieCount = 0;
-                    for (let i = 1; i < STEPS; i++) {
-                        if (grid[trackIndex][(step + i) % STEPS] === 'tie') { tieCount++; } else { break; }
-                    }
-                    const totalDuration = stepDurationSec * (1 + tieCount);
-
-                    const humanizeOffset = humanize ? (Math.random() * 0.03 - 0.015) : 0;
-                    const velocity = humanize ? (0.8 + Math.random() * 0.2) : 1.0;
-
-                    if (track.isMelodic) {
-                        playTrack(track, PENTATONIC_SCALE[cellValue].freq, totalDuration, velocity, humanizeOffset);
-                    } else {
-                        playTrack(track, null, totalDuration, velocity, humanizeOffset); 
-                    }
-                }
-            });
-        }
-
-        function togglePlay() {
-            AudioEngine.init();
-            const btnPlay = document.getElementById('btn-play');
-            const iconPlay = document.getElementById('icon-play');
-            const textPlay = document.getElementById('text-play');
-
-            if (isPlaying) {
-                isPlaying = false;
-                clearInterval(timerId);
-                currentStep = 0;
-                
-                // UI Reset
-                btnPlay.classList.remove('bg-red-500', 'hover:bg-red-600');
-                btnPlay.classList.add('bg-emerald-500', 'hover:bg-emerald-400');
-                iconPlay.classList.remove('fa-stop');
-                iconPlay.classList.add('fa-play');
-                textPlay.innerText = '播放合奏';
-                
-                updateGridHighlight();
-            } else {
-                isPlaying = true;
-                const stepDuration = (60000 / bpm) / 4;
-                
-                // UI Update
-                btnPlay.classList.remove('bg-emerald-500', 'hover:bg-emerald-400');
-                btnPlay.classList.add('bg-red-500', 'hover:bg-red-600');
-                iconPlay.classList.remove('fa-play');
-                iconPlay.classList.add('fa-stop');
-                textPlay.innerText = '停止合奏';
-
-                timerId = setInterval(() => {
-                    playStep(currentStep);
-                    updateGridHighlight();
-                    currentStep = (currentStep + 1) % STEPS;
-                }, stepDuration);
-            }
-        }
-
-        function clearGrid() {
-            grid = Array.from({ length: TRACKS.length }, () => Array(STEPS).fill(null));
-            if (isPlaying) togglePlay();
-            currentStep = 0;
-            renderGrid();
-        }
-
-        function loadExample() {
-            grid = JSON.parse(JSON.stringify(DEFAULT_GRID));
-            if (isPlaying) togglePlay();
-            currentStep = 0;
-            renderGrid();
-        }
-
-        // --- 雲端音檔下載邏輯 ---
-
-        function showError(msg) {
-            const container = document.getElementById('error-container');
-            const toast = document.createElement('div');
-            toast.className = "bg-red-600 text-white px-4 py-2 rounded shadow-lg text-sm font-bold flex items-center gap-2 opacity-0 transition-opacity duration-300";
-            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
-            container.appendChild(toast);
-            
-            // Fade in
-            setTimeout(() => toast.classList.remove('opacity-0'), 10);
-            
-            // Fade out and remove
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        const fetchCloudAudio = async (trackId, trackName) => {
-            const baseUrl = 'https://kiddyhakka.github.io/M11475002/eight';
-            const extensions = ['.mp3', '.wav', '.m4a'];
-            
-            const namesToTry = [trackName, trackId];
-
-            for (const name of namesToTry) {
-                for (const ext of extensions) {
-                    try {
-                        const url = `${baseUrl}/${encodeURIComponent(name)}${ext}`;
-                        const res = await fetch(url);
-                        if (res.ok) {
-                            const buffer = await res.arrayBuffer();
-                            return { buffer, fileName: `${name}${ext}` };
-                        }
-                    } catch (err) {
-                        // Ignore and try next
-                    }
-                }
-            }
-            throw new Error(`雲端找不到 ${trackName} 的音檔`);
-        };
-
-        const handleCloudLoadAll = async () => {
-            const overlay = document.getElementById('loading-overlay');
-            overlay.classList.remove('hidden');
-            
-            // Small delay to allow UI to render overlay before heavy processing
-            await new Promise(r => setTimeout(r, 100));
-
-            for (const track of TRACKS) {
-                if (uploadedFiles[track.id]) continue; 
-                try {
-                    const { buffer, fileName } = await fetchCloudAudio(track.id, track.name);
-                    const result = await AudioEngine.loadSmartSample(track.id, buffer, track.isMelodic);
-                    uploadedFiles[track.id] = { name: fileName, notes: result.extracted };
-                    
-                    // Update UI iteratively to show progress
-                    renderPreviewButtons();
-                    renderGrid();
-                } catch (err) {
-                    console.warn(err);
-                }
-            }
-            overlay.classList.add('hidden');
-        };
-
-        // --- 初始化與事件綁定 ---
-
-        window.onload = () => {
-            // Initial Renders
-            renderTools();
-            renderPreviewButtons();
-            renderGrid();
-
-            // Bind Control Events
-            document.getElementById('btn-play').onclick = togglePlay;
-            document.getElementById('btn-load-example').onclick = loadExample;
-            document.getElementById('btn-clear').onclick = clearGrid;
-
-            // Global Interaction to unlock audio
-            document.body.addEventListener('click', () => AudioEngine.init(), { once: true });
-
-            // Humanize Toggle
-            const humanizeToggle = document.getElementById('humanize-toggle');
-            const humanizeBg = document.getElementById('humanize-bg');
-            const humanizeKnob = document.getElementById('humanize-knob');
-            const humanizeIcon = document.getElementById('humanize-icon');
-            
-            humanizeToggle.onchange = (e) => {
-                humanize = e.target.checked;
-                if (humanize) {
-                    humanizeBg.classList.replace('bg-stone-600', 'bg-emerald-500');
-                    humanizeKnob.classList.add('translate-x-4');
-                    humanizeIcon.classList.add('text-emerald-400');
-                } else {
-                    humanizeBg.classList.replace('bg-emerald-500', 'bg-stone-600');
-                    humanizeKnob.classList.remove('translate-x-4');
-                    humanizeIcon.classList.remove('text-emerald-400');
-                }
-            };
-
-            // BPM Slider
-            const bpmSlider = document.getElementById('bpm-slider');
-            const bpmDisplay = document.getElementById('bpm-display');
-            bpmSlider.oninput = (e) => {
-                bpm = Number(e.target.value);
-                bpmDisplay.innerText = bpm;
-                // Update interval if playing
-                if (isPlaying) {
-                    clearInterval(timerId);
-                    timerId = setInterval(() => {
-                        playStep(currentStep);
-                        updateGridHighlight();
-                        currentStep = (currentStep + 1) % STEPS;
-                    }, (60000 / bpm) / 4);
-                }
-            };
-
-            // Reverb Slider
-            const reverbSlider = document.getElementById('reverb-slider');
-            const reverbIcon = document.getElementById('reverb-icon');
-            reverbSlider.oninput = (e) => {
-                reverbLevel = Number(e.target.value);
-                AudioEngine.setReverbLevel(reverbLevel);
-                if (reverbLevel > 0) {
-                    reverbIcon.classList.add('text-blue-400');
-                } else {
-                    reverbIcon.classList.remove('text-blue-400');
-                }
-            };
-
-            // Auto load cloud audio on mount
-            handleCloudLoadAll();
-        };
-
-    </script>
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
