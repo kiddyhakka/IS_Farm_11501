@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>義勝農場115學年上學期 - 冷藏履歷與進出庫管理系統</title>
+  <title>義勝農場 - 冷藏履歷與進出庫管理系統</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Inter -->
@@ -32,12 +32,20 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
         </svg>
         <div>
-          <h1 class="text-xl font-bold tracking-wide">義勝農場115學年上學期</h1>
+          <h1 class="text-xl font-bold tracking-wide">義勝農場</h1>
           <p class="text-xs text-emerald-200">冷藏履歷與進出庫管理系統 (Google Sheets 雲端連線版)</p>
         </div>
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
+        <!-- 試算表快速切換下拉選單 -->
+        <div class="flex items-center gap-1 bg-emerald-900/80 px-2.5 py-1 rounded-lg border border-emerald-600/50">
+          <span class="text-xs text-emerald-200 hidden md:inline">📊 試算表:</span>
+          <select id="headerSheetSelector" onchange="switchActiveSheet(this.value)" class="bg-emerald-900 text-white text-xs font-medium outline-none cursor-pointer py-0.5">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
         <button type="button" onclick="fetchFromGas(true)" id="refreshBtn" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
           <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           <span id="refreshBtnText">同步試算表</span>
@@ -140,11 +148,38 @@
         </div>
       </div>
 
+      <!-- Available Veg Inventory Summary Grid/Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-emerald-50 border-b border-emerald-200 flex justify-between items-center">
+          <h3 class="font-bold text-emerald-900 flex items-center gap-2">
+            <span>🥬 目前各蔬菜可出貨數量統計</span>
+          </h3>
+          <span class="text-xs text-emerald-700 font-medium">（已自動扣除超過「冷藏預估期限」之逾期數量）</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="p-3">蔬菜品項</th>
+                <th class="p-3">總冷藏在庫</th>
+                <th class="p-3">逾期不可出貨量</th>
+                <th class="p-3">有效可出貨數量</th>
+                <th class="p-3">已出貨數量</th>
+                <th class="p-3">狀態標示</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardVegSummaryTable" class="divide-y divide-slate-200">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Inventory Expiry Risk Table -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
           <h3 class="font-bold text-slate-800 flex items-center gap-2">
-            <span>🚨 冷藏在庫天數監控 (先進先出 FIFO 預警)</span>
+            <span>🚨 冷藏在庫天數監控 (僅顯示未逾期品項 / FIFO 預警)</span>
           </h3>
           <span class="text-xs text-slate-500">超過 7 天黃色警告 / 超過 14 天紅色告急</span>
         </div>
@@ -156,6 +191,7 @@
                 <th class="p-3">蔬菜品項</th>
                 <th class="p-3">田區來源</th>
                 <th class="p-3">入庫日期</th>
+                <th class="p-3">冷藏預估期限</th>
                 <th class="p-3">剩餘公斤數</th>
                 <th class="p-3">在庫天數</th>
                 <th class="p-3">狀態預警</th>
@@ -182,10 +218,11 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">田區/地塊編號</label>
               <select id="fieldId" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                <option value="A1區">A1區 (露天網室01)</option>
-                <option value="A2區">A2區 (露天網室02)</option>
-                <option value="B1區">A3區 (露天網室03)</option>
-
+                <option value="A1區">A1區 (溫室01)</option>
+                <option value="A2區">A2區 (溫室02)</option>
+                <option value="B1區">B1區 (露天網室)</option>
+                <option value="B2區">B2區 (網室區)</option>
+                <option value="C1區">C1區 (有機栽培區)</option>
               </select>
             </div>
 
@@ -277,8 +314,8 @@
                 <th class="p-3">田區</th>
                 <th class="p-3">蔬菜種類</th>
                 <th class="p-3">種植日期</th>
-                <th class="p-3">採收1 (kg / 日期)</th>
-                <th class="p-3">採收2 (kg / 日期)</th>
+                <th class="p-3">用藥紀錄 (用藥1 / 用藥2)</th>
+                <th class="p-3">採收紀錄 (採收1 / 採收2)</th>
                 <th class="p-3">冷藏期限</th>
                 <th class="p-3">轉入冷藏作業</th>
               </tr>
@@ -592,30 +629,64 @@
     <!-- VIEW 6: Google Sheets Settings (Admin) -->
     <section id="view-gas" class="hidden space-y-6">
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span>🔒 Google Sheets 雲端連線設定</span>
+        <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+          <span>🔒 多組 Google Sheets 雲端連線設定 (管理者專屬)</span>
         </h2>
+        <p class="text-xs text-slate-500 mb-4">您可以設定並儲存多組 Google 試算表連線（例如：主農場、二號溫室、合作農場等），並在頂部選單快速切換。</p>
 
-        <form id="gasConfigForm" onsubmit="event.preventDefault(); saveGasConfig();" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Google Apps Script (GAS) API 部署網址</label>
-            <input type="url" id="gasUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
+        <form id="gasConfigForm" onsubmit="event.preventDefault(); saveGasConfig();" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <input type="hidden" id="gasSheetIdInput">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="sm:col-span-1">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">試算表識別名稱</label>
+              <input type="text" id="gasNameInput" required placeholder="例如：義勝農場 - 二號棚" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Google Apps Script (GAS) API 部署網址</label>
+              <input type="url" id="gasUrlInput" required placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
+            </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Google 試算表網頁開啟連結</label>
-            <input type="url" id="gasSheetUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Google 試算表網頁開啟連結 (選填)</label>
+            <input type="url" id="gasSheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
           </div>
 
-          <div class="flex flex-wrap gap-3">
-            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm active:scale-95">
-              💾 儲存設定並重新同步
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-lg text-sm transition shadow-sm active:scale-95">
+              💾 儲存試算表設定
             </button>
-            <button type="button" onclick="openGoogleSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-1 active:scale-95">
-              🔗 開啟 Google 試算表
+            <button type="button" onclick="resetGasForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm transition">
+              清空重填
             </button>
           </div>
         </form>
+      </div>
+
+      <!-- Multiple Sheets Management Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">📋 已登記之 Google 試算表列表</h3>
+          <span class="text-xs text-slate-500">可在上方頂部選單隨時切換目前作用中的試算表</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="p-3">當前啟用</th>
+                <th class="p-3">試算表名稱</th>
+                <th class="p-3">GAS API 網址</th>
+                <th class="p-3">試算表連結</th>
+                <th class="p-3 text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody id="gasSheetsTable" class="divide-y divide-slate-200">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -647,25 +718,107 @@
   </div>
 
   <script>
-    // 蔬菜田間作業推算規則表
+    // 統一日期時間格式化函式：格式為 yyyy/m/d hh:mm
+    function formatDateTime(val) {
+      if (!val) return '-';
+      if (val instanceof Date) {
+        if (isNaN(val.getTime())) return '-';
+        const yyyy = val.getFullYear();
+        const m = val.getMonth() + 1;
+        const d = val.getDate();
+        const hh = String(val.getHours()).padStart(2, '0');
+        const mm = String(val.getMinutes()).padStart(2, '0');
+        return `${yyyy}/${m}/${d} ${hh}:${mm}`;
+      }
+
+      const str = String(val).trim();
+      if (!str) return '-';
+
+      // 若僅包含 YYYY-MM-DD 或 YYYY/MM/DD，補上預設時間 00:00
+      const dateOnlyMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+      if (dateOnlyMatch) {
+        const yyyy = dateOnlyMatch[1];
+        const m = parseInt(dateOnlyMatch[2], 10);
+        const d = parseInt(dateOnlyMatch[3], 10);
+        return `${yyyy}/${m}/${d} 00:00`;
+      }
+
+      // 若包含日期與時間
+      const dateTimeMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[ T](\d{1,2}):(\d{1,2})(:\d{1,2})?$/);
+      if (dateTimeMatch) {
+        const yyyy = dateTimeMatch[1];
+        const m = parseInt(dateTimeMatch[2], 10);
+        const d = parseInt(dateTimeMatch[3], 10);
+        const hh = String(dateTimeMatch[4]).padStart(2, '0');
+        const mm = String(dateTimeMatch[5]).padStart(2, '0');
+        return `${yyyy}/${m}/${d} ${hh}:${mm}`;
+      }
+
+      // 解析 ISO 物件字串或通用時間字串
+      const parsed = new Date(str.replace(/-/g, '/'));
+      if (!isNaN(parsed.getTime())) {
+        const yyyy = parsed.getFullYear();
+        const m = parsed.getMonth() + 1;
+        const d = parsed.getDate();
+        const hh = String(parsed.getHours()).padStart(2, '0');
+        const mm = String(parsed.getMinutes()).padStart(2, '0');
+        return `${yyyy}/${m}/${d} ${hh}:${mm}`;
+      }
+
+      return str;
+    }
+
+    // 表單送出時自動附加當前時分
+    function attachCurrentTime(dateStr) {
+      if (!dateStr) return '';
+      if (dateStr.includes(' ') || dateStr.includes('T')) return dateStr;
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      return `${dateStr} ${hh}:${mm}`;
+    }
+
+    // 蔬菜田間作業推算規則表 (對照表)
     const CROP_SCHEDULE_RULES = {
-      "小白菜": { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 46 },
-      "油菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 57 },
-      "青梗白菜":{ fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 57 },
-      "芥籃芽": { fert: 5, pest1: 7, pest2: null, h1: 17, h2: 24, expiry: 34 },
-      "菠菜":   { fert: 5, pest1: null, pest2: 19, h1: 38, h2: 45, expiry: 90 },
+      "小白菜": { fert: 5, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 46 },
+      "油菜":   { fert: 5, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 57 },
+      "青梗白菜":{ fert: 5, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 57 },
+      "芥籃芽": { fert: 5, pest1: 7,    pest2: null, h1: 17, h2: 24, expiry: 34 },
+      "芥藍芽": { fert: 5, pest1: 7,    pest2: null, h1: 17, h2: 24, expiry: 34 },
+      "菠菜":   { fert: 5, pest1: null, pest2: 19,   h1: 38, h2: 45, expiry: 90 },
       "蕹菜":   { fert: 5, pest1: null, pest2: null, h1: 17, h2: 24, expiry: 31 },
-      "葉萵苣": { fert: 5, pest1: 19, pest2: null, h1: 36, h2: 43, expiry: 73 },
-      "小芥菜": { fert: 5, pest1: 8, pest2: null, h1: 29, h2: 36, expiry: 54 },
-      "莧菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 }
+      "葉萵苣": { fert: 5, pest1: 19,   pest2: null, h1: 36, h2: 43, expiry: 73 },
+      "小芥菜": { fert: 5, pest1: 8,    pest2: null, h1: 29, h2: 36, expiry: 54 },
+      "莧菜":   { fert: 5, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 45 }
     };
+
+    // 多試算表預設與初始化
+    const DEFAULT_GAS_SHEETS = [
+      {
+        id: "sheet-main",
+        name: "義勝農場 - 主庫/總表",
+        gasUrl: "https://script.google.com/macros/s/AKfycbwkcSYoJ3hHM97UX0CpB-bwNZzEqzMlb_kBmOstFRLw0lyVPbaxlP-74rQRa_gVH07mAA/exec",
+        sheetUrl: "https://docs.google.com/spreadsheets/d/1iAE6GgEGsL-oabPWQpUZ5FUWXQivMpabwPYTk0QGq2s/edit?gid=0#gid=0"
+      }
+    ];
+
+    let initialSheetsList = JSON.parse(localStorage.getItem("farm_gas_sheets_list") || "null");
+    if (!initialSheetsList || !Array.isArray(initialSheetsList) || initialSheetsList.length === 0) {
+      initialSheetsList = DEFAULT_GAS_SHEETS;
+      localStorage.setItem("farm_gas_sheets_list", JSON.stringify(initialSheetsList));
+    }
+
+    let activeSheetId = localStorage.getItem("farm_active_sheet_id") || initialSheetsList[0].id;
+    let activeSheetObj = initialSheetsList.find(s => s.id === activeSheetId) || initialSheetsList[0];
 
     // 全局狀態管理
     let state = {
       isAdminLoggedIn: false,
       pendingTargetTab: null,
-      gasUrl: localStorage.getItem("gas_app_url") || "https://script.google.com/macros/s/AKfycbwkcSYoJ3hHM97UX0CpB-bwNZzEqzMlb_kBmOstFRLw0lyVPbaxlP-74rQRa_gVH07mAA/exec",
-      gasSheetUrl: localStorage.getItem("gas_sheet_url") || "https://docs.google.com/spreadsheets/d/1iAE6GgEGsL-oabPWQpUZ5FUWXQivMpabwPYTk0QGq2s/edit?gid=0#gid=0",
+      gasSheetsList: initialSheetsList,
+      activeSheetId: activeSheetObj.id,
+      gasUrl: activeSheetObj.gasUrl,
+      gasSheetUrl: activeSheetObj.sheetUrl,
       units: JSON.parse(localStorage.getItem("farm_units") || JSON.stringify({
         "包": 0.3, "把": 0.25, "斤": 0.6, "籃": 12.0, "袋": 5.0, "kg": 1.0
       })),
@@ -741,16 +894,15 @@
       if (rawInEl) rawInEl.value = todayStr;
       if (shipDateEl) shipDateEl.value = todayStr;
 
-      if (document.getElementById("gasUrlInput")) document.getElementById("gasUrlInput").value = state.gasUrl;
-      if (document.getElementById("gasSheetUrlInput")) document.getElementById("gasSheetUrlInput").value = state.gasSheetUrl;
-
       autoFillSchedule();
       generateNewRawLotNo();
       generateNewShipNo();
       renderUnitConfigForm();
       populateCustomerDropdown();
+      populateHeaderSheetSelector();
+      renderGasSheetsTable();
 
-      // 從 Google 試算表拉取最新數據
+      // 從當前選擇的 Google 試算表拉取最新數據
       fetchFromGas(false);
     };
 
@@ -766,7 +918,8 @@
         
         const bannerText = document.getElementById("syncBannerText");
         if (bannerText) {
-          bannerText.innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp || new Date().toLocaleTimeString()})`;
+          const syncTime = json.timestamp ? formatDateTime(json.timestamp) : formatDateTime(new Date());
+          bannerText.innerText = `✅ 試算表同步完成 (最後更新時間：${syncTime})`;
         }
 
         if (window._showUserAlert) {
@@ -842,7 +995,6 @@
         
         showToast(`已送出資料至 ${sheetName}，同步中...`, "info");
 
-        // 延遲 1.2 秒等待 Google Sheets 完成寫入，隨後重新拉取
         setTimeout(() => {
           fetchFromGas(false);
         }, 1200);
@@ -961,6 +1113,41 @@
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
+    function getRawExpiryDate(r) {
+      if (r.expiryDate) return r.expiryDate;
+      if (r.source) {
+        const matchedField = state.fields.find(f => r.source.includes(f.id));
+        if (matchedField && matchedField.expiryDate) {
+          return matchedField.expiryDate;
+        }
+      }
+      if (r.inDate && r.vegType && CROP_SCHEDULE_RULES[r.vegType]) {
+        const rule = CROP_SCHEDULE_RULES[r.vegType];
+        if (rule.expiry) {
+          return addDaysToDate(r.inDate, rule.expiry);
+        }
+      }
+      return null;
+    }
+
+    function getPlantDateKey(val) {
+      if (!val) return '';
+      const formatted = formatDateTime(val);
+      return formatted.split(' ')[0];
+    }
+
+    function isRawExpired(r) {
+      const expStr = getRawExpiryDate(r);
+      if (!expStr) return false;
+      let expDate = new Date(expStr.replace(/-/g, '/'));
+      if (isNaN(expDate.getTime())) return false;
+      
+      if (!expStr.includes(':') || expStr.includes('00:00')) {
+        expDate.setHours(23, 59, 59, 999);
+      }
+      return new Date() > expDate;
+    }
+
     function generateNewRawLotNo() {
       const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
       const count = state.rawInbound.length + 1;
@@ -979,15 +1166,15 @@
       const record = {
         id: document.getElementById("fieldId").value,
         vegType: document.getElementById("fieldVegType").value,
-        plantDate: document.getElementById("fieldPlantDate").value,
-        fertDate: document.getElementById("fieldFertDate").value,
-        pest1Date: document.getElementById("fieldPest1Date").value,
-        pest2Date: document.getElementById("fieldPest2Date").value,
-        harvest1Date: document.getElementById("fieldHarvest1Date").value,
+        plantDate: attachCurrentTime(document.getElementById("fieldPlantDate").value),
+        fertDate: attachCurrentTime(document.getElementById("fieldFertDate").value),
+        pest1Date: attachCurrentTime(document.getElementById("fieldPest1Date").value),
+        pest2Date: attachCurrentTime(document.getElementById("fieldPest2Date").value),
+        harvest1Date: attachCurrentTime(document.getElementById("fieldHarvest1Date").value),
         harvest1Kg: parseFloat(document.getElementById("fieldHarvest1Kg").value) || 0,
-        harvest2Date: document.getElementById("fieldHarvest2Date").value,
+        harvest2Date: attachCurrentTime(document.getElementById("fieldHarvest2Date").value),
         harvest2Kg: parseFloat(document.getElementById("fieldHarvest2Kg").value) || 0,
-        expiryDate: document.getElementById("fieldExpiryDate").value,
+        expiryDate: attachCurrentTime(document.getElementById("fieldExpiryDate").value),
         notes: document.getElementById("fieldNotes").value
       };
 
@@ -995,26 +1182,49 @@
       showToast("✅ 已送出田間紀錄至 Google 試算表！", "success");
     }
 
-    function transferHarvestToInbound(fieldId, harvestIndex) {
-      const field = state.fields.find(f => f.id === fieldId);
+    function transferHarvestToInbound(fieldIndex, harvestIndex) {
+      const field = state.fields[fieldIndex];
       if (!field) return;
 
       const harvestKg = harvestIndex === 1 ? field.harvest1Kg : field.harvest2Kg;
-      const harvestDate = harvestIndex === 1 ? field.harvest1Date : field.harvest2Date;
+      const harvestDateRaw = harvestIndex === 1 ? field.harvest1Date : field.harvest2Date;
 
       if (!harvestKg || harvestKg <= 0) {
         showToast("⚠️ 該次採收數量為 0 或尚未填寫！", "warning");
         return;
       }
 
+      let formattedDate = new Date().toISOString().split('T')[0];
+      if (harvestDateRaw) {
+        const dStr = String(harvestDateRaw).trim();
+        const match = dStr.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+        if (match) {
+          const yyyy = match[1];
+          const mm = String(match[2]).padStart(2, '0');
+          const dd = String(match[3]).padStart(2, '0');
+          formattedDate = `${yyyy}-${mm}-${dd}`;
+        }
+      }
+
       switchTab("inbound");
-      document.getElementById("rawVegType").value = field.vegType;
-      document.getElementById("rawSource").value = `${field.id} (採${harvestIndex})`;
-      document.getElementById("rawInDate").value = harvestDate || new Date().toISOString().split('T')[0];
-      document.getElementById("rawWeightKg").value = harvestKg;
+
+      const plantKey = getPlantDateKey(field.plantDate);
+
+      const vegSelect = document.getElementById("rawVegType");
+      if (vegSelect) vegSelect.value = field.vegType;
+
+      const sourceInput = document.getElementById("rawSource");
+      if (sourceInput) sourceInput.value = `${field.id} ${field.vegType} [種植:${plantKey}] (採${harvestIndex})`;
+
+      const dateInput = document.getElementById("rawInDate");
+      if (dateInput) dateInput.value = formattedDate;
+
+      const weightInput = document.getElementById("rawWeightKg");
+      if (weightInput) weightInput.value = harvestKg;
+
       generateNewRawLotNo();
 
-      showToast(`已載入 ${field.id} (採${harvestIndex}) 資料至採收入庫表單`, "info");
+      showToast(`已將 ${field.vegType} (${field.id} 種植:${plantKey} 採${harvestIndex}) 之採收日期與數量 (${harvestKg} kg) 代入至採收入庫表單`, "success");
     }
 
     function saveRawInbound() {
@@ -1022,7 +1232,7 @@
         rawLotNo: document.getElementById("rawLotNo").value,
         vegType: document.getElementById("rawVegType").value,
         source: document.getElementById("rawSource").value,
-        inDate: document.getElementById("rawInDate").value,
+        inDate: attachCurrentTime(document.getElementById("rawInDate").value),
         weightKg: parseFloat(document.getElementById("rawWeightKg").value) || 0,
         storageLoc: document.getElementById("rawStorageLoc").value
       };
@@ -1089,7 +1299,7 @@
 
       const ship = {
         shipNo: document.getElementById("shipNo").value,
-        shipDate: document.getElementById("shipDate").value,
+        shipDate: attachCurrentTime(document.getElementById("shipDate").value),
         customer: document.getElementById("shipCustomer").value,
         temp: document.getElementById("shipTemp").value,
         logistics: document.getElementById("shipLogistics").value,
@@ -1155,24 +1365,171 @@
     }
 
     function saveGasConfig() {
-      state.gasUrl = document.getElementById("gasUrlInput").value;
-      state.gasSheetUrl = document.getElementById("gasSheetUrlInput").value;
-      localStorage.setItem("gas_app_url", state.gasUrl);
-      localStorage.setItem("gas_sheet_url", state.gasSheetUrl);
-      showToast("✅ Google Sheets 串接設定已更新！重新同步中...", "success");
+      const sheetId = document.getElementById("gasSheetIdInput").value;
+      const name = document.getElementById("gasNameInput").value.trim();
+      const gasUrl = document.getElementById("gasUrlInput").value.trim();
+      const sheetUrl = document.getElementById("gasSheetUrlInput").value.trim();
+
+      if (!name || !gasUrl) {
+        showToast("⚠️ 請填寫試算表名稱與 GAS API 網址", "warning");
+        return;
+      }
+
+      if (sheetId) {
+        const existing = state.gasSheetsList.find(s => s.id === sheetId);
+        if (existing) {
+          existing.name = name;
+          existing.gasUrl = gasUrl;
+          existing.sheetUrl = sheetUrl;
+        }
+      } else {
+        const newObj = {
+          id: "sheet-" + Date.now(),
+          name: name,
+          gasUrl: gasUrl,
+          sheetUrl: sheetUrl
+        };
+        state.gasSheetsList.push(newObj);
+        if (state.gasSheetsList.length === 1) {
+          state.activeSheetId = newObj.id;
+        }
+      }
+
+      if (sheetId === state.activeSheetId || (!sheetId && state.gasSheetsList.length === 1)) {
+        const curActive = state.gasSheetsList.find(s => s.id === state.activeSheetId);
+        if (curActive) {
+          state.gasUrl = curActive.gasUrl;
+          state.gasSheetUrl = curActive.sheetUrl;
+        }
+      }
+
+      saveGasSheetsState();
+      resetGasForm();
+      renderGasSheetsTable();
+      populateHeaderSheetSelector();
+
+      showToast("✅ Google Sheets 連線設定已儲存！", "success");
       fetchFromGas(true);
+    }
+
+    function switchActiveSheet(id) {
+      const target = state.gasSheetsList.find(s => s.id === id);
+      if (!target) return;
+
+      state.activeSheetId = target.id;
+      state.gasUrl = target.gasUrl;
+      state.gasSheetUrl = target.sheetUrl;
+
+      saveGasSheetsState();
+      populateHeaderSheetSelector();
+      renderGasSheetsTable();
+
+      showToast(`已切換至試算表：${target.name}`, "info");
+      fetchFromGas(true);
+    }
+
+    function editGasSheet(id) {
+      const target = state.gasSheetsList.find(s => s.id === id);
+      if (!target) return;
+
+      document.getElementById("gasSheetIdInput").value = target.id;
+      document.getElementById("gasNameInput").value = target.name;
+      document.getElementById("gasUrlInput").value = target.gasUrl;
+      document.getElementById("gasSheetUrlInput").value = target.sheetUrl || "";
+
+      window.scrollTo({ top: document.getElementById("gasConfigForm").offsetTop - 80, behavior: "smooth" });
+    }
+
+    function deleteGasSheet(id) {
+      if (state.gasSheetsList.length <= 1) {
+        showToast("⚠️ 必須至少保留一組 Google 試算表連線！", "warning");
+        return;
+      }
+
+      showConfirm("刪除試算表設定", "確定要刪除這組試算表連線資訊嗎？", function() {
+        state.gasSheetsList = state.gasSheetsList.filter(s => s.id !== id);
+        
+        if (state.activeSheetId === id) {
+          const first = state.gasSheetsList[0];
+          state.activeSheetId = first.id;
+          state.gasUrl = first.gasUrl;
+          state.gasSheetUrl = first.sheetUrl;
+        }
+
+        saveGasSheetsState();
+        populateHeaderSheetSelector();
+        renderGasSheetsTable();
+        showToast("已刪除該試算表設定", "info");
+        fetchFromGas(true);
+      });
+    }
+
+    function resetGasForm() {
+      document.getElementById("gasSheetIdInput").value = "";
+      document.getElementById("gasNameInput").value = "";
+      document.getElementById("gasUrlInput").value = "";
+      document.getElementById("gasSheetUrlInput").value = "";
+    }
+
+    function saveGasSheetsState() {
+      localStorage.setItem("farm_gas_sheets_list", JSON.stringify(state.gasSheetsList));
+      localStorage.setItem("farm_active_sheet_id", state.activeSheetId);
+    }
+
+    function populateHeaderSheetSelector() {
+      const select = document.getElementById("headerSheetSelector");
+      if (!select) return;
+
+      select.innerHTML = "";
+      state.gasSheetsList.forEach(s => {
+        const selected = s.id === state.activeSheetId ? "selected" : "";
+        select.innerHTML += `<option value="${s.id}" ${selected}>${s.name}</option>`;
+      });
+    }
+
+    function renderGasSheetsTable() {
+      const tbody = document.getElementById("gasSheetsTable");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      if (state.gasSheetsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">尚無設定任何 Google 試算表</td></tr>`;
+        return;
+      }
+
+      state.gasSheetsList.forEach(s => {
+        const isActive = s.id === state.activeSheetId;
+        const activeRadio = `<input type="radio" name="activeSheetGroup" onchange="switchActiveSheet('${s.id}')" ${isActive ? 'checked' : ''} class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">`;
+        const activeBadge = isActive ? '<span class="ml-2 badge-green px-2 py-0.5 rounded text-xs font-bold">啟用中</span>' : '';
+
+        tbody.innerHTML += `
+          <tr class="${isActive ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}">
+            <td class="p-3 text-center">${activeRadio}</td>
+            <td class="p-3 font-bold text-slate-800">${s.name} ${activeBadge}</td>
+            <td class="p-3 text-xs font-mono text-slate-500 max-w-xs truncate" title="${s.gasUrl}">${s.gasUrl}</td>
+            <td class="p-3 text-xs">
+              ${s.sheetUrl ? `<a href="${s.sheetUrl}" target="_blank" class="text-blue-600 hover:underline">開啟連結 🔗</a>` : '-'}
+            </td>
+            <td class="p-3 text-center space-x-1">
+              <button type="button" onclick="editGasSheet('${s.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition">編輯</button>
+              <button type="button" onclick="deleteGasSheet('${s.id}')" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2.5 py-1 rounded font-medium transition">刪除</button>
+            </td>
+          </tr>
+        `;
+      });
     }
 
     function openGoogleSheet() {
       if (state.gasSheetUrl) {
         window.open(state.gasSheetUrl, "_blank");
       } else {
-        showToast("⚠️ 尚未設定 Google 試算表連結！", "warning");
+        showToast("⚠️ 當前啟用的試算表尚未設定網頁開啟連結！", "warning");
       }
     }
 
     function renderAll() {
       renderStats();
+      renderVegSummaryTable();
       renderDashboardWarningTable();
       renderFieldRecordsTable();
       renderRawInboundTable();
@@ -1180,6 +1537,8 @@
       renderShippingHistoryTable();
       renderChannelsTable();
       populateCustomerDropdown();
+      populateHeaderSheetSelector();
+      renderGasSheetsTable();
       generateNewRawLotNo();
       generateNewShipNo();
     }
@@ -1200,7 +1559,7 @@
 
       let warningCount = 0;
       state.rawInbound.forEach(r => {
-        if (getRawRemainingKg(r.rawLotNo) > 0 && getDaysInStorage(r.inDate) >= 7) {
+        if (getRawRemainingKg(r.rawLotNo) > 0 && getDaysInStorage(r.inDate) >= 7 && !isRawExpired(r)) {
           warningCount++;
         }
       });
@@ -1208,21 +1567,93 @@
       if (warningLotsEl) warningLotsEl.innerText = `${warningCount} 批`;
     }
 
+    function renderVegSummaryTable() {
+      const tbody = document.getElementById("dashboardVegSummaryTable");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const vegTypes = Array.from(new Set([
+        ...Object.keys(CROP_SCHEDULE_RULES),
+        ...state.rawInbound.map(r => r.vegType).filter(Boolean)
+      ]));
+
+      let hasData = false;
+
+      vegTypes.forEach(veg => {
+        const rawLots = state.rawInbound.filter(r => r.vegType === veg);
+        let totalInStock = 0;
+        let expiredKg = 0;
+        let validKg = 0;
+
+        rawLots.forEach(r => {
+          const rem = getRawRemainingKg(r.rawLotNo);
+          if (rem > 0) {
+            totalInStock += rem;
+            if (isRawExpired(r)) {
+              expiredKg += rem;
+            } else {
+              validKg += rem;
+            }
+          }
+        });
+
+        // 自動計算該蔬菜品項累計已出貨數量 (kg)
+        let shippedKg = 0;
+        state.shipping.forEach(ship => {
+          if (ship.items && Array.isArray(ship.items)) {
+            ship.items.forEach(item => {
+              if (item.vegType === veg) {
+                shippedKg += parseFloat(item.calculatedKg || 0);
+              }
+            });
+          }
+        });
+
+        if (totalInStock > 0 || shippedKg > 0) {
+          hasData = true;
+          let statusBadge = `<span class="badge-green px-2.5 py-1 rounded-full text-xs font-semibold">可正常出貨</span>`;
+          if (totalInStock === 0 && shippedKg > 0) {
+            statusBadge = `<span class="bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold">已全數出貨</span>`;
+          } else if (validKg === 0 && expiredKg > 0) {
+            statusBadge = `<span class="badge-red px-2.5 py-1 rounded-full text-xs font-semibold">全數逾期</span>`;
+          } else if (expiredKg > 0) {
+            statusBadge = `<span class="badge-yellow px-2.5 py-1 rounded-full text-xs font-semibold">部分逾期扣除</span>`;
+          }
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-bold text-slate-800">${veg}</td>
+              <td class="p-3 text-slate-600">${totalInStock.toFixed(1)} kg</td>
+              <td class="p-3 text-rose-600 font-medium">${expiredKg > 0 ? '-' + expiredKg.toFixed(1) + ' kg' : '0 kg'}</td>
+              <td class="p-3 font-extrabold text-emerald-600 text-base">${validKg.toFixed(1)} kg</td>
+              <td class="p-3 font-bold text-blue-600">${shippedKg.toFixed(1)} kg</td>
+              <td class="p-3">${statusBadge}</td>
+            </tr>
+          `;
+        }
+      });
+
+      if (!hasData) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">目前無冷藏在庫或出貨紀錄之蔬菜品項</td></tr>`;
+      }
+    }
+
     function renderDashboardWarningTable() {
       const tbody = document.getElementById("dashboardWarningTable");
       if (!tbody) return;
       tbody.innerHTML = "";
 
-      const activeLots = state.rawInbound.filter(r => getRawRemainingKg(r.rawLotNo) > 0);
+      const validLots = state.rawInbound.filter(r => getRawRemainingKg(r.rawLotNo) > 0 && !isRawExpired(r));
 
-      if (activeLots.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">目前試算表無在庫庫存批次</td></tr>`;
+      if (validLots.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">目前無符合條件且未逾期之冷藏庫存批次</td></tr>`;
         return;
       }
 
-      activeLots.forEach(r => {
+      validLots.forEach(r => {
         const remKg = getRawRemainingKg(r.rawLotNo);
         const days = getDaysInStorage(r.inDate);
+        const expiryStr = getRawExpiryDate(r);
 
         let badgeClass = "badge-green";
         let statusText = "安全 (FIFO 良好)";
@@ -1239,7 +1670,8 @@
             <td class="p-3 font-mono font-semibold">${r.rawLotNo}</td>
             <td class="p-3 font-medium">${r.vegType || ''}</td>
             <td class="p-3 text-slate-500">${r.source || ''}</td>
-            <td class="p-3 text-slate-500">${r.inDate || ''}</td>
+            <td class="p-3 text-slate-500">${formatDateTime(r.inDate)}</td>
+            <td class="p-3 text-slate-500">${expiryStr ? formatDateTime(expiryStr) : '-'}</td>
             <td class="p-3 font-bold text-emerald-600">${remKg.toFixed(1)} kg</td>
             <td class="p-3 font-bold">${days} 天</td>
             <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}">${statusText}</span></td>
@@ -1259,31 +1691,59 @@
         return;
       }
 
-      state.fields.forEach(f => {
-        // 判斷採收 1 與採收 2 是否已轉入冷藏庫 (RawInbound)
+      state.fields.forEach((f, idx) => {
+        const plantKey = getPlantDateKey(f.plantDate);
+
+        // 精確對照：結合「田區」、「蔬菜種類」、「種植日期」與「採收次數」進行識別與轉入狀態判定
         const isTransferred1 = f.transferred1 === true || f.transferred1 === "已轉入" || f.transferred1 === "true" ||
-          state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採1") || r.source.includes("採收1")));
+          state.rawInbound.some(r => {
+            if (!r.source) return false;
+            const sameVeg = r.vegType === f.vegType;
+            const matchHarvest = r.source.includes("採1") || r.source.includes("採收1");
+            const matchField = f.id ? r.source.includes(f.id) : true;
+            const matchPlant = plantKey ? r.source.includes(plantKey) : true;
+            return sameVeg && matchHarvest && matchField && matchPlant;
+          });
 
         const isTransferred2 = f.transferred2 === true || f.transferred2 === "已轉入" || f.transferred2 === "true" ||
-          state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採2") || r.source.includes("採收2")));
+          state.rawInbound.some(r => {
+            if (!r.source) return false;
+            const sameVeg = r.vegType === f.vegType;
+            const matchHarvest = r.source.includes("採2") || r.source.includes("採收2");
+            const matchField = f.id ? r.source.includes(f.id) : true;
+            const matchPlant = plantKey ? r.source.includes(plantKey) : true;
+            return sameVeg && matchHarvest && matchField && matchPlant;
+          });
 
         const btn1 = isTransferred1 
-          ? `<button type="button" onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm" title="點擊可重新於冷藏庫載入此批號">已轉入 (採1)</button>`
-          : `<button type="button" onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-md font-medium transition">轉入 (採1)</button>`;
+          ? `<button type="button" onclick="transferHarvestToInbound(${idx}, 1)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm w-full text-center" title="點擊可重新載入此資料至採收入庫">已轉入 (採1)</button>`
+          : `<button type="button" onclick="transferHarvestToInbound(${idx}, 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-md font-medium transition w-full text-center">轉入 (採1)</button>`;
 
         const btn2 = isTransferred2
-          ? `<button type="button" onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm" title="點擊可重新於冷藏庫載入此批號">已轉入 (採2)</button>`
-          : `<button type="button" onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2.5 py-1 rounded-md font-medium transition">轉入 (採2)</button>`;
+          ? `<button type="button" onclick="transferHarvestToInbound(${idx}, 2)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm w-full text-center" title="點擊可重新載入此資料至採收入庫">已轉入 (採2)</button>`
+          : `<button type="button" onclick="transferHarvestToInbound(${idx}, 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2.5 py-1 rounded-md font-medium transition w-full text-center">轉入 (採2)</button>`;
+
+        const pest1Text = f.pest1Date ? `用藥1: ${formatDateTime(f.pest1Date)}` : `用藥1: -`;
+        const pest2Text = f.pest2Date ? `用藥2: ${formatDateTime(f.pest2Date)}` : `用藥2: -`;
+
+        const harvest1Text = (f.harvest1Kg || f.harvest1Kg === 0) ? `採收1: <span class="font-bold text-slate-800">${f.harvest1Kg} kg</span> <span class="text-xs text-slate-400">(${formatDateTime(f.harvest1Date)})</span>` : `採收1: -`;
+        const harvest2Text = (f.harvest2Kg || f.harvest2Kg === 0) ? `採收2: <span class="font-bold text-slate-800">${f.harvest2Kg} kg</span> <span class="text-xs text-slate-400">(${formatDateTime(f.harvest2Date)})</span>` : `採收2: -`;
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-bold text-slate-700">${f.id || ''}</td>
             <td class="p-3 font-medium text-emerald-800">${f.vegType || ''}</td>
-            <td class="p-3 text-slate-500">${f.plantDate || ''}</td>
-            <td class="p-3">${f.harvest1Kg || 0} kg <span class="text-xs text-slate-400">(${f.harvest1Date || ''})</span></td>
-            <td class="p-3">${f.harvest2Kg || 0} kg <span class="text-xs text-slate-400">(${f.harvest2Date || ''})</span></td>
-            <td class="p-3 text-slate-500">${f.expiryDate || '-'}</td>
-            <td class="p-3 space-x-1.5">
+            <td class="p-3 text-slate-500">${formatDateTime(f.plantDate)}</td>
+            <td class="p-3 text-xs text-slate-600 whitespace-nowrap">
+              <div class="py-0.5">${pest1Text}</div>
+              <div class="py-0.5 border-t border-slate-100 text-slate-500">${pest2Text}</div>
+            </td>
+            <td class="p-3 text-xs text-slate-700 whitespace-nowrap">
+              <div class="py-0.5">${harvest1Text}</div>
+              <div class="py-0.5 border-t border-slate-100 text-slate-500">${harvest2Text}</div>
+            </td>
+            <td class="p-3 text-slate-500">${formatDateTime(f.expiryDate)}</td>
+            <td class="p-3 space-y-1 min-w-[110px]">
               ${btn1}
               ${btn2}
             </td>
@@ -1312,7 +1772,7 @@
             <td class="p-3 font-mono font-bold text-slate-800">${r.rawLotNo || ''}</td>
             <td class="p-3 font-medium">${r.vegType || ''}</td>
             <td class="p-3 text-slate-500">${r.source || ''}</td>
-            <td class="p-3 text-slate-500">${r.inDate || ''}</td>
+            <td class="p-3 text-slate-500">${formatDateTime(r.inDate)}</td>
             <td class="p-3">${r.weightKg || 0} kg</td>
             <td class="p-3 text-slate-500">${usedKg.toFixed(1)} kg</td>
             <td class="p-3 font-bold text-emerald-600">${remKg.toFixed(1)} kg</td>
@@ -1403,7 +1863,7 @@
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-mono font-bold text-purple-900">${s.shipNo || ''}</td>
-            <td class="p-3 text-slate-500">${s.shipDate || ''}</td>
+            <td class="p-3 text-slate-500">${formatDateTime(s.shipDate)}</td>
             <td class="p-3 font-semibold text-slate-800">${s.customer || ''}</td>
             <td class="p-3 text-xs text-slate-500">${s.temp || ''}<br>${s.logistics || '-'}</td>
             <td class="p-3 text-xs text-slate-700">${itemsSummary || '-'}</td>
