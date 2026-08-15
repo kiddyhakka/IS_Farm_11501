@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>義勝農場 - 冷藏履歷與進出庫管理系統 (Google 試算表純雲端版)</title>
+  <title>義勝農場 - 冷藏履歷與進出庫管理系統</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Inter -->
@@ -14,9 +14,15 @@
     .badge-green { background-color: #d1fae5; color: #065f46; }
     .badge-yellow { background-color: #fef3c7; color: #92400e; }
     .badge-red { background-color: #fee2e2; color: #991b1b; }
+    .badge-pink { background-color: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Top Navigation Header -->
   <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-30">
@@ -32,7 +38,7 @@
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
-        <button onclick="fetchFromGas(true)" id="refreshBtn" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 shadow-sm">
+        <button type="button" onclick="fetchFromGas(true)" id="refreshBtn" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
           <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           <span id="refreshBtnText">同步試算表</span>
         </button>
@@ -42,7 +48,7 @@
           連線就緒
         </span>
 
-        <button id="adminLoginBtn" onclick="toggleAdminModal()" class="bg-emerald-900/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1">
+        <button type="button" id="adminLoginBtn" onclick="toggleAdminModal()" class="bg-emerald-900/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           <span id="adminBtnText">管理者登入</span>
         </button>
@@ -53,41 +59,42 @@
   <!-- Navigation Tabs -->
   <nav class="bg-white border-b border-slate-200 sticky top-14 z-20 shadow-sm">
     <div class="max-w-7xl mx-auto px-2 sm:px-4 flex overflow-x-auto no-scrollbar">
-      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-active py-3 px-4 text-sm font-medium whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-active py-3 px-4 text-sm font-medium whitespace-nowrap transition flex items-center gap-1.5">
         📊 概覽與儀表板
       </button>
-      <button onclick="switchTab('field')" id="tab-field" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="switchTab('field')" id="tab-field" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         🌱 田間作業與採收
       </button>
-      <button onclick="switchTab('inbound')" id="tab-inbound" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="switchTab('inbound')" id="tab-inbound" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         ❄️ 採收入庫與冷藏庫存
       </button>
-      <button onclick="switchTab('outbound')" id="tab-outbound" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="switchTab('outbound')" id="tab-outbound" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         📦 加工分裝與訂單出貨
       </button>
-      <button onclick="checkAdminAuth('channels')" id="tab-channels" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="checkAdminAuth('channels')" id="tab-channels" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         🔒 出貨通路管理
       </button>
-      <button onclick="checkAdminAuth('units')" id="tab-units" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="checkAdminAuth('units')" id="tab-units" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         🔒 單位換算設定
       </button>
-      <button onclick="checkAdminAuth('gas')" id="tab-gas" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" onclick="checkAdminAuth('gas')" id="tab-gas" class="py-3 px-4 text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap transition flex items-center gap-1.5">
         🔒 Google Sheets 設定
       </button>
     </div>
   </nav>
 
+  <!-- Main View Container -->
   <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
 
     <!-- VIEW 0: Dashboard -->
     <section id="view-dashboard" class="space-y-6">
       <!-- Sync notification banner -->
-      <div id="syncBanner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2.5 rounded-xl text-xs flex justify-between items-center">
+      <div id="syncBanner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2.5 rounded-xl text-xs flex justify-between items-center shadow-sm">
         <span class="flex items-center gap-1.5">
           <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span id="syncBannerText">數據來源：正在連線讀取 Google 試算表最新資料...</span>
         </span>
-        <button onclick="fetchFromGas(true)" class="underline font-semibold hover:text-blue-900">手動重新整理</button>
+        <button type="button" onclick="fetchFromGas(true)" class="underline font-semibold hover:text-blue-900">手動重新整理</button>
       </div>
 
       <!-- KPI Stats Grid -->
@@ -118,16 +125,16 @@
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
         <h3 class="text-base font-bold text-slate-800 mb-3">⚡ 快速操作快捷通道</h3>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <button onclick="switchTab('field')" class="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-sm font-semibold transition text-center border border-emerald-200">
+          <button type="button" onclick="switchTab('field')" class="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-sm font-semibold transition text-center border border-emerald-200 active:scale-95">
             🌱 新增田間紀錄
           </button>
-          <button onclick="switchTab('inbound')" class="p-3 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-sm font-semibold transition text-center border border-blue-200">
+          <button type="button" onclick="switchTab('inbound')" class="p-3 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-sm font-semibold transition text-center border border-blue-200 active:scale-95">
             ❄️ 原料採收入庫
           </button>
-          <button onclick="switchTab('outbound')" class="p-3 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg text-sm font-semibold transition text-center border border-purple-200">
+          <button type="button" onclick="switchTab('outbound')" class="p-3 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg text-sm font-semibold transition text-center border border-purple-200 active:scale-95">
             📦 新增出貨單
           </button>
-          <button onclick="openGoogleSheet()" class="p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-sm font-semibold transition text-center border border-slate-300">
+          <button type="button" onclick="openGoogleSheet()" class="p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-sm font-semibold transition text-center border border-slate-300 active:scale-95">
             📊 開啟 Google 試算表
           </button>
         </div>
@@ -174,7 +181,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">田區/地塊編號</label>
-              <select id="fieldId" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+              <select id="fieldId" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                 <option value="A1區">A1區 (溫室01)</option>
                 <option value="A2區">A2區 (溫室02)</option>
                 <option value="B1區">B1區 (露天網室)</option>
@@ -185,7 +192,7 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">蔬菜種類</label>
-              <select id="fieldVegType" onchange="autoFillSchedule()" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+              <select id="fieldVegType" onchange="autoFillSchedule()" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                 <option value="小白菜">小白菜</option>
                 <option value="油菜">油菜</option>
                 <option value="青梗白菜">青梗白菜</option>
@@ -200,7 +207,7 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">種植/播種日期</label>
-              <input type="date" id="fieldPlantDate" onchange="autoFillSchedule()" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+              <input type="date" id="fieldPlantDate" onchange="autoFillSchedule()" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
             </div>
           </div>
 
@@ -210,27 +217,27 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               <div>
                 <label class="block text-xs text-slate-600">施肥日</label>
-                <input type="date" id="fieldFertDate" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldFertDate" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
               <div>
                 <label class="block text-xs text-slate-600">用藥一</label>
-                <input type="date" id="fieldPest1Date" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldPest1Date" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
               <div>
                 <label class="block text-xs text-slate-600">用藥二</label>
-                <input type="date" id="fieldPest2Date" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldPest2Date" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
               <div>
                 <label class="block text-xs text-slate-600">採收一 (預估)</label>
-                <input type="date" id="fieldHarvest1Date" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldHarvest1Date" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
               <div>
                 <label class="block text-xs text-slate-600">採收二 (預估)</label>
-                <input type="date" id="fieldHarvest2Date" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldHarvest2Date" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
               <div>
                 <label class="block text-xs text-slate-600">冷藏預估期限</label>
-                <input type="date" id="fieldExpiryDate" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+                <input type="date" id="fieldExpiryDate" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
               </div>
             </div>
           </div>
@@ -239,20 +246,20 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">第 1 次實際採收數量 (kg)</label>
-              <input type="number" step="0.1" min="0" id="fieldHarvest1Kg" placeholder="例如: 120" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+              <input type="number" step="0.1" min="0" id="fieldHarvest1Kg" placeholder="例如: 120" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">第 2 次實際採收數量 (kg)</label>
-              <input type="number" step="0.1" min="0" id="fieldHarvest2Kg" placeholder="例如: 80" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+              <input type="number" step="0.1" min="0" id="fieldHarvest2Kg" placeholder="例如: 80" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none">
             </div>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">備註/田間紀錄說明</label>
-            <input type="text" id="fieldNotes" placeholder="有機肥用量、氣候異常記錄等" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+            <input type="text" id="fieldNotes" placeholder="有機肥用量、氣候異常記錄等" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
           </div>
 
-          <button type="submit" id="saveFieldBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+          <button type="submit" id="saveFieldBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2 active:scale-95">
             <span>💾 儲存並同步至 Google 試算表</span>
           </button>
         </form>
@@ -262,7 +269,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
           <h3 class="font-bold text-slate-800">📋 田間栽培與採收紀錄歷史 (Google 試算表 FieldRecords)</h3>
-          <button onclick="fetchFromGas(true)" class="text-xs text-emerald-700 hover:underline">🔄 重新整理</button>
+          <button type="button" onclick="fetchFromGas(true)" class="text-xs text-emerald-700 hover:underline font-medium">🔄 重新整理</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -301,7 +308,7 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">蔬菜種類</label>
-              <select id="rawVegType" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500">
+              <select id="rawVegType" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                 <option value="小白菜">小白菜</option>
                 <option value="油菜">油菜</option>
                 <option value="青梗白菜">青梗白菜</option>
@@ -316,22 +323,22 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">田區來源</label>
-              <input type="text" id="rawSource" placeholder="例如: A1區" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="rawSource" placeholder="例如: A1區 (採1)" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">入庫日期</label>
-              <input type="date" id="rawInDate" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="date" id="rawInDate" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">入庫毛重/淨重 (kg)</label>
-              <input type="number" step="0.1" min="0.1" id="rawWeightKg" required placeholder="例如: 150" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="number" step="0.1" min="0.1" id="rawWeightKg" required placeholder="例如: 150" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">冷藏庫儲位</label>
-              <select id="rawStorageLoc" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <select id="rawStorageLoc" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
                 <option value="A區冷藏-01">A區冷藏 (2℃~5℃) 架位01</option>
                 <option value="A區冷藏-02">A區冷藏 (2℃~5℃) 架位02</option>
                 <option value="B區預冷-01">B區預冷 (5℃~8℃) 架位01</option>
@@ -339,7 +346,7 @@
             </div>
           </div>
 
-          <button type="submit" id="saveRawBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+          <button type="submit" id="saveRawBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2 active:scale-95">
             <span>❄️ 建立入庫並同步至 Google 試算表</span>
           </button>
         </form>
@@ -357,7 +364,7 @@
               <tr>
                 <th class="p-3">原料批號</th>
                 <th class="p-3">品項</th>
-                <th class="p-3">田區</th>
+                <th class="p-3">田區來源</th>
                 <th class="p-3">入庫日期</th>
                 <th class="p-3">原始重量</th>
                 <th class="p-3">已出貨銷帳</th>
@@ -390,19 +397,19 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">出貨日期</label>
-              <input type="date" id="shipDate" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="date" id="shipDate" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">出貨通路/客戶</label>
-              <select id="shipCustomer" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <select id="shipCustomer" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
                 <!-- Dynamically populated from Channels -->
               </select>
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">溫層與配送方式</label>
-              <select id="shipTemp" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <select id="shipTemp" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
                 <option value="冷藏 (2℃~7℃)">冷藏 (2℃~7℃)</option>
                 <option value="常溫 (24小時極速)">常溫 (24小時極速)</option>
               </select>
@@ -410,7 +417,7 @@
 
             <div class="sm:col-span-2">
               <label class="block text-xs font-semibold text-slate-600 mb-1">物流業者 / 車牌 / 單號</label>
-              <input type="text" id="shipLogistics" placeholder="例如: 黑貓冷藏 8812 / 義勝自送車" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="shipLogistics" placeholder="例如: 黑貓冷藏 8812 / 義勝自送車" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
           </div>
 
@@ -418,7 +425,7 @@
           <div class="border border-slate-200 rounded-lg overflow-hidden">
             <div class="p-3 bg-purple-50 border-b border-slate-200 flex justify-between items-center">
               <h3 class="text-sm font-bold text-purple-900">🥬 出貨蔬菜明細選單</h3>
-              <button type="button" onclick="addShippingItemRow()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-1.5 px-3 rounded-md transition shadow-sm">
+              <button type="button" onclick="addShippingItemRow()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-1.5 px-3 rounded-md transition shadow-sm active:scale-95">
                 + 新增品項
               </button>
             </div>
@@ -448,7 +455,7 @@
             </div>
           </div>
 
-          <button type="submit" id="saveShipBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+          <button type="submit" id="saveShipBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2 active:scale-95">
             <span>🚀 確定出貨並同步至 Google 試算表</span>
           </button>
         </form>
@@ -458,7 +465,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
           <h3 class="font-bold text-slate-800">🚚 訂單出貨歷史與銷帳紀錄 (Google 試算表 Shipping)</h3>
-          <button onclick="fetchFromGas(true)" class="text-xs text-purple-700 hover:underline">🔄 重新整理</button>
+          <button type="button" onclick="fetchFromGas(true)" class="text-xs text-purple-700 hover:underline font-medium">🔄 重新整理</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -491,12 +498,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">通路名稱</label>
-              <input type="text" id="chanName" required placeholder="例如: 全聯-高雄總倉" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="chanName" required placeholder="例如: 全聯-高雄總倉" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">通路類型</label>
-              <select id="chanType" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <select id="chanType" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
                 <option value="連鎖超市">連鎖超市</option>
                 <option value="有機/合作社">有機/合作社</option>
                 <option value="批發盤商">批發盤商</option>
@@ -508,30 +515,30 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">聯絡人</label>
-              <input type="text" id="chanContact" placeholder="對接窗口" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="chanContact" placeholder="對接窗口" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">電話</label>
-              <input type="text" id="chanPhone" placeholder="09xx-xxx-xxx" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="chanPhone" placeholder="09xx-xxx-xxx" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">預設配送溫層</label>
-              <select id="chanTemp" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <select id="chanTemp" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
                 <option value="冷藏 (2℃~7℃)">冷藏 (2℃~7℃)</option>
                 <option value="常溫">常溫</option>
               </select>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">送貨地址</label>
-              <input type="text" id="chanAddress" placeholder="配送地址" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+              <input type="text" id="chanAddress" placeholder="配送地址" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
             </div>
           </div>
 
-          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm active:scale-95">
             💾 儲存通路資料
           </button>
         </form>
@@ -576,7 +583,7 @@
             <!-- Dynamically rendered -->
           </div>
 
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm active:scale-95">
             💾 儲存單位公斤換算值
           </button>
         </form>
@@ -593,19 +600,19 @@
         <form id="gasConfigForm" onsubmit="event.preventDefault(); saveGasConfig();" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Google Apps Script (GAS) API 部署網址</label>
-            <input type="url" id="gasUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono">
+            <input type="url" id="gasUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Google 試算表網頁開啟連結</label>
-            <input type="url" id="gasSheetUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono">
+            <input type="url" id="gasSheetUrlInput" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono outline-none">
           </div>
 
           <div class="flex flex-wrap gap-3">
-            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm active:scale-95">
               💾 儲存設定並重新同步
             </button>
-            <button type="button" onclick="openGoogleSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-1">
+            <button type="button" onclick="openGoogleSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-1 active:scale-95">
               🔗 開啟 Google 試算表
             </button>
           </div>
@@ -620,10 +627,22 @@
     <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
       <h3 class="text-lg font-bold text-slate-800">🔑 管理者身分驗證</h3>
       <p class="text-xs text-slate-500">此頁面為管理者權限，請輸入通行密碼 (預設為 admin)</p>
-      <input type="password" id="adminPasswordInput" placeholder="請輸入管理者密碼" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+      <input type="password" id="adminPasswordInput" placeholder="請輸入管理者密碼" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
       <div class="flex justify-end gap-2">
-        <button onclick="closeAdminModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg">取消</button>
-        <button onclick="loginAdmin()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg">驗證登入</button>
+        <button type="button" onclick="closeAdminModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg transition">取消</button>
+        <button type="button" onclick="loginAdmin()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition">驗證登入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirmModal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
+      <h3 id="confirmModalTitle" class="text-lg font-bold text-slate-800">確認操作</h3>
+      <p id="confirmModalText" class="text-sm text-slate-600">您確定要執行此操作嗎？</p>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="confirmModalCancelBtn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg transition">取消</button>
+        <button type="button" id="confirmModalOkBtn" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg transition">確定</button>
       </div>
     </div>
   </div>
@@ -642,7 +661,7 @@
       "莧菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 }
     };
 
-    // 系統狀態：純讀取 Google 試算表
+    // 全局狀態管理
     let state = {
       isAdminLoggedIn: false,
       pendingTargetTab: null,
@@ -651,24 +670,80 @@
       units: JSON.parse(localStorage.getItem("farm_units") || JSON.stringify({
         "包": 0.3, "把": 0.25, "斤": 0.6, "籃": 12.0, "袋": 5.0, "kg": 1.0
       })),
-      channels: localStorage.getItem("farm_channels") ? JSON.parse(localStorage.getItem("farm_channels")) : [],
-      // 以下全部來自試算表雲端
+      channels: localStorage.getItem("farm_channels") ? JSON.parse(localStorage.getItem("farm_channels")) : [
+        { id: 101, name: "全聯-高雄總倉", type: "連鎖超市", contact: "王經理", phone: "0912-345678", temp: "冷藏 (2℃~7℃)", address: "高雄市仁武區成功路1號" },
+        { id: 102, name: "主婦聯盟有機店", type: "有機/合作社", contact: "李小姐", phone: "0922-888999", temp: "冷藏 (2℃~7℃)", address: "屏東市自由路100號" }
+      ],
       fields: [],
       rawInbound: [],
       shipping: []
     };
 
     let shippingItemsState = [];
+    let pendingConfirmAction = null;
 
-    // 初始化
+    // 自訂非阻塞 Toast 提示
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      let bgClass = "bg-slate-800 text-white";
+      if (type === "success") bgClass = "bg-emerald-600 text-white";
+      if (type === "error") bgClass = "bg-rose-600 text-white";
+      if (type === "warning") bgClass = "bg-amber-600 text-white";
+
+      toast.className = `${bgClass} px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // 自訂確認視窗
+    function showConfirm(title, text, onConfirm) {
+      document.getElementById("confirmModalTitle").innerText = title;
+      document.getElementById("confirmModalText").innerText = text;
+      
+      const modal = document.getElementById("confirmModal");
+      modal.classList.remove("hidden");
+
+      pendingConfirmAction = onConfirm;
+
+      document.getElementById("confirmModalCancelBtn").onclick = function() {
+        modal.classList.add("hidden");
+        pendingConfirmAction = null;
+      };
+
+      document.getElementById("confirmModalOkBtn").onclick = function() {
+        modal.classList.add("hidden");
+        if (typeof pendingConfirmAction === "function") {
+          pendingConfirmAction();
+        }
+        pendingConfirmAction = null;
+      };
+    }
+
     window.onload = function() {
       const todayStr = new Date().toISOString().split('T')[0];
-      document.getElementById("fieldPlantDate").value = todayStr;
-      document.getElementById("rawInDate").value = todayStr;
-      document.getElementById("shipDate").value = todayStr;
+      
+      const fieldPlantEl = document.getElementById("fieldPlantDate");
+      const rawInEl = document.getElementById("rawInDate");
+      const shipDateEl = document.getElementById("shipDate");
 
-      document.getElementById("gasUrlInput").value = state.gasUrl;
-      document.getElementById("gasSheetUrlInput").value = state.gasSheetUrl;
+      if (fieldPlantEl) fieldPlantEl.value = todayStr;
+      if (rawInEl) rawInEl.value = todayStr;
+      if (shipDateEl) shipDateEl.value = todayStr;
+
+      if (document.getElementById("gasUrlInput")) document.getElementById("gasUrlInput").value = state.gasUrl;
+      if (document.getElementById("gasSheetUrlInput")) document.getElementById("gasSheetUrlInput").value = state.gasSheetUrl;
 
       autoFillSchedule();
       generateNewRawLotNo();
@@ -676,93 +751,69 @@
       renderUnitConfigForm();
       populateCustomerDropdown();
 
-      // 立即自 Google 試算表拉取最新數據
+      // 從 Google 試算表拉取最新數據
       fetchFromGas(false);
     };
 
-    // 關鍵函式：從 Google Apps Script GET 讀取試算表所有資料
-    async function fetchFromGas(showUserAlert = false) {
-    //  if (!state.gasUrl) {
-    //    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
-   //     return;
-   //   }
+    // 全局 JSONP 回呼處理
+    window.handleGasResponse = function(json) {
+      setLoadingUI(false);
+      if (json && json.status === "success") {
+        state.fields = json.fields || [];
+        state.rawInbound = json.rawInbound || [];
+        state.shipping = json.shipping || [];
 
-   //   setLoadingUI(true);
-   //   document.getElementById("syncBannerText").innerText = "🔄 正在從 Google 試算表拉取最新資料...";
+        renderAll();
+        
+        const bannerText = document.getElementById("syncBannerText");
+        if (bannerText) {
+          bannerText.innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp || new Date().toLocaleTimeString()})`;
+        }
 
-  //    try {
-   //     const res = await fetch(state.gasUrl, { method: "GET" });
-   //     const json = await res.json();
+        if (window._showUserAlert) {
+          showToast("✅ 已成功同步最新 Google 試算表資料！", "success");
+          window._showUserAlert = false;
+        }
+      } else {
+        const msg = json && json.message ? json.message : "未知錯誤";
+        showToast("⚠️ 試算表讀取失敗：" + msg, "error");
+        document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + msg;
+      }
+    };
 
-   //     if (json.status === "success") {
-  //        state.fields = json.fields || [];
-   //       state.rawInbound = json.rawInbound || [];
-   //       state.shipping = json.shipping || [];
+    function fetchFromGas(showUserAlert = false) {
+      if (!state.gasUrl) {
+        showToast("⚠️ 尚未設定 Google Apps Script API 網址", "warning");
+        document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
+        return;
+      }
 
-  //        renderAll();
-  //        document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
-  //        if (showUserAlert) alert("✅ 已成功同步最新 Google 試算表資料！");
-   //     } else {
-  //        document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
-  //      }
-  //    } catch (err) {
-  //      console.error("Fetch GAS Error:", err);
-  //      document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表資料，請確認 Apps Script 是否已部署最新版本並設為所有人。";
-  //    } finally {
- //       setLoadingUI(false);
-  //    }
+      window._showUserAlert = showUserAlert;
+      setLoadingUI(true);
+      document.getElementById("syncBannerText").innerText = "🔄 正在自 Google 試算表抓取最新資料...";
 
-window.handleGasResponse = function(json) {
-  setLoadingUI(false);
-  if (json && json.status === "success") {
-    state.fields = json.fields || [];
-    state.rawInbound = json.rawInbound || [];
-    state.shipping = json.shipping || [];
+      const oldScript = document.getElementById("gasJsonpScript");
+      if (oldScript) oldScript.remove();
 
-    renderAll();
-    document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
-    if (window._showUserAlert) {
-      alert("✅ 已成功同步最新 Google 試算表資料！");
-      window._showUserAlert = false;
-    }
-  } else {
-    document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
-  }
-};
-
-// 透過 JSONP 標籤安全拉取資料（免受 CORS 限制）
-function fetchFromGas(showUserAlert = false) {
-  if (!state.gasUrl) {
-    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
-    return;
-  }
-
-  window._showUserAlert = showUserAlert;
-  setLoadingUI(true);
-  document.getElementById("syncBannerText").innerText = "🔄 正在自 Google 試算表抓取最新資料...";
-
-  // 移除舊的 script 標籤
-  const oldScript = document.getElementById("gasJsonpScript");
-  if (oldScript) oldScript.remove();
-
-  // 動態建立 script 標籤
-  const script = document.createElement("script");
-  script.id = "gasJsonpScript";
-  const urlWithCallback = state.gasUrl + (state.gasUrl.includes("?") ? "&" : "?") + "callback=handleGasResponse&t=" + Date.now();
-  script.src = urlWithCallback;
-  script.onerror = function() {
-    setLoadingUI(false);
-    document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表，請確認 Apps Script 已部署為新版本且存取權設為「所有人」。";
-  };
-
-  document.body.appendChild(script);
-}
+      const script = document.createElement("script");
+      script.id = "gasJsonpScript";
+      const separator = state.gasUrl.includes("?") ? "&" : "?";
+      script.src = state.gasUrl + separator + "callback=handleGasResponse&t=" + Date.now();
       
+      script.onerror = function() {
+        setLoadingUI(false);
+        showToast("⚠️ 無法連線至 Google 試算表", "error");
+        document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表，請確認 Apps Script 已部署為新版本且存取權設為「所有人」。";
+      };
+
+      document.body.appendChild(script);
     }
 
     function setLoadingUI(isLoading) {
       const icon = document.getElementById("refreshIcon");
       const badge = document.getElementById("gasStatusBadge");
+      if (!icon || !badge) return;
+
       if (isLoading) {
         icon.classList.add("animate-spin");
         badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800";
@@ -774,9 +825,12 @@ function fetchFromGas(showUserAlert = false) {
       }
     }
 
-    // 發送資料至 GAS 並在寫入後自動拉取最新資料
     async function syncDataToGasAndRefresh(sheetName, payload) {
-      if (!state.gasUrl) return;
+      if (!state.gasUrl) {
+        showToast("⚠️ 請先設定 Google Sheets GAS API 網址！", "warning");
+        return;
+      }
+
       document.getElementById("syncBannerText").innerText = `📤 正在寫入資料至試算表 ${sheetName}...`;
       
       try {
@@ -787,12 +841,15 @@ function fetchFromGas(showUserAlert = false) {
           body: JSON.stringify({ sheetName: sheetName, data: payload })
         });
         
-        // 延遲 1.2 秒等待 Google Sheets 完成寫入，隨後立刻拉取最新試算表內容
+        showToast(`已送出資料至 ${sheetName}，同步中...`, "info");
+
+        // 延遲 1.2 秒等待 Google Sheets 完成寫入，隨後重新拉取
         setTimeout(() => {
           fetchFromGas(false);
         }, 1200);
       } catch (err) {
         console.error("Sync to GAS error:", err);
+        showToast("⚠️ 寫入失敗，請檢查網路連線", "error");
       }
     }
 
@@ -829,18 +886,22 @@ function fetchFromGas(showUserAlert = false) {
     }
 
     function loginAdmin() {
-      const pwd = document.getElementById("adminPasswordInput").value;
+      const pwdInput = document.getElementById("adminPasswordInput");
+      const pwd = pwdInput ? pwdInput.value : "";
+      
       if (pwd === "admin") {
         state.isAdminLoggedIn = true;
         document.getElementById("adminBtnText").innerText = "管理者 (登出)";
-        document.getElementById("adminPasswordInput").value = "";
+        pwdInput.value = "";
         closeAdminModal();
+        showToast("🔑 管理者驗證成功", "success");
+
         if (state.pendingTargetTab) {
           switchTab(state.pendingTargetTab);
           state.pendingTargetTab = null;
         }
       } else {
-        alert("密碼錯誤！預設通行密碼為 admin");
+        showToast("❌ 密碼錯誤！預設通行密碼為 admin", "error");
       }
     }
 
@@ -848,11 +909,13 @@ function fetchFromGas(showUserAlert = false) {
       state.isAdminLoggedIn = false;
       document.getElementById("adminBtnText").innerText = "管理者登入";
       switchTab("dashboard");
+      showToast("已安全登出管理者身分", "info");
     }
 
     function addDaysToDate(dateStr, days) {
       if (!dateStr || days === null || days === undefined) return "";
       const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "";
       d.setDate(d.getDate() + days);
       return d.toISOString().split('T')[0];
     }
@@ -887,12 +950,13 @@ function fetchFromGas(showUserAlert = false) {
         }
       });
 
-      return Math.max(0, raw.weightKg - usedKg);
+      return Math.max(0, (raw.weightKg || 0) - usedKg);
     }
 
     function getDaysInStorage(inDateStr) {
       if (!inDateStr) return 0;
       const inDate = new Date(inDateStr);
+      if (isNaN(inDate.getTime())) return 0;
       const today = new Date();
       const diffTime = Math.abs(today - inDate);
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -929,7 +993,7 @@ function fetchFromGas(showUserAlert = false) {
       };
 
       syncDataToGasAndRefresh("FieldRecords", record);
-      alert("✅ 已送出田間紀錄至 Google 試算表！系統正在同步中...");
+      showToast("✅ 已送出田間紀錄至 Google 試算表！", "success");
     }
 
     function transferHarvestToInbound(fieldId, harvestIndex) {
@@ -940,7 +1004,7 @@ function fetchFromGas(showUserAlert = false) {
       const harvestDate = harvestIndex === 1 ? field.harvest1Date : field.harvest2Date;
 
       if (!harvestKg || harvestKg <= 0) {
-        alert("該次採收數量為 0 或尚未填寫！");
+        showToast("⚠️ 該次採收數量為 0 或尚未填寫！", "warning");
         return;
       }
 
@@ -950,6 +1014,8 @@ function fetchFromGas(showUserAlert = false) {
       document.getElementById("rawInDate").value = harvestDate || new Date().toISOString().split('T')[0];
       document.getElementById("rawWeightKg").value = harvestKg;
       generateNewRawLotNo();
+
+      showToast(`已載入 ${field.id} (採${harvestIndex}) 資料至採收入庫表單`, "info");
     }
 
     function saveRawInbound() {
@@ -964,7 +1030,7 @@ function fetchFromGas(showUserAlert = false) {
 
       syncDataToGasAndRefresh("RawInbound", raw);
       generateNewRawLotNo();
-      alert("✅ 已建立採收入庫資料並送往 Google 試算表！");
+      showToast("✅ 已建立採收入庫資料並送往 Google 試算表！", "success");
     }
 
     function addShippingItemRow() {
@@ -987,6 +1053,8 @@ function fetchFromGas(showUserAlert = false) {
 
     function updateShippingItemCalc(index) {
       const item = shippingItemsState[index];
+      if (!item) return;
+
       const rawSelect = document.getElementById(`shipRawSelect_${index}`);
       const unitSelect = document.getElementById(`shipUnitSelect_${index}`);
       const countInput = document.getElementById(`shipCountInput_${index}`);
@@ -1013,7 +1081,7 @@ function fetchFromGas(showUserAlert = false) {
 
     function saveShipping() {
       if (shippingItemsState.length === 0) {
-        alert("請至少新增一筆出貨蔬菜品項！");
+        showToast("⚠️ 請至少新增一筆出貨蔬菜品項！", "warning");
         return;
       }
 
@@ -1035,7 +1103,7 @@ function fetchFromGas(showUserAlert = false) {
       shippingItemsState = [];
       generateNewShipNo();
       renderShippingItemsTable();
-      alert("🚀 出貨單已送出並寫入 Google 試算表！");
+      showToast("🚀 出貨單已送出並寫入 Google 試算表！", "success");
     }
 
     function saveChannel() {
@@ -1054,31 +1122,37 @@ function fetchFromGas(showUserAlert = false) {
       document.getElementById("channelForm").reset();
       renderChannelsTable();
       populateCustomerDropdown();
-      alert("✅ 出貨通路已新增！");
+      showToast("✅ 新增出貨通路成功！", "success");
     }
 
     function deleteChannel(id) {
-      if (confirm("確定要刪除此出貨通路嗎？")) {
+      showConfirm("刪除通路確認", "確定要刪除此出貨通路資料嗎？", function() {
         state.channels = state.channels.filter(c => c.id !== id);
         localStorage.setItem("farm_channels", JSON.stringify(state.channels));
         renderChannelsTable();
         populateCustomerDropdown();
-      }
+        showToast("已刪除該通路資料", "info");
+      });
     }
 
     function quickShipToChannel(name) {
       switchTab("outbound");
-      document.getElementById("shipCustomer").value = name;
+      const custSelect = document.getElementById("shipCustomer");
+      if (custSelect) custSelect.value = name;
+      showToast(`已切換至出貨單並選擇「${name}」`, "info");
     }
 
     function saveUnitConfig() {
       Object.keys(state.units).forEach(unit => {
-        const val = parseFloat(document.getElementById(`unitInput_${unit}`).value);
-        if (!isNaN(val)) state.units[unit] = val;
+        const inputEl = document.getElementById(`unitInput_${unit}`);
+        if (inputEl) {
+          const val = parseFloat(inputEl.value);
+          if (!isNaN(val)) state.units[unit] = val;
+        }
       });
       localStorage.setItem("farm_units", JSON.stringify(state.units));
       renderUnitConfigForm();
-      alert("✅ 單位換算對應表已更新！");
+      showToast("✅ 單位換算對應表已更新！", "success");
     }
 
     function saveGasConfig() {
@@ -1086,7 +1160,7 @@ function fetchFromGas(showUserAlert = false) {
       state.gasSheetUrl = document.getElementById("gasSheetUrlInput").value;
       localStorage.setItem("gas_app_url", state.gasUrl);
       localStorage.setItem("gas_sheet_url", state.gasSheetUrl);
-      alert("✅ Google Sheets 串接設定已更新！即將重新同步試算表...");
+      showToast("✅ Google Sheets 串接設定已更新！重新同步中...", "success");
       fetchFromGas(true);
     }
 
@@ -1094,7 +1168,7 @@ function fetchFromGas(showUserAlert = false) {
       if (state.gasSheetUrl) {
         window.open(state.gasSheetUrl, "_blank");
       } else {
-        alert("尚未設定 Google 試算表連結！");
+        showToast("⚠️ 尚未設定 Google 試算表連結！", "warning");
       }
     }
 
@@ -1114,13 +1188,16 @@ function fetchFromGas(showUserAlert = false) {
     function renderStats() {
       let totalRaw = 0;
       state.rawInbound.forEach(r => totalRaw += getRawRemainingKg(r.rawLotNo));
-      document.getElementById("statTotalRawKg").innerText = `${totalRaw.toFixed(1)} kg`;
+      const totalRawEl = document.getElementById("statTotalRawKg");
+      if (totalRawEl) totalRawEl.innerText = `${totalRaw.toFixed(1)} kg`;
 
       let monthShip = 0;
       state.shipping.forEach(s => monthShip += (Number(s.totalKg) || 0));
-      document.getElementById("statMonthShipKg").innerText = `${monthShip.toFixed(1)} kg`;
+      const monthShipEl = document.getElementById("statMonthShipKg");
+      if (monthShipEl) monthShipEl.innerText = `${monthShip.toFixed(1)} kg`;
 
-      document.getElementById("statActiveFields").innerText = `${state.fields.length} 筆`;
+      const activeFieldsEl = document.getElementById("statActiveFields");
+      if (activeFieldsEl) activeFieldsEl.innerText = `${state.fields.length} 筆`;
 
       let warningCount = 0;
       state.rawInbound.forEach(r => {
@@ -1128,11 +1205,13 @@ function fetchFromGas(showUserAlert = false) {
           warningCount++;
         }
       });
-      document.getElementById("statWarningLots").innerText = `${warningCount} 批`;
+      const warningLotsEl = document.getElementById("statWarningLots");
+      if (warningLotsEl) warningLotsEl.innerText = `${warningCount} 批`;
     }
 
     function renderDashboardWarningTable() {
       const tbody = document.getElementById("dashboardWarningTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       const activeLots = state.rawInbound.filter(r => getRawRemainingKg(r.rawLotNo) > 0);
@@ -1159,13 +1238,13 @@ function fetchFromGas(showUserAlert = false) {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-mono font-semibold">${r.rawLotNo}</td>
-            <td class="p-3 font-medium">${r.vegType}</td>
-            <td class="p-3 text-slate-500">${r.source}</td>
-            <td class="p-3 text-slate-500">${r.inDate}</td>
+            <td class="p-3 font-medium">${r.vegType || ''}</td>
+            <td class="p-3 text-slate-500">${r.source || ''}</td>
+            <td class="p-3 text-slate-500">${r.inDate || ''}</td>
             <td class="p-3 font-bold text-emerald-600">${remKg.toFixed(1)} kg</td>
             <td class="p-3 font-bold">${days} 天</td>
             <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}">${statusText}</span></td>
-            <td class="p-3"><button onclick="switchTab('outbound')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded">安排出貨</button></td>
+            <td class="p-3"><button type="button" onclick="switchTab('outbound')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2.5 py-1 rounded-md font-medium transition">安排出貨</button></td>
           </tr>
         `;
       });
@@ -1173,6 +1252,7 @@ function fetchFromGas(showUserAlert = false) {
 
     function renderFieldRecordsTable() {
       const tbody = document.getElementById("fieldRecordsTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       if (state.fields.length === 0) {
@@ -1181,7 +1261,7 @@ function fetchFromGas(showUserAlert = false) {
       }
 
       state.fields.forEach(f => {
-        // 判斷採收 1 與採收 2 是否已存在於冷藏庫存 (RawInbound) 或已標記轉入
+        // 判斷採收 1 與採收 2 是否已轉入冷藏庫 (RawInbound)
         const isTransferred1 = f.transferred1 === true || f.transferred1 === "已轉入" || f.transferred1 === "true" ||
           state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採1") || r.source.includes("採收1")));
 
@@ -1189,22 +1269,22 @@ function fetchFromGas(showUserAlert = false) {
           state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採2") || r.source.includes("採收2")));
 
         const btn1 = isTransferred1 
-          ? `<button onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-pink-200 hover:bg-pink-300 text-pink-800 border border-pink-300 px-2 py-1 rounded font-semibold transition" title="已於冷藏庫建立批號">已轉入 (採1)</button>`
-          : `<button onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded transition">轉入(採1)</button>`;
+          ? `<button type="button" onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm" title="點擊可重新於冷藏庫載入此批號">已轉入 (採1)</button>`
+          : `<button type="button" onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-md font-medium transition">轉入 (採1)</button>`;
 
         const btn2 = isTransferred2
-          ? `<button onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-pink-200 hover:bg-pink-300 text-pink-800 border border-pink-300 px-2 py-1 rounded font-semibold transition" title="已於冷藏庫建立批號">已轉入 (採2)</button>`
-          : `<button onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded transition">轉入(採2)</button>`;
+          ? `<button type="button" onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs badge-pink px-2.5 py-1 rounded-md font-bold transition shadow-sm" title="點擊可重新於冷藏庫載入此批號">已轉入 (採2)</button>`
+          : `<button type="button" onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2.5 py-1 rounded-md font-medium transition">轉入 (採2)</button>`;
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
-            <td class="p-3 font-bold text-slate-700">${f.id}</td>
-            <td class="p-3 font-medium text-emerald-800">${f.vegType}</td>
-            <td class="p-3 text-slate-500">${f.plantDate}</td>
-            <td class="p-3">${f.harvest1Kg} kg <span class="text-xs text-slate-400">(${f.harvest1Date})</span></td>
-            <td class="p-3">${f.harvest2Kg} kg <span class="text-xs text-slate-400">(${f.harvest2Date})</span></td>
+            <td class="p-3 font-bold text-slate-700">${f.id || ''}</td>
+            <td class="p-3 font-medium text-emerald-800">${f.vegType || ''}</td>
+            <td class="p-3 text-slate-500">${f.plantDate || ''}</td>
+            <td class="p-3">${f.harvest1Kg || 0} kg <span class="text-xs text-slate-400">(${f.harvest1Date || ''})</span></td>
+            <td class="p-3">${f.harvest2Kg || 0} kg <span class="text-xs text-slate-400">(${f.harvest2Date || ''})</span></td>
             <td class="p-3 text-slate-500">${f.expiryDate || '-'}</td>
-            <td class="p-3 space-x-1">
+            <td class="p-3 space-x-1.5">
               ${btn1}
               ${btn2}
             </td>
@@ -1215,6 +1295,7 @@ function fetchFromGas(showUserAlert = false) {
 
     function renderRawInboundTable() {
       const tbody = document.getElementById("rawInboundTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       if (state.rawInbound.length === 0) {
@@ -1224,19 +1305,19 @@ function fetchFromGas(showUserAlert = false) {
 
       state.rawInbound.forEach(r => {
         const remKg = getRawRemainingKg(r.rawLotNo);
-        const usedKg = r.weightKg - remKg;
-        const statusBadge = remKg <= 0 ? '<span class="badge-red px-2 py-0.5 rounded text-xs">已用罄</span>' : '<span class="badge-green px-2 py-0.5 rounded text-xs">庫存中</span>';
+        const usedKg = (r.weightKg || 0) - remKg;
+        const statusBadge = remKg <= 0 ? '<span class="badge-red px-2 py-0.5 rounded text-xs font-semibold">已用罄</span>' : '<span class="badge-green px-2 py-0.5 rounded text-xs font-semibold">庫存中</span>';
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
-            <td class="p-3 font-mono font-bold text-slate-800">${r.rawLotNo}</td>
-            <td class="p-3 font-medium">${r.vegType}</td>
-            <td class="p-3 text-slate-500">${r.source}</td>
-            <td class="p-3 text-slate-500">${r.inDate}</td>
-            <td class="p-3">${r.weightKg} kg</td>
+            <td class="p-3 font-mono font-bold text-slate-800">${r.rawLotNo || ''}</td>
+            <td class="p-3 font-medium">${r.vegType || ''}</td>
+            <td class="p-3 text-slate-500">${r.source || ''}</td>
+            <td class="p-3 text-slate-500">${r.inDate || ''}</td>
+            <td class="p-3">${r.weightKg || 0} kg</td>
             <td class="p-3 text-slate-500">${usedKg.toFixed(1)} kg</td>
             <td class="p-3 font-bold text-emerald-600">${remKg.toFixed(1)} kg</td>
-            <td class="p-3 text-xs text-slate-500">${r.storageLoc}</td>
+            <td class="p-3 text-xs text-slate-500">${r.storageLoc || ''}</td>
             <td class="p-3">${statusBadge}</td>
           </tr>
         `;
@@ -1245,11 +1326,13 @@ function fetchFromGas(showUserAlert = false) {
 
     function renderShippingItemsTable() {
       const tbody = document.getElementById("shippingItemsTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       if (shippingItemsState.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">尚未新增出貨品項，請點擊右上角「+ 新增品項」</td></tr>`;
-        document.getElementById("shipTotalKgText").innerText = "0 kg";
+        const totalText = document.getElementById("shipTotalKgText");
+        if (totalText) totalText.innerText = "0 kg";
         return;
       }
 
@@ -1274,35 +1357,37 @@ function fetchFromGas(showUserAlert = false) {
         tbody.innerHTML += `
           <tr>
             <td class="p-2">
-              <select id="shipRawSelect_${idx}" onchange="updateShippingItemCalc(${idx})" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+              <select id="shipRawSelect_${idx}" onchange="updateShippingItemCalc(${idx})" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
                 ${rawOptions}
               </select>
             </td>
             <td class="p-2 font-semibold text-slate-700 text-xs">${item.vegType}</td>
             <td class="p-2">
-              <select id="shipUnitSelect_${idx}" onchange="updateShippingItemCalc(${idx})" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+              <select id="shipUnitSelect_${idx}" onchange="updateShippingItemCalc(${idx})" class="w-full border border-slate-300 rounded p-1.5 text-xs outline-none">
                 ${unitOptions}
               </select>
             </td>
             <td class="p-2">
-              <input type="number" id="shipCountInput_${idx}" value="${item.count}" onchange="updateShippingItemCalc(${idx})" class="w-20 border border-slate-300 rounded p-1.5 text-xs">
+              <input type="number" id="shipCountInput_${idx}" value="${item.count}" onchange="updateShippingItemCalc(${idx})" class="w-20 border border-slate-300 rounded p-1.5 text-xs outline-none">
             </td>
             <td class="p-2">
-              <input type="number" step="0.01" id="shipUnitKgInput_${idx}" value="${item.unitKg}" onchange="updateShippingItemCalc(${idx})" class="w-20 border border-slate-300 rounded p-1.5 text-xs">
+              <input type="number" step="0.01" id="shipUnitKgInput_${idx}" value="${item.unitKg}" onchange="updateShippingItemCalc(${idx})" class="w-20 border border-slate-300 rounded p-1.5 text-xs outline-none">
             </td>
             <td class="p-2 font-bold text-purple-700 text-xs">${item.calculatedKg} kg</td>
             <td class="p-2 text-center">
-              <button type="button" onclick="removeShippingItemRow(${idx})" class="text-rose-600 hover:text-rose-800 text-xs font-bold">✕</button>
+              <button type="button" onclick="removeShippingItemRow(${idx})" class="text-rose-600 hover:text-rose-800 text-xs font-bold p-1">✕</button>
             </td>
           </tr>
         `;
       });
 
-      document.getElementById("shipTotalKgText").innerText = `${totalKg.toFixed(1)} kg`;
+      const totalText = document.getElementById("shipTotalKgText");
+      if (totalText) totalText.innerText = `${totalKg.toFixed(1)} kg`;
     }
 
     function renderShippingHistoryTable() {
       const tbody = document.getElementById("shippingRecordsTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       if (state.shipping.length === 0) {
@@ -1318,12 +1403,12 @@ function fetchFromGas(showUserAlert = false) {
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
-            <td class="p-3 font-mono font-bold text-purple-900">${s.shipNo}</td>
-            <td class="p-3 text-slate-500">${s.shipDate}</td>
-            <td class="p-3 font-semibold text-slate-800">${s.customer}</td>
-            <td class="p-3 text-xs text-slate-500">${s.temp}<br>${s.logistics || '-'}</td>
-            <td class="p-3 text-xs text-slate-700">${itemsSummary}</td>
-            <td class="p-3 font-extrabold text-purple-700">${s.totalKg} kg</td>
+            <td class="p-3 font-mono font-bold text-purple-900">${s.shipNo || ''}</td>
+            <td class="p-3 text-slate-500">${s.shipDate || ''}</td>
+            <td class="p-3 font-semibold text-slate-800">${s.customer || ''}</td>
+            <td class="p-3 text-xs text-slate-500">${s.temp || ''}<br>${s.logistics || '-'}</td>
+            <td class="p-3 text-xs text-slate-700">${itemsSummary || '-'}</td>
+            <td class="p-3 font-extrabold text-purple-700">${s.totalKg || 0} kg</td>
           </tr>
         `;
       });
@@ -1331,6 +1416,7 @@ function fetchFromGas(showUserAlert = false) {
 
     function renderChannelsTable() {
       const tbody = document.getElementById("channelsTable");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       if (state.channels.length === 0) {
@@ -1342,14 +1428,14 @@ function fetchFromGas(showUserAlert = false) {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-bold text-slate-800">${c.name}</td>
-            <td class="p-3"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs">${c.type}</span></td>
+            <td class="p-3"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-medium">${c.type}</span></td>
             <td class="p-3 text-slate-600">${c.contact || '-'}</td>
             <td class="p-3 text-slate-600">${c.phone || '-'}</td>
             <td class="p-3 text-xs text-slate-500">${c.temp}</td>
             <td class="p-3 text-xs text-slate-500">${c.address || '-'}</td>
             <td class="p-3 text-center space-x-1">
-              <button onclick="quickShipToChannel('${c.name}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded">快速出貨</button>
-              <button onclick="deleteChannel(${c.id})" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2 py-1 rounded">刪除</button>
+              <button type="button" onclick="quickShipToChannel('${c.name}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded font-medium transition">快速出貨</button>
+              <button type="button" onclick="deleteChannel(${c.id})" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2 py-1 rounded font-medium transition">刪除</button>
             </td>
           </tr>
         `;
@@ -1358,13 +1444,14 @@ function fetchFromGas(showUserAlert = false) {
 
     function renderUnitConfigForm() {
       const container = document.getElementById("unitInputsContainer");
+      if (!container) return;
       container.innerHTML = "";
 
       Object.keys(state.units).forEach(unit => {
         container.innerHTML += `
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">1 ${unit} = ? kg</label>
-            <input type="number" step="0.01" min="0.01" id="unitInput_${unit}" value="${state.units[unit]}" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-bold text-emerald-700">
+            <input type="number" step="0.01" min="0.01" id="unitInput_${unit}" value="${state.units[unit]}" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-bold text-emerald-700 outline-none">
           </div>
         `;
       });
@@ -1372,6 +1459,7 @@ function fetchFromGas(showUserAlert = false) {
 
     function populateCustomerDropdown() {
       const select = document.getElementById("shipCustomer");
+      if (!select) return;
       select.innerHTML = "";
 
       if (state.channels.length === 0) {
