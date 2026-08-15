@@ -616,7 +616,7 @@
 
         <form id="unitConfigForm" onsubmit="event.preventDefault(); saveUnitConfig();" class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4" id="unitInputsContainer">
-            <!-- Dynamically rendered -->
+            <!-- Dynamically rendered according to fixed order -->
           </div>
 
           <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm active:scale-95">
@@ -734,7 +734,6 @@
       const str = String(val).trim();
       if (!str) return '-';
 
-      // 若僅包含 YYYY-MM-DD 或 YYYY/MM/DD，補上預設時間 00:00
       const dateOnlyMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
       if (dateOnlyMatch) {
         const yyyy = dateOnlyMatch[1];
@@ -743,7 +742,6 @@
         return `${yyyy}/${m}/${d} 00:00`;
       }
 
-      // 若包含日期與時間
       const dateTimeMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[ T](\d{1,2}):(\d{1,2})(:\d{1,2})?$/);
       if (dateTimeMatch) {
         const yyyy = dateTimeMatch[1];
@@ -754,7 +752,6 @@
         return `${yyyy}/${m}/${d} ${hh}:${mm}`;
       }
 
-      // 解析 ISO 物件字串或通用時間字串
       const parsed = new Date(str.replace(/-/g, '/'));
       if (!isNaN(parsed.getTime())) {
         const yyyy = parsed.getFullYear();
@@ -778,28 +775,21 @@
       return `${dateStr} ${hh}:${mm}`;
     }
 
-    // 取得種植日期關鍵字 (YYYY/M/D) 以作為唯一批次標記
-    function getPlantDateKey(val) {
-      if (!val) return '';
-      const formatted = formatDateTime(val);
-      return formatted.split(' ')[0];
-    }
-
     // 蔬菜田間作業推算規則表
     const CROP_SCHEDULE_RULES = {
-      "小白菜": { fert: 13, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 46 },
-      "油菜":   { fert: 14, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 57 },
-      "青梗白菜":{ fert: 14, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 57 },
-      "芥藍芽": { fert: 9, pest1: 7, pest2: null, h1: 17, h2: 24, expiry: 34 },
-      "菠菜":   { fert: 22, pest1: null, pest2: 19, h1: 38, h2: 45, expiry: 90 },
-      "蕹菜":   { fert: 11, pest1: null, pest2: null, h1: 17, h2: 24, expiry: 31 },
-      "葉萵苣": { fert: 22, pest1: 19, pest2: null, h1: 36, h2: 43, expiry: 73 },
-      "小芥菜": { fert: 14, pest1: 8, pest2: null, h1: 29, h2: 36, expiry: 54 },
-      "莧菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 }
+      "小白菜":   { fert: 13, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 46 },
+      "油菜":     { fert: 14, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 57 },
+      "青梗白菜": { fert: 14, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 57 },
+      "芥藍芽":   { fert: 9,  pest1: 7,    pest2: null, h1: 17, h2: 24, expiry: 34 },
+      "菠菜":     { fert: 22, pest1: 19,   pest2: null, h1: 38, h2: 45, expiry: 90 },
+      "蕹菜":     { fert: 11, pest1: null, pest2: null, h1: 17, h2: 24, expiry: 31 },
+      "葉萵苣":   { fert: 22, pest1: 19,   pest2: null, h1: 36, h2: 43, expiry: 73 },
+      "小芥菜":   { fert: 14, pest1: 8,    pest2: null, h1: 29, h2: 36, expiry: 54 },
+      "莧菜":     { fert: 13, pest1: 8,    pest2: 15,   h1: 25, h2: 32, expiry: 45 }
     };
 
-    // 預設固定單位順序：1kg、1斤、1籃、1袋、1包、1把
-    const FIXED_UNIT_ORDER = ["kg", "斤", "籃", "袋", "包", "把"];
+    // 固定單位排序順序
+    const UNIT_ORDER = ["kg", "斤", "籃", "袋", "包", "把"];
 
     // 多試算表預設與初始化
     const DEFAULT_GAS_SHEETS = [
@@ -828,7 +818,6 @@
       activeSheetId: activeSheetObj.id,
       gasUrl: activeSheetObj.gasUrl,
       gasSheetUrl: activeSheetObj.sheetUrl,
-      // 依序為 1kg, 1斤, 1籃, 1袋, 1包, 1把
       units: JSON.parse(localStorage.getItem("farm_units") || JSON.stringify({
         "kg": 1.0, "斤": 0.6, "籃": 12.0, "袋": 5.0, "包": 0.3, "把": 0.25
       })),
@@ -912,7 +901,6 @@
       populateHeaderSheetSelector();
       renderGasSheetsTable();
 
-      // 從當前選擇的 Google 試算表拉取最新數據
       fetchFromGas(false);
     };
 
@@ -1005,7 +993,6 @@
         
         showToast(`已送出資料至 ${sheetName}，同步中...`, "info");
 
-        // 延遲 1.2 秒等待 Google Sheets 完成寫入，隨後重新拉取
         setTimeout(() => {
           fetchFromGas(false);
         }, 1200);
@@ -1087,14 +1074,14 @@
       const plantDate = document.getElementById("fieldPlantDate").value;
       if (!plantDate) return;
 
-      const rule = CROP_SCHEDULE_RULES[veg] || { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 };
+      const rule = CROP_SCHEDULE_RULES[veg] || { fert: 13, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 };
 
-      document.getElementById("fieldFertDate").value = addDaysToDate(plantDate, rule.fert);
-      document.getElementById("fieldPest1Date").value = addDaysToDate(plantDate, rule.pest1);
-      document.getElementById("fieldPest2Date").value = addDaysToDate(plantDate, rule.pest2);
-      document.getElementById("fieldHarvest1Date").value = addDaysToDate(plantDate, rule.h1);
-      document.getElementById("fieldHarvest2Date").value = addDaysToDate(plantDate, rule.h2);
-      document.getElementById("fieldExpiryDate").value = addDaysToDate(plantDate, rule.expiry);
+      document.getElementById("fieldFertDate").value = rule.fert !== null ? addDaysToDate(plantDate, rule.fert) : "";
+      document.getElementById("fieldPest1Date").value = rule.pest1 !== null ? addDaysToDate(plantDate, rule.pest1) : "";
+      document.getElementById("fieldPest2Date").value = rule.pest2 !== null ? addDaysToDate(plantDate, rule.pest2) : "";
+      document.getElementById("fieldHarvest1Date").value = rule.h1 !== null ? addDaysToDate(plantDate, rule.h1) : "";
+      document.getElementById("fieldHarvest2Date").value = rule.h2 !== null ? addDaysToDate(plantDate, rule.h2) : "";
+      document.getElementById("fieldExpiryDate").value = rule.expiry !== null ? addDaysToDate(plantDate, rule.expiry) : "";
     }
 
     function getRawRemainingKg(rawLotNo) {
@@ -1124,40 +1111,36 @@
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    // 取得批號的冷藏預估期限：優先連動 Google Sheets 中的 FieldRecords 工作表
+    // 取得種植日期格式化關鍵字 (YYYY/M/D) 以作為唯一批次標記
+    function getPlantDateKey(val) {
+      if (!val) return '';
+      const formatted = formatDateTime(val);
+      return formatted.split(' ')[0];
+    }
+
+    // 取得批號的冷藏預估期限：優先比對 Google Sheets 中 FieldRecords 的冷藏預估期限欄位
     function getRawExpiryDate(r) {
-      if (!r) return null;
-
-      // 1. 優先精確對照 FieldRecords (state.fields)
-      if (state.fields && state.fields.length > 0) {
+      if (r.source) {
         const matchedField = state.fields.find(f => {
-          // 比對田區來源 (例如 source 包含 "A1區")
-          const matchFieldId = f.id ? (r.source && r.source.includes(f.id)) : true;
-          // 比對蔬菜種類
-          const matchVeg = f.vegType ? (r.vegType === f.vegType) : true;
-          // 比對種植日期標籤 (例如 source 包含 [種植:YYYY/M/D])
           const plantKey = getPlantDateKey(f.plantDate);
-          const matchPlant = plantKey ? (r.source && r.source.includes(plantKey)) : true;
-
-          return matchFieldId && matchVeg && matchPlant;
+          const sameVeg = !r.vegType || (f.vegType === r.vegType);
+          const matchField = f.id ? r.source.includes(f.id) : true;
+          const matchPlant = plantKey ? r.source.includes(plantKey) : true;
+          return sameVeg && matchField && matchPlant;
         });
-
         if (matchedField && matchedField.expiryDate) {
           return matchedField.expiryDate;
         }
       }
 
-      // 2. 若直接記載於 RawInbound 物件中
       if (r.expiryDate) return r.expiryDate;
 
-      // 3. 次要備援：依據入庫日期與規則推算
       if (r.inDate && r.vegType && CROP_SCHEDULE_RULES[r.vegType]) {
         const rule = CROP_SCHEDULE_RULES[r.vegType];
         if (rule.expiry) {
           return addDaysToDate(r.inDate, rule.expiry);
         }
       }
-
       return null;
     }
 
@@ -1168,7 +1151,6 @@
       let expDate = new Date(expStr.replace(/-/g, '/'));
       if (isNaN(expDate.getTime())) return false;
       
-      // 若字串無時間或為 00:00，展延至當日最後一秒 (23:59:59)
       if (!expStr.includes(':') || expStr.includes('00:00')) {
         expDate.setHours(23, 59, 59, 999);
       }
@@ -1179,14 +1161,16 @@
       const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
       const count = state.rawInbound.length + 1;
       const padCount = String(count).padStart(3, '0');
-      document.getElementById("rawLotNo").value = `RAW-${dateStr}-${padCount}`;
+      const el = document.getElementById("rawLotNo");
+      if (el) el.value = `RAW-${dateStr}-${padCount}`;
     }
 
     function generateNewShipNo() {
       const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
       const count = state.shipping.length + 1;
       const padCount = String(count).padStart(3, '0');
-      document.getElementById("shipNo").value = `OUT-${dateStr}-${padCount}`;
+      const el = document.getElementById("shipNo");
+      if (el) el.value = `OUT-${dateStr}-${padCount}`;
     }
 
     function saveFieldRecord() {
@@ -1221,7 +1205,6 @@
         return;
       }
 
-      // 拆解出 YYYY-MM-DD 格式以正確設定 date input
       let formattedDate = new Date().toISOString().split('T')[0];
       if (harvestDateRaw) {
         const dStr = String(harvestDateRaw).trim();
@@ -1236,10 +1219,8 @@
 
       switchTab("inbound");
 
-      // 取得種植日期關鍵字 (YYYY/M/D) 以區分不同種植批次
       const plantKey = getPlantDateKey(field.plantDate);
 
-      // 將所屬蔬菜種類、採收日期、採收數量與標註種植日期的來源帶入採收入庫頁面
       const vegSelect = document.getElementById("rawVegType");
       if (vegSelect) vegSelect.value = field.vegType;
 
@@ -1307,7 +1288,7 @@
 
       if (unitSelect) {
         item.unit = unitSelect.value;
-        item.unitKg = state.units[item.unit] !== undefined ? state.units[item.unit] : 1.0;
+        item.unitKg = state.units[item.unit] || 1.0;
         if (unitKgInput) unitKgInput.value = item.unitKg;
       }
 
@@ -1382,7 +1363,7 @@
     }
 
     function saveUnitConfig() {
-      FIXED_UNIT_ORDER.forEach(unit => {
+      UNIT_ORDER.forEach(unit => {
         const inputEl = document.getElementById(`unitInput_${unit}`);
         if (inputEl) {
           const val = parseFloat(inputEl.value);
@@ -1406,7 +1387,6 @@
       }
 
       if (sheetId) {
-        // 編輯現有項目
         const existing = state.gasSheetsList.find(s => s.id === sheetId);
         if (existing) {
           existing.name = name;
@@ -1414,7 +1394,6 @@
           existing.sheetUrl = sheetUrl;
         }
       } else {
-        // 新增項目
         const newObj = {
           id: "sheet-" + Date.now(),
           name: name,
@@ -1519,6 +1498,38 @@
       });
     }
 
+    function renderGasSheetsTable() {
+      const tbody = document.getElementById("gasSheetsTable");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      if (state.gasSheetsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">尚無設定任何 Google 試算表</td></tr>`;
+        return;
+      }
+
+      state.gasSheetsList.forEach(s => {
+        const isActive = s.id === state.activeSheetId;
+        const activeRadio = `<input type="radio" name="activeSheetGroup" onchange="switchActiveSheet('${s.id}')" ${isActive ? 'checked' : ''} class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">`;
+        const activeBadge = isActive ? '<span class="ml-2 badge-green px-2 py-0.5 rounded text-xs font-bold">啟用中</span>' : '';
+
+        tbody.innerHTML += `
+          <tr class="${isActive ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}">
+            <td class="p-3 text-center">${activeRadio}</td>
+            <td class="p-3 font-bold text-slate-800">${s.name} ${activeBadge}</td>
+            <td class="p-3 text-xs font-mono text-slate-500 max-w-xs truncate" title="${s.gasUrl}">${s.gasUrl}</td>
+            <td class="p-3 text-xs">
+              ${s.sheetUrl ? `<a href="${s.sheetUrl}" target="_blank" class="text-blue-600 hover:underline">開啟連結 🔗</a>` : '-'}
+            </td>
+            <td class="p-3 text-center space-x-1">
+              <button type="button" onclick="editGasSheet('${s.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition">編輯</button>
+              <button type="button" onclick="deleteGasSheet('${s.id}')" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2.5 py-1 rounded font-medium transition">刪除</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
     function openGoogleSheet() {
       if (state.gasSheetUrl) {
         window.open(state.gasSheetUrl, "_blank");
@@ -1536,7 +1547,6 @@
       renderShippingItemsTable();
       renderShippingHistoryTable();
       renderChannelsTable();
-      renderUnitConfigForm();
       populateCustomerDropdown();
       populateHeaderSheetSelector();
       renderGasSheetsTable();
@@ -1598,7 +1608,6 @@
           }
         });
 
-        // 自動計算該蔬菜品項累計已出貨數量 (kg)
         let shippedKg = 0;
         state.shipping.forEach(ship => {
           if (ship.items && Array.isArray(ship.items)) {
@@ -1695,7 +1704,6 @@
       state.fields.forEach((f, idx) => {
         const plantKey = getPlantDateKey(f.plantDate);
 
-        // 精確對照：結合「田區」、「蔬菜種類」、「種植日期」與「採收次數」進行識別與轉入狀態判定
         const isTransferred1 = f.transferred1 === true || f.transferred1 === "已轉入" || f.transferred1 === "true" ||
           state.rawInbound.some(r => {
             if (!r.source) return false;
@@ -1810,14 +1818,7 @@
           rawOptions = `<option value="">(試算表中無在庫原料，請先建立採收入庫)</option>`;
         }
 
-        // 嚴格依據 1kg、1斤、1籃、1袋、1包、1把 順序產生選單選項
-        const availableUnits = Object.keys(state.units);
-        const sortedUnits = [
-          ...FIXED_UNIT_ORDER.filter(u => availableUnits.includes(u)),
-          ...availableUnits.filter(u => !FIXED_UNIT_ORDER.includes(u))
-        ];
-
-        let unitOptions = sortedUnits
+        let unitOptions = UNIT_ORDER
           .map(u => `<option value="${u}" ${u === item.unit ? 'selected' : ''}>${u}</option>`)
           .join("");
 
@@ -1901,8 +1902,8 @@
             <td class="p-3 text-xs text-slate-500">${c.temp}</td>
             <td class="p-3 text-xs text-slate-500">${c.address || '-'}</td>
             <td class="p-3 text-center space-x-1">
-              <button type="button" onclick="quickShipToChannel('${c.name}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded font-medium transition">快速出貨</button>
-              <button type="button" onclick="deleteChannel(${c.id})" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2 py-1 rounded font-medium transition">刪除</button>
+              <button type="button" onclick="quickShipToChannel('${c.name}')" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2.5 py-1 rounded font-medium transition">快速出貨</button>
+              <button type="button" onclick="deleteChannel(${c.id})" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2.5 py-1 rounded font-medium transition">刪除</button>
             </td>
           </tr>
         `;
@@ -1914,50 +1915,13 @@
       if (!container) return;
       container.innerHTML = "";
 
-      const availableUnits = Object.keys(state.units);
-      const sortedUnits = [
-        ...FIXED_UNIT_ORDER.filter(u => availableUnits.includes(u)),
-        ...availableUnits.filter(u => !FIXED_UNIT_ORDER.includes(u))
-      ];
-
-      sortedUnits.forEach(unit => {
+      UNIT_ORDER.forEach(unit => {
+        const val = state.units[unit] !== undefined ? state.units[unit] : 1.0;
         container.innerHTML += `
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">1 ${unit} = ? kg</label>
-            <input type="number" step="0.01" min="0.01" id="unitInput_${unit}" value="${state.units[unit]}" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-bold text-emerald-700 outline-none">
+            <input type="number" step="0.01" min="0.01" id="unitInput_${unit}" value="${val}" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-bold text-emerald-700 outline-none">
           </div>
-        `;
-      });
-    }
-
-    function renderGasSheetsTable() {
-      const tbody = document.getElementById("gasSheetsTable");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      if (state.gasSheetsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">尚無設定任何 Google 試算表</td></tr>`;
-        return;
-      }
-
-      state.gasSheetsList.forEach(s => {
-        const isActive = s.id === state.activeSheetId;
-        const activeRadio = `<input type="radio" name="activeSheetGroup" onchange="switchActiveSheet('${s.id}')" ${isActive ? 'checked' : ''} class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">`;
-        const activeBadge = isActive ? '<span class="ml-2 badge-green px-2 py-0.5 rounded text-xs font-bold">啟用中</span>' : '';
-
-        tbody.innerHTML += `
-          <tr class="${isActive ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}">
-            <td class="p-3 text-center">${activeRadio}</td>
-            <td class="p-3 font-bold text-slate-800">${s.name} ${activeBadge}</td>
-            <td class="p-3 text-xs font-mono text-slate-500 max-w-xs truncate" title="${s.gasUrl}">${s.gasUrl}</td>
-            <td class="p-3 text-xs">
-              ${s.sheetUrl ? `<a href="${s.sheetUrl}" target="_blank" class="text-blue-600 hover:underline">開啟連結 🔗</a>` : '-'}
-            </td>
-            <td class="p-3 text-center space-x-1">
-              <button type="button" onclick="editGasSheet('${s.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition">編輯</button>
-              <button type="button" onclick="deleteGasSheet('${s.id}')" class="text-xs bg-rose-100 hover:bg-rose-200 text-rose-800 px-2.5 py-1 rounded font-medium transition">刪除</button>
-            </td>
-          </tr>
         `;
       });
     }
