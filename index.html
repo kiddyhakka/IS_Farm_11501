@@ -766,7 +766,25 @@ function doPost(e) {
   </div>
 
   <script>
-    // ... existing crop rules ...
+    // Crop scheduling rules (days offset from planting date)
+    const CROP_SCHEDULE_RULES = {
+      "小白菜": { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 46 },
+      "油菜": { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 57 },
+      "青梗白菜": { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 57 },
+      "芥籃芽": { pesticide1: 7, pesticide2: null, harvest1: 17, harvest2: 24, coldExpiryDays: 34 },
+      "菠菜": { pesticide1: null, pesticide2: 19, harvest1: 38, harvest2: 45, coldExpiryDays: 90 },
+      "蕹菜": { pesticide1: null, pesticide2: null, harvest1: 17, harvest2: 24, coldExpiryDays: 31 },
+      "小芥菜": { pesticide1: 8, pesticide2: null, harvest1: 29, harvest2: 36, coldExpiryDays: 54 },
+      "葉萵苣": { pesticide1: 19, pesticide2: null, harvest1: 36, harvest2: 43, coldExpiryDays: 73 },
+      "莧菜": { pesticide1: 8, pesticide2: 15, harvest1: 22, harvest2: 29, coldExpiryDays: 30 }
+    };
+
+    function addDaysToDate(dateStr, days) {
+      if (!dateStr || days === null || days === undefined) return '';
+      const date = new Date(dateStr);
+      date.setDate(date.getDate() + parseInt(days));
+      return date.toISOString().split('T')[0];
+    }
 
     // --- State Object ---
     let state = {
@@ -996,16 +1014,23 @@ function doPost(e) {
 
       const rules = CROP_SCHEDULE_RULES[vegType] || { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 45 };
 
-      document.getElementById('field-date-fertilize').value = addDaysToDate(plantDate, 5);
-      document.getElementById('field-date-pesticide1').value = addDaysToDate(plantDate, rules.pesticide1);
-      document.getElementById('field-date-pesticide2').value = addDaysToDate(plantDate, rules.pesticide2);
-      document.getElementById('field-date-harvest').value = addDaysToDate(plantDate, rules.harvest1);
-      
-      const elH2 = document.getElementById('field-date-harvest2');
-      if (elH2) elH2.value = addDaysToDate(plantDate, rules.harvest2);
+      const fertEl = document.getElementById('field-date-fertilize');
+      if (fertEl) fertEl.value = addDaysToDate(plantDate, 5);
+
+      const p1El = document.getElementById('field-date-pesticide1');
+      if (p1El) p1El.value = rules.pesticide1 !== null ? addDaysToDate(plantDate, rules.pesticide1) : '';
+
+      const p2El = document.getElementById('field-date-pesticide2');
+      if (p2El) p2El.value = rules.pesticide2 !== null ? addDaysToDate(plantDate, rules.pesticide2) : '';
+
+      const h1El = document.getElementById('field-date-harvest');
+      if (h1El) h1El.value = rules.harvest1 !== null ? addDaysToDate(plantDate, rules.harvest1) : '';
+
+      const h2El = document.getElementById('field-date-harvest2');
+      if (h2El) h2El.value = rules.harvest2 !== null ? addDaysToDate(plantDate, rules.harvest2) : '';
 
       const elExpiry = document.getElementById('field-date-cold-expiry');
-      if (elExpiry) elExpiry.value = addDaysToDate(plantDate, rules.coldExpiryDays);
+      if (elExpiry) elExpiry.value = rules.coldExpiryDays !== null ? addDaysToDate(plantDate, rules.coldExpiryDays) : '';
     }
 
     function handleFieldSubmit(e) {
