@@ -18,6 +18,7 @@
             brand: {
               50: '#f0fdf4',
               100: '#dcfce7',
+              200: '#bbf7d0',
               500: '#22c55e',
               600: '#16a34a',
               700: '#15803d',
@@ -52,16 +53,15 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Header Bar -->
   <header class="bg-brand-800 text-white shadow-md sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="bg-brand-600 p-2 rounded-lg text-white shadow">
-          <i class="fa-solid font-bold fa-leaf text-xl"></i>
+        <div class="bg-brand-600 p-2 rounded-lg text-white shadow flex items-center justify-center">
+          <i class="fa-solid fa-leaf text-xl"></i>
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-wide">義勝農場冷藏履歷管理系統</h1>
-          <p class="text-xs text-brand-200">田間採收 ➔ 冷藏庫存 ➔ 加工分裝 ➔ 銷貨出貨</p>
+          <p class="text-xs text-brand-200">田間採收 ➔ 冷藏庫存 ➔ 多品項分裝出貨</p>
         </div>
       </div>
 
@@ -78,10 +78,9 @@
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
   <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex space-x-2 sm:space-x-6 overflow-x-auto py-2" id="main-tabs">
+      <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto py-2" id="main-tabs">
         <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn text-brand-600 border-brand-600 border-b-2 py-2 px-3 text-sm font-semibold flex items-center whitespace-nowrap">
           <i class="fa-solid fa-chart-pie mr-2"></i> 系統總覽
         </button>
@@ -110,18 +109,16 @@
     </div>
   </div>
 
-  <!-- Main Content Area -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
 
     <!-- 1. DASHBOARD VIEW -->
     <section id="view-dashboard" class="tab-content space-y-6">
-      <!-- KPI Stats Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏原料在庫量</p>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏原料在庫總量</p>
             <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-raw-weight">0 kg</h3>
-            <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-arrow-up mr-1"></i>可用母批原料</p>
+            <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-arrow-up mr-1"></i>可供分裝出貨母批</p>
           </div>
           <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
             <i class="fa-solid fa-seedling"></i>
@@ -130,9 +127,9 @@
 
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">成品包裝在庫量</p>
-            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-finished-count">0 包</h3>
-            <p class="text-xs text-blue-600 mt-1"><i class="fa-solid fa-check-double mr-1"></i>可直接出貨成品</p>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">累計出貨批數</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-finished-count">0 筆</h3>
+            <p class="text-xs text-blue-600 mt-1"><i class="fa-solid fa-check-double mr-1"></i>包含多品項明細</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
             <i class="fa-solid fa-box-open"></i>
@@ -141,12 +138,12 @@
 
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">平均加工耗損率</p>
-            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-loss-rate">0.0 %</h3>
-            <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-chart-line mr-1"></i>採收整理與削切耗損</p>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">累計出貨重量</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-shipped-weight">0 kg</h3>
+            <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-receipt mr-1"></i>通路銷帳庫存</p>
           </div>
           <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-            <i class="fa-solid fa-trash-can"></i>
+            <i class="fa-solid fa-truck-fast"></i>
           </div>
         </div>
 
@@ -164,7 +161,6 @@
 
       <!-- Quick Action Panels & Storage Warning -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Cold Storage Warning List -->
         <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-slate-800 flex items-center">
@@ -191,7 +187,6 @@
           </div>
         </div>
 
-        <!-- System Flow Guide Card -->
         <div class="bg-gradient-to-br from-brand-900 to-brand-800 text-white rounded-xl p-5 shadow-sm flex flex-col justify-between">
           <div>
             <span class="bg-brand-700 text-brand-200 text-xs px-2.5 py-1 rounded-full font-medium">義勝農場標準作業流程</span>
@@ -199,19 +194,19 @@
             <ul class="text-xs text-brand-100 space-y-2.5 mt-3">
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">0</span>
-                <span><strong>田間歷程：</strong>登記種植、施肥、1/2次用藥與採收公斤數。</span>
+                <span><strong>田間歷程：</strong>選種植日自動算施肥、用藥與採收日。</span>
               </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">1</span>
-                <span><strong>採收入庫：</strong>採收直接一鍵連動轉入冷藏庫，產生母批號。</span>
+                <span><strong>採收入庫：</strong>實測公斤數，一鍵轉入冷藏生成原料母批。</span>
               </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">2</span>
-                <span><strong>出貨通路管理：</strong>建立合作通路（超市/盤商/餐廳/直銷）。</span>
+                <span><strong>通路管理：</strong>建立合作超市、盤商、餐廳與直銷聯絡檔。</span>
               </li>
               <li class="flex items-start">
                 <span class="bg-brand-600 rounded-full w-4 h-4 text-center leading-4 text-xs mr-2 flex-shrink-0 font-bold">3</span>
-                <span><strong>多品項出貨銷帳：</strong>單次出貨可混搭多種蔬菜與單位，自動算重扣庫。</span>
+                <span><strong>多品項出貨：</strong>單張出貨單可混搭多蔬菜與單位，自動扣庫。</span>
               </li>
             </ul>
           </div>
@@ -219,36 +214,39 @@
       </div>
     </section>
 
-    <!-- 0. FIELD MANAGEMENT VIEW -->
     <section id="view-field" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Field Form -->
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+          <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center">
             <i class="fa-solid fa-seedling text-brand-600 mr-2"></i> 田間作業與採收登記
           </h3>
+          <p class="text-xs text-brand-700 bg-brand-50 p-2.5 rounded-lg border border-brand-200 mb-4 flex items-center">
+            <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-brand-600"></i>
+            自動預推模式：選擇「蔬菜」與「種植日期」後，自動推算後續作業與採收最佳日期。
+          </p>
           <form id="form-field" class="space-y-3" onsubmit="handleFieldSubmit(event)">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">蔬菜種類 <span class="text-rose-500">*</span></label>
-              <select id="field-veg-type" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <!-- Dynamic choices populated in JS -->
+              <select id="field-veg-type" onchange="autoFillSchedule()" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <!-- JS populated -->
               </select>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">地塊/網室編號</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">地塊/網室編號 <span class="text-rose-500">*</span></label>
                 <input type="text" id="field-plot" placeholder="例：A1網室" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">種植日期 <span class="text-rose-500">*</span></label>
-                <input type="date" id="field-date-plant" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <input type="date" id="field-date-plant" onchange="autoFillSchedule()" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
               </div>
             </div>
 
             <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
-              <h4 class="text-xs font-bold text-slate-700 flex items-center">
-                <i class="fa-solid fa-calendar-days text-brand-600 mr-1.5"></i> 作業階段日期設定
+              <h4 class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span><i class="fa-solid fa-calendar-days text-brand-600 mr-1.5"></i> 作業階段自動推理排程</span>
+                <span class="text-[10px] text-slate-400 font-normal">可手動修改</span>
               </h4>
               
               <div class="grid grid-cols-2 gap-2">
@@ -268,15 +266,32 @@
                   <input type="date" id="field-date-pesticide2" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
                 </div>
                 <div>
-                  <label class="block text-[11px] text-slate-500 font-semibold text-brand-700">採收日期</label>
+                  <label class="block text-[11px] font-semibold text-brand-700">採收(1)預估日</label>
                   <input type="date" id="field-date-harvest" class="w-full text-xs border border-brand-300 rounded p-1.5 bg-white font-medium">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] text-slate-500">採收(2)預估日</label>
+                  <input type="date" id="field-date-harvest2" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-blue-700">冷藏最佳期限</label>
+                  <input type="date" id="field-date-cold-expiry" class="w-full text-xs border border-blue-300 rounded p-1.5 bg-white font-medium">
                 </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">採收數量 (kg)</label>
-              <input type="number" step="0.1" id="field-harvest-weight" placeholder="採收後輸入實測重量" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">第 1 次採收數量 (kg)</label>
+                <input type="number" step="0.1" id="field-harvest-weight-1" placeholder="第1次採收公斤數" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">第 2 次採收數量 (kg)</label>
+                <input type="number" step="0.1" id="field-harvest-weight-2" placeholder="第2次採收公斤數" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
             </div>
 
             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
@@ -285,11 +300,10 @@
           </form>
         </div>
 
-        <!-- Field List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-slate-800 text-lg">蔬菜田間履歷與採收動態</h3>
-            <span class="text-xs text-slate-500">點擊「轉入冷藏」可直接生成原料入庫單</span>
+            <span class="text-xs text-slate-500">點擊「轉入冷藏」可直接轉入原料庫存</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-slate-600">
@@ -298,7 +312,8 @@
                   <th class="px-3 py-2.5">蔬菜品項 / 地塊</th>
                   <th class="px-3 py-2.5">種植/施肥</th>
                   <th class="px-3 py-2.5">1/2次用藥</th>
-                  <th class="px-3 py-2.5">採收日 / 採收量</th>
+                  <th class="px-3 py-2.5">預估採收 (1/2)</th>
+                  <th class="px-3 py-2.5">冷藏期限</th>
                   <th class="px-3 py-2.5 text-right">操作</th>
                 </tr>
               </thead>
@@ -311,10 +326,8 @@
       </div>
     </section>
 
-    <!-- 1. RAW INBOUND VIEW -->
     <section id="view-inbound" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Inbound Form -->
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
             <i class="fa-solid fa-cart-flatbed text-brand-600 mr-2"></i> 登記採收入庫 (母批)
@@ -323,13 +336,13 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">農產品項名稱 <span class="text-rose-500">*</span></label>
               <select id="inbound-item" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <!-- Dynamic vegetable choices -->
+                <!-- JS populated -->
               </select>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">採收/進場日期</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">採收/進場日期 <span class="text-rose-500">*</span></label>
                 <input type="date" id="inbound-date" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
               </div>
               <div>
@@ -356,7 +369,7 @@
 
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">備註/驗收品質狀況</label>
-              <textarea id="inbound-note" rows="2" placeholder="例：採收完畢良好..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+              <textarea id="inbound-note" rows="2" placeholder="例：採收完畢品質良好..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
             </div>
 
             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center">
@@ -365,7 +378,6 @@
           </form>
         </div>
 
-        <!-- Inbound Table List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-slate-800 text-lg">冷藏原料入庫批次 (母批)</h3>
@@ -393,12 +405,8 @@
       </div>
     </section>
 
-    <!-- 5.5 UNIT CONVERSION VIEW -->
-    <section id="view-units" class="tab-content hidden space-y-6">
-    <!-- 2 & 3. COMBINED PROCESSING & SHIPPING VIEW -->
     <section id="view-shipping" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Shipping Form (Multi-item) -->
         <div class="lg:col-span-1 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <h3 class="font-bold text-slate-800 text-lg flex items-center">
             <i class="fa-solid fa-truck-fast text-blue-600 mr-2"></i> 登記加工分裝與訂單出貨
@@ -407,7 +415,7 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">選擇出貨通路/客戶 <span class="text-rose-500">*</span></label>
               <select id="ship-channel" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <!-- Populated dynamically via JS -->
+                <!-- JS populated -->
               </select>
             </div>
 
@@ -431,7 +439,7 @@
               <input type="text" id="ship-logistics" placeholder="例：黑貓 9081234..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
             </div>
 
-            <!-- Dynamic Vegetables Line Items Section -->
+            <!-- Dynamic Line Items Container -->
             <div class="border-t border-slate-200 pt-3 space-y-3">
               <div class="flex justify-between items-center">
                 <label class="text-xs font-bold text-slate-700 flex items-center">
@@ -442,12 +450,10 @@
                 </button>
               </div>
 
-              <!-- Line Items Container -->
               <div id="shipment-items-container" class="space-y-3 max-h-80 overflow-y-auto pr-1">
                 <!-- JS inserted dynamic rows -->
               </div>
 
-              <!-- Total Weight Summary Badge -->
               <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg flex justify-between items-center text-xs">
                 <span class="font-semibold text-blue-900">本次出貨估算扣庫總重：</span>
                 <span id="shipment-total-weight" class="font-bold font-mono text-base text-blue-700">0.00 kg</span>
@@ -460,7 +466,6 @@
           </form>
         </div>
 
-        <!-- Shipping Table List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-slate-800 text-lg">出貨銷帳紀錄歷史明細</h3>
@@ -486,10 +491,8 @@
       </div>
     </section>
 
-    <!-- 3. NEW SALES CHANNELS VIEW -->
     <section id="view-channels" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Channel Form -->
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <h3 class="font-bold text-slate-800 text-lg flex items-center">
             <i class="fa-solid fa-store text-emerald-600 mr-2"></i> 新增出貨通路 / 客戶
@@ -544,7 +547,6 @@
           </form>
         </div>
 
-        <!-- Channel Table List -->
         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-slate-800 text-lg">合作出貨通路列表</h3>
@@ -570,7 +572,6 @@
       </div>
     </section>
 
-    <!-- 4. COLD STORAGE BOARD VIEW -->
     <section id="view-coldroom" class="tab-content hidden space-y-6">
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -593,14 +594,27 @@
       </div>
     </section>
 
-    <!-- 5. GOOGLE SHEETS SETTINGS VIEW -->
+    <section id="view-units" class="tab-content hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-slate-800 text-lg flex items-center">
+            <i class="fa-solid fa-scale-balanced text-brand-600 mr-2"></i> 單位重量換算設定
+          </h3>
+          <span class="text-xs text-slate-500">出貨時可輸入包、把、斤等數量，系統自動換算扣庫公斤數</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="unit-conversion-cards">
+          <!-- JS inserted cards -->
+        </div>
+      </div>
+    </section>
+
     <section id="view-settings" class="tab-content hidden space-y-6">
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
         <div>
           <h3 class="font-bold text-slate-800 text-lg flex items-center">
             <i class="fa-solid fa-file-excel text-emerald-600 mr-2"></i> Google Sheets 雲端試算表串接設定
           </h3>
-          <p class="text-xs text-slate-500 mt-1">貼上您的 Google Apps Script 網頁應用程式 URL，系統將會將入庫、分裝與出貨即時儲存至您的 Google 試算表中。</p>
+          <p class="text-xs text-slate-500 mt-1">貼上您的 Google Apps Script 網頁應用程式 URL，系統將會將田間、入庫與出貨即時同步至您的 Google 試算表中。</p>
         </div>
 
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
@@ -613,7 +627,6 @@
           </div>
         </div>
 
-        <!-- Copyable Google Apps Script -->
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-slate-800 text-sm">步驟指南：如何建立免費 Google Sheets 後端 API</h4>
@@ -622,17 +635,17 @@
             </button>
           </div>
           <ol class="list-decimal list-inside text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <li>開啟全新的 <a href="https://sheets.new" target="_blank" class="text-brand-600 underline">Google 試算表</a>，並於上方分頁建立三張工作表：<code class="bg-slate-200 px-1 rounded">RawInbound</code>, <code class="bg-slate-200 px-1 rounded">Processing</code>, <code class="bg-slate-200 px-1 rounded">Shipping</code>。</li>
-            <li>點選上方選單 <strong>「擴充功能」 ➔ 「Apps Script」</strong>。</li>
-            <li>清空原有程式碼，貼上右下方點擊「複製程式碼」獲得的腳本。</li>
-            <li>點擊右上角 <strong>「部署」 ➔ 「新增部署」</strong>，選擇類型為 <strong>「網頁應用程式」</strong>。</li>
-            <li>「誰有存取權」請務必選為 <strong>「所有人 (Anyone)」</strong>，最後點擊「部署」並複製 URL 填入上方欄位即可！</li>
+            <li>開啟全新的 <a href="https://sheets.new" target="_blank" class="text-brand-600 underline">Google 試算表</a>，並建立三張工作表：<code class="bg-slate-200 px-1 rounded">FieldRecords</code>, <code class="bg-slate-200 px-1 rounded">RawInbound</code>, <code class="bg-slate-200 px-1 rounded">Shipping</code>。</li>
+            <li>點選 <strong>「擴充功能」 ➔ 「Apps Script」</strong>。</li>
+            <li>貼上下方提供的 Apps Script 程式碼。</li>
+            <li>點擊 <strong>「部署」 ➔ 「新增部署」</strong>，類型選擇 <strong>「網頁應用程式」</strong>，存取權選 <strong>「所有人 (Anyone)」</strong>。</li>
+            <li>將獲得的網址貼回上方的輸入框即可完成連線！</li>
           </ol>
 
           <pre id="gas-code-block" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs overflow-x-auto max-h-60 leading-relaxed font-mono">
-// Google Apps Script 後端腳本
+// Google Apps Script 後端腳本 (義勝農場專用)
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Google Sheet API Ready" }))
+  return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "義勝農場 Google Sheet API Ready" }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -641,15 +654,16 @@ function doPost(e) {
   var data = JSON.parse(e.postData.contents);
   var action = data.action;
 
-  if (action === "addRaw") {
+  if (action === "addField") {
+    var sheet = ss.getSheetByName("FieldRecords");
+    sheet.appendRow([data.vegType, data.plot, data.datePlant, data.dateFertilize, data.datePesticide1, data.datePesticide2, data.dateHarvest, data.dateHarvest2, data.harvestWeight1, data.harvestWeight2]);
+  } else if (action === "addRaw") {
     var sheet = ss.getSheetByName("RawInbound");
     sheet.appendRow([data.lotNo, data.item, data.date, data.source, data.weight, data.zone, data.note]);
-  } else if (action === "addProcess") {
-    var sheet = ss.getSheetByName("Processing");
-    sheet.appendRow([data.finishedLotNo, data.rawLotNo, data.date, data.rawWeightUsed, data.spec, data.packageCount, data.lossWeight, data.lossRate, data.operator]);
   } else if (action === "addShipment") {
     var sheet = ss.getSheetByName("Shipping");
-    sheet.appendRow([data.shipNo, data.customer, data.finishedLotNo, data.count, data.date, data.temp, data.logistics]);
+    var itemsStr = JSON.stringify(data.items);
+    sheet.appendRow([data.shipNo, data.customer, itemsStr, data.totalKg, data.date, data.temp, data.logistics]);
   }
 
   return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
@@ -689,15 +703,28 @@ function doPost(e) {
   </div>
 
   <script>
-    // --- Application State ---
+    // --- Vegetable Scheduling Rules ---
+    const CROP_SCHEDULE_RULES = {
+      "小白菜": { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 46 },
+      "油菜":   { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 57 },
+      "青梗白菜":{ pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 57 },
+      "芥籃芽": { pesticide1: 7, pesticide2: null, harvest1: 17, harvest2: 24, coldExpiryDays: 34 },
+      "菠菜":   { pesticide1: null, pesticide2: 19, harvest1: 38, harvest2: 45, coldExpiryDays: 90 },
+      "蕹菜":   { pesticide1: null, pesticide2: null, harvest1: 17, harvest2: 24, coldExpiryDays: 31 },
+      "葉萵苣": { pesticide1: 19, pesticide2: null, harvest1: 36, harvest2: 43, coldExpiryDays: 73 },
+      "小芥菜": { pesticide1: 8, pesticide2: null, harvest1: 29, harvest2: 36, coldExpiryDays: 54 },
+      "莧菜":   { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 45 }
+    };
+
+    // --- State Object ---
     let state = {
       vegetableTypes: [
         "小白菜", "油菜", "青梗白菜", "小芥菜", "蕹菜", "芥籃芽", "莧菜", "葉萵苣", "菠菜"
       ],
       fieldRecords: [
-        { id: 1, vegType: "小白菜", plot: "A1網室", datePlant: "2026-07-20", dateFertilize: "2026-07-25", datePesticide1: "2026-07-28", datePesticide2: "2026-08-05", dateHarvest: "2026-08-12", harvestWeight: 300, isTransferred: true },
-        { id: 2, vegType: "油菜", plot: "B2網室", datePlant: "2026-07-25", dateFertilize: "2026-07-30", datePesticide1: "2026-08-02", datePesticide2: "", dateHarvest: "2026-08-14", harvestWeight: 150, isTransferred: true },
-        { id: 3, vegType: "青梗白菜", plot: "C1網室", datePlant: "2026-08-01", dateFertilize: "2026-08-06", datePesticide1: "2026-08-08", datePesticide2: "", dateHarvest: "2026-08-15", harvestWeight: 200, isTransferred: false }
+        { id: 1, vegType: "小白菜", plot: "A1網室", datePlant: "2026-07-20", dateFertilize: "2026-07-25", datePesticide1: "2026-07-28", datePesticide2: "2026-08-04", dateHarvest: "2026-08-14", dateHarvest2: "2026-08-21", dateColdExpiry: "2026-09-04", harvestWeight1: 180, harvestWeight2: 120, isTransferred1: true, isTransferred2: false },
+        { id: 2, vegType: "油菜", plot: "B2網室", datePlant: "2026-07-25", dateFertilize: "2026-07-30", datePesticide1: "2026-08-02", datePesticide2: "2026-08-09", dateHarvest: "2026-08-19", dateHarvest2: "2026-08-26", dateColdExpiry: "2026-09-20", harvestWeight1: 150, harvestWeight2: 0, isTransferred1: true, isTransferred2: false },
+        { id: 3, vegType: "青梗白菜", plot: "C1網室", datePlant: "2026-08-01", dateFertilize: "2026-08-06", datePesticide1: "2026-08-09", datePesticide2: "2026-08-16", dateHarvest: "2026-08-26", dateHarvest2: "2026-09-02", dateColdExpiry: "2026-09-27", harvestWeight1: 200, harvestWeight2: 150, isTransferred1: false, isTransferred2: false }
       ],
       unitConversions: {
         "包": 0.30,
@@ -707,7 +734,6 @@ function doPost(e) {
         "袋": 5.00,
         "kg": 1.00
       },
-      // Channels List
       channels: [
         { id: 1, name: "全聯-高雄總倉", type: "連鎖超市", contact: "張經理", phone: "0912-345-678", temp: "冷藏 (2℃~7℃)", address: "高雄市仁武區物流路1號" },
         { id: 2, name: "主婦聯盟生活消費合作社", type: "有機/合作社", contact: "林專員", phone: "07-3311223", temp: "冷藏 (2℃~7℃)", address: "高雄市鳳山區..." },
@@ -717,11 +743,10 @@ function doPost(e) {
         { id: 1, lotNo: "RAW-20260812-001", item: "小白菜", date: "2026-08-12", source: "A1網室", weight: 300, zone: "A區冷藏庫-架01", note: "採收完畢良好" },
         { id: 2, lotNo: "RAW-20260814-002", item: "油菜", date: "2026-08-14", source: "B2網室", weight: 150, zone: "B區預冷室-棧01", note: "品質佳" }
       ],
-      // Shipping Orders (Multi-item supported)
       shipping: [
         {
           id: 1,
-          shipNo: "OUT-20260814-01",
+          shipNo: "OUT-20260814-001",
           customer: "全聯-高雄總倉",
           date: "2026-08-14",
           temp: "冷藏 (2℃~7℃)",
@@ -735,124 +760,296 @@ function doPost(e) {
       gasUrl: localStorage.getItem("gas_app_url") || ""
     };
 
-    function switchTab(tabId) {
-      const tabs = ['dashboard', 'field', 'inbound', 'shipping', 'channels', 'coldroom', 'units', 'settings'];
-      tabs.forEach(id => {
-        const view = document.getElementById(`view-${id}`);
-        const btn = document.getElementById(`tab-${id}`);
-        if (view) {
-          if (id === tabId) view.classList.remove('hidden');
-          else view.classList.add('hidden');
-        }
-        if (btn) {
-          if (id === tabId) {
-            btn.className = "tab-btn text-brand-600 border-brand-600 border-b-2 py-2 px-3 text-sm font-semibold flex items-center whitespace-nowrap";
-          } else {
-            btn.className = "tab-btn text-slate-500 hover:text-slate-700 py-2 px-3 text-sm font-medium flex items-center whitespace-nowrap";
-          }
-        }
-      });
+    let tempShipmentItems = [];
+
+    // --- Helper Calculations ---
+    function addDaysToDate(dateStr, days) {
+      if (!dateStr || days === null || days === undefined) return '';
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
     }
 
     function getDaysInStorage(dateStr) {
       if (!dateStr) return 0;
       const start = new Date(dateStr);
       const today = new Date();
-      const diffTime = Math.abs(today - start);
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+      return diff >= 0 ? diff : 0;
     }
 
     function getRawRemainingWeight(lotNo) {
       const raw = state.rawInbound.find(r => r.lotNo === lotNo);
       if (!raw) return 0;
 
-      let shippedWeight = 0;
+      let shippedKg = 0;
       state.shipping.forEach(s => {
         if (s.items && Array.isArray(s.items)) {
           s.items.forEach(item => {
             if (item.rawLotNo === lotNo) {
-              shippedWeight += (parseFloat(item.calculatedKg) || 0);
+              shippedKg += (parseFloat(item.calculatedKg) || 0);
             }
           });
         }
       });
 
-      return Math.max(0, raw.weight - shippedWeight);
+      const rem = raw.weight - shippedKg;
+      return rem > 0 ? rem : 0;
     }
 
-    // Add Dynamic Item Row for Shipping
+    function switchTab(tabId) {
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(c => c.classList.add('hidden'));
+
+      const target = document.getElementById(`view-${tabId}`);
+      if (target) target.classList.remove('hidden');
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
+        btn.classList.add('text-slate-500', 'font-medium');
+      });
+
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-500', 'font-medium');
+        activeBtn.classList.add('text-brand-600', 'border-brand-600', 'border-b-2', 'font-semibold');
+      }
+    }
+
+    function autoFillSchedule() {
+      const vegType = document.getElementById('field-veg-type')?.value;
+      const plantDate = document.getElementById('field-date-plant')?.value;
+      if (!vegType || !plantDate) return;
+
+      const rules = CROP_SCHEDULE_RULES[vegType] || { pesticide1: 8, pesticide2: 15, harvest1: 25, harvest2: 32, coldExpiryDays: 45 };
+
+      document.getElementById('field-date-fertilize').value = addDaysToDate(plantDate, 5);
+      document.getElementById('field-date-pesticide1').value = addDaysToDate(plantDate, rules.pesticide1);
+      document.getElementById('field-date-pesticide2').value = addDaysToDate(plantDate, rules.pesticide2);
+      document.getElementById('field-date-harvest').value = addDaysToDate(plantDate, rules.harvest1);
+      
+      const elH2 = document.getElementById('field-date-harvest2');
+      if (elH2) elH2.value = addDaysToDate(plantDate, rules.harvest2);
+
+      const elExpiry = document.getElementById('field-date-cold-expiry');
+      if (elExpiry) elExpiry.value = addDaysToDate(plantDate, rules.coldExpiryDays);
+    }
+
+    function handleFieldSubmit(e) {
+      e.preventDefault();
+      const vegType = document.getElementById('field-veg-type').value;
+      const plot = document.getElementById('field-plot').value.trim();
+      const datePlant = document.getElementById('field-date-plant').value;
+      const dateFertilize = document.getElementById('field-date-fertilize').value;
+      const datePesticide1 = document.getElementById('field-date-pesticide1').value;
+      const datePesticide2 = document.getElementById('field-date-pesticide2').value;
+      const dateHarvest = document.getElementById('field-date-harvest').value;
+      const dateHarvest2 = document.getElementById('field-date-harvest2')?.value || '';
+      const dateColdExpiry = document.getElementById('field-date-cold-expiry')?.value || '';
+      const harvestWeight1 = parseFloat(document.getElementById('field-harvest-weight-1').value) || 0;
+      const harvestWeight2 = parseFloat(document.getElementById('field-harvest-weight-2').value) || 0;
+
+      const record = {
+        id: Date.now(),
+        vegType, plot, datePlant, dateFertilize, datePesticide1, datePesticide2, dateHarvest, dateHarvest2, dateColdExpiry,
+        harvestWeight1, harvestWeight2,
+        isTransferred1: false, isTransferred2: false
+      };
+
+      state.fieldRecords.unshift(record);
+      syncToGoogleSheets('addField', record);
+      showToast(`已成功登記田間作業：${vegType} (${plot})`);
+      document.getElementById('form-field').reset();
+      document.getElementById('field-date-plant').value = new Date().toISOString().split('T')[0];
+      autoFillSchedule();
+      renderAll();
+    }
+
+    function transferFieldToInbound(fieldId, harvestNum = 1) {
+      const rec = state.fieldRecords.find(f => f.id === fieldId);
+      if (!rec) return;
+
+      const weight = harvestNum === 1 ? (rec.harvestWeight1 || rec.harvestWeight || 0) : (rec.harvestWeight2 || 0);
+      const hDate = harvestNum === 1 ? rec.dateHarvest : rec.dateHarvest2;
+
+      if (!weight || weight <= 0) {
+        showToast(`請先輸入第 ${harvestNum} 次採收數量 (kg) 後再進行轉入冷藏！`, "warning");
+        return;
+      }
+
+      switchTab('inbound');
+      document.getElementById('inbound-item').value = rec.vegType;
+      document.getElementById('inbound-source').value = `${rec.plot} (採收${harvestNum})`;
+      document.getElementById('inbound-weight').value = weight;
+      document.getElementById('inbound-date').value = hDate || new Date().toISOString().split('T')[0];
+
+      if (harvestNum === 1) rec.isTransferred1 = true;
+      if (harvestNum === 2) rec.isTransferred2 = true;
+
+      renderAll();
+      showToast(`已載入第 ${harvestNum} 次採收資料：${rec.vegType} ${weight}kg，請確認冷藏儲位後存檔！`);
+    }
+
+    function handleInboundSubmit(e) {
+      e.preventDefault();
+      const item = document.getElementById('inbound-item').value;
+      const date = document.getElementById('inbound-date').value;
+      const source = document.getElementById('inbound-source').value.trim();
+      const weight = parseFloat(document.getElementById('inbound-weight').value) || 0;
+      const zone = document.getElementById('inbound-zone').value;
+      const note = document.getElementById('inbound-note').value.trim();
+
+      const lotNo = `RAW-${date.replace(/-/g, '')}-${String(state.rawInbound.length + 1).padStart(3, '0')}`;
+
+      const record = { id: Date.now(), lotNo, item, date, source, weight, zone, note };
+
+      state.rawInbound.unshift(record);
+      syncToGoogleSheets('addRaw', record);
+      showToast(`已新增採收入庫：${lotNo} (${item} ${weight}kg)`);
+      document.getElementById('form-inbound').reset();
+      document.getElementById('inbound-date').value = new Date().toISOString().split('T')[0];
+      renderAll();
+    }
+
     function addShipmentItemRow() {
-      const container = document.getElementById('shipment-items-container');
-      if(!container) return;
-
-      const rowIndex = Date.now();
-      const rowDiv = document.createElement('div');
-      rowDiv.className = "ship-item-row p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2 relative";
-      rowDiv.dataset.id = rowIndex;
-
-      // Filter available raw lots
-      let lotOptions = '<option value="">-- 選擇冷藏原料批次 --</option>';
-      state.rawInbound.forEach(r => {
-        const rem = getRawRemainingWeight(r.lotNo);
-        if(rem > 0) {
-          lotOptions += `<option value="${r.lotNo}">${r.lotNo} - ${r.item} (餘 ${rem.toFixed(1)}kg)</option>`;
-        }
-      });
-
-      // Unit options
-      let unitOptions = '';
-      Object.keys(state.unitConversions).forEach(u => {
-        unitOptions += `<option value="${u}">${u} (${state.unitConversions[u]}kg)</option>`;
-      });
-
-      rowDiv.innerHTML = `
-        <button type="button" onclick="this.parentElement.remove(); updateShipmentTotals();" class="absolute top-2 right-2 text-slate-400 hover:text-rose-500 text-xs">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
-        <div>
-          <label class="block text-[11px] font-semibold text-slate-600">蔬菜品項 / 冷藏批次 <span class="text-rose-500">*</span></label>
-          <select required onchange="updateShipmentTotals()" class="item-lot-select w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
-            ${lotOptions}
-          </select>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-600">出貨單位</label>
-            <select onchange="updateShipmentTotals()" class="item-unit-select w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
-              ${unitOptions}
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-600">數量 <span class="text-rose-500">*</span></label>
-            <input type="number" step="1" min="1" value="10" required oninput="updateShipmentTotals()" class="item-count-input w-full text-xs border border-slate-300 rounded p-1.5 focus:outline-none bg-white">
-          </div>
-        </div>
-        <div class="text-right text-[11px] font-semibold text-brand-700">
-          估計扣庫: <span class="item-calc-kg font-bold font-mono">0.00</span> kg
-        </div>
-      `;
-
-      container.appendChild(rowDiv);
-      updateShipmentTotals();
+      const defaultLot = state.rawInbound.find(r => getRawRemainingWeight(r.lotNo) > 0);
+      const row = {
+        rawLotNo: defaultLot ? defaultLot.lotNo : '',
+        vegType: defaultLot ? defaultLot.item : state.vegetableTypes[0],
+        unit: '包',
+        count: 1,
+        unitKg: state.unitConversions['包'] || 0.3,
+        calculatedKg: 0.3
+      };
+      tempShipmentItems.push(row);
+      renderShipmentItemRows();
     }
 
-    function updateShipmentTotals() {
-      const rows = document.querySelectorAll('.ship-item-row');
+    function removeShipmentItemRow(index) {
+      tempShipmentItems.splice(index, 1);
+      renderShipmentItemRows();
+    }
+
+    function updateShipmentItemRow(index, field, value) {
+      if (!tempShipmentItems[index]) return;
+      const row = tempShipmentItems[index];
+
+      if (field === 'rawLotNo') {
+        row.rawLotNo = value;
+        const raw = state.rawInbound.find(r => r.lotNo === value);
+        if (raw) row.vegType = raw.item;
+      } else if (field === 'unit') {
+        row.unit = value;
+        row.unitKg = state.unitConversions[value] || 1;
+        row.calculatedKg = (row.count || 0) * row.unitKg;
+      } else if (field === 'count') {
+        row.count = parseFloat(value) || 0;
+        row.calculatedKg = row.count * (row.unitKg || 1);
+      }
+
+      renderShipmentItemRows();
+    }
+
+    function renderShipmentItemRows() {
+      const container = document.getElementById('shipment-items-container');
+      if (!container) return;
+      container.innerHTML = '';
+
       let totalKg = 0;
 
-      rows.forEach(row => {
-        const lotNo = row.querySelector('.item-lot-select').value;
-        const unit = row.querySelector('.item-unit-select').value;
-        const count = parseFloat(row.querySelector('.item-count-input').value) || 0;
-        const unitKg = state.unitConversions[unit] || 1;
+      tempShipmentItems.forEach((item, idx) => {
+        totalKg += (item.calculatedKg || 0);
 
-        const lineKg = count * unitKg;
-        row.querySelector('.item-calc-kg').innerText = lineKg.toFixed(2);
-        totalKg += lineKg;
+        const availableLots = state.rawInbound.filter(r => getRawRemainingWeight(r.lotNo) > 0);
+        let lotOptions = availableLots.map(r => `
+          <option value="${r.lotNo}" ${r.lotNo === item.rawLotNo ? 'selected' : ''}>
+            ${r.lotNo} - ${r.item} (剩 ${getRawRemainingWeight(r.lotNo).toFixed(1)}kg)
+          </option>
+        `).join('');
+
+        if (availableLots.length === 0) {
+          lotOptions = `<option value="">無在庫原料母批</option>`;
+        }
+
+        const unitOptions = Object.keys(state.unitConversions).map(u => `
+          <option value="${u}" ${u === item.unit ? 'selected' : ''}>${u} (${state.unitConversions[u]}kg)</option>
+        `).join('');
+
+        container.innerHTML += `
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+              <span>品項項次 #${idx + 1}</span>
+              ${tempShipmentItems.length > 1 ? `
+                <button type="button" onclick="removeShipmentItemRow(${idx})" class="text-rose-500 hover:text-rose-700">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              ` : ''}
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-slate-500 mb-0.5">扣庫原料母批號</label>
+              <select onchange="updateShipmentItemRow(${idx}, 'rawLotNo', this.value)" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                ${lotOptions}
+              </select>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-500 mb-0.5">包裝單位</label>
+                <select onchange="updateShipmentItemRow(${idx}, 'unit', this.value)" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white">
+                  ${unitOptions}
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-500 mb-0.5">數量</label>
+                <input type="number" step="1" value="${item.count}" onchange="updateShipmentItemRow(${idx}, 'count', this.value)" class="w-full text-xs border border-slate-300 rounded p-1.5 bg-white font-bold">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-500 mb-0.5">換算公斤</label>
+                <div class="text-xs font-mono font-bold text-blue-700 pt-1.5">${item.calculatedKg.toFixed(2)} kg</div>
+              </div>
+            </div>
+          </div>
+        `;
       });
 
-      const totalDisplay = document.getElementById('shipment-total-weight');
-      if(totalDisplay) totalDisplay.innerText = `${totalKg.toFixed(2)} kg`;
+      const totalEl = document.getElementById('shipment-total-weight');
+      if (totalEl) totalEl.innerText = `${totalKg.toFixed(2)} kg`;
+    }
+
+    function handleShippingSubmit(e) {
+      e.preventDefault();
+      const customer = document.getElementById('ship-channel').value;
+      const date = document.getElementById('ship-date').value;
+      const temp = document.getElementById('ship-temp').value;
+      const logistics = document.getElementById('ship-logistics').value.trim();
+
+      if (tempShipmentItems.length === 0) {
+        showToast("請至少新增一項出貨蔬菜品項！", "warning");
+        return;
+      }
+
+      let totalKg = 0;
+      tempShipmentItems.forEach(i => totalKg += (i.calculatedKg || 0));
+
+      const shipNo = `OUT-${date.replace(/-/g, '')}-${String(state.shipping.length + 1).padStart(3, '0')}`;
+
+      const record = {
+        id: Date.now(),
+        shipNo, customer, date, temp, logistics, totalKg,
+        items: JSON.parse(JSON.stringify(tempShipmentItems))
+      };
+
+      state.shipping.unshift(record);
+      syncToGoogleSheets('addShipment', record);
+      showToast(`成功建立出貨單：${shipNo} (扣庫 ${totalKg.toFixed(1)}kg)`);
+
+      document.getElementById('form-shipping').reset();
+      document.getElementById('ship-date').value = new Date().toISOString().split('T')[0];
+      tempShipmentItems = [];
+      addShipmentItemRow();
+      renderAll();
     }
 
     function handleChannelSubmit(e) {
@@ -864,187 +1061,25 @@ function doPost(e) {
       const temp = document.getElementById('channel-default-temp').value;
       const address = document.getElementById('channel-address').value.trim();
 
-      const newChannel = { id: Date.now(), name, type, contact, phone, temp, address };
-      state.channels.unshift(newChannel);
-      showToast(`已成功新增出貨通路：${name}`);
+      const channel = { id: Date.now(), name, type, contact, phone, temp, address };
+      state.channels.unshift(channel);
+      showToast(`已新增出貨通路：${name}`);
       document.getElementById('form-channel').reset();
       renderAll();
     }
 
-    function handleShippingSubmit(e) {
-      e.preventDefault();
-      const channel = document.getElementById('ship-channel').value;
-      const date = document.getElementById('ship-date').value;
-      const temp = document.getElementById('ship-temp').value;
-      const logistics = document.getElementById('ship-logistics').value;
-
-      const rows = document.querySelectorAll('.ship-item-row');
-      if (rows.length === 0) {
-        showToast("請至少新增一項出貨蔬菜品項明細！", "warning");
-        return;
-      }
-
-      const items = [];
-      let totalKg = 0;
-      let hasError = false;
-
-      rows.forEach(row => {
-        const rawLotNo = row.querySelector('.item-lot-select').value;
-        const unit = row.querySelector('.item-unit-select').value;
-        const count = parseInt(row.querySelector('.item-count-input').value) || 0;
-
-        if(!rawLotNo) {
-          hasError = true;
-          showToast("請選擇蔬果的冷藏批號！", "error");
-          return;
-        }
-
-        const raw = state.rawInbound.find(r => r.lotNo === rawLotNo);
-        const remWeight = getRawRemainingWeight(rawLotNo);
-        const unitKg = state.unitConversions[unit] || 1;
-        const calculatedKg = count * unitKg;
-
-        if (calculatedKg > remWeight) {
-          hasError = true;
-          showToast(`批號 ${rawLotNo} 扣庫量 (${calculatedKg.toFixed(1)}kg) 超出剩餘庫存 (${remWeight.toFixed(1)}kg)！`, 'error');
-          return;
-        }
-
-        items.push({
-          rawLotNo,
-          vegType: raw ? raw.item : "未知蔬菜",
-          unit,
-          count,
-          unitKg,
-          calculatedKg
-        });
-
-        totalKg += calculatedKg;
-      });
-
-      if (hasError) return;
-
-      const shipNo = `OUT-${date.replace(/-/g, '')}-${String(state.shipping.length + 1).padStart(3, '0')}`;
-      const record = { id: Date.now(), shipNo, customer: channel, date, temp, logistics, totalKg, items };
-
-      state.shipping.unshift(record);
-      syncToGoogleSheets('addShipment', record);
-      showToast(`訂單出貨銷帳成功！單號: ${shipNo}，扣庫: ${totalKg.toFixed(1)}kg`);
-      
-      // Reset Form
-      document.getElementById('form-shipping').reset();
-      document.getElementById('ship-date').value = new Date().toISOString().split('T')[0];
-      
-      // Re-initialize dynamic rows
-      const container = document.getElementById('shipment-items-container');
-      if(container) container.innerHTML = '';
-      addShipmentItemRow();
-
-      renderAll();
-    }
-
-    function renderChannelsTable() {
-      const body = document.getElementById('channels-list');
-      if (!body) return;
-      body.innerHTML = '';
-
-      if(state.channels.length === 0) {
-        body.innerHTML = `<tr><td colspan="5" class="px-3 py-4 text-center text-slate-400 italic">尚無合作通路，請於左側新增</td></tr>`;
-        return;
-      }
-
-      state.channels.forEach(c => {
-        body.innerHTML += `
-          <tr class="hover:bg-slate-50 text-xs">
-            <td class="px-3 py-2.5 font-bold text-slate-800">${c.name}</td>
-            <td class="px-3 py-2.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${c.type}</span></td>
-            <td class="px-3 py-2.5">
-              <div class="font-semibold">${c.contact || '-'}</div>
-              <div class="text-slate-400">${c.phone || '-'}</div>
-            </td>
-            <td class="px-3 py-2.5">
-              <div class="text-blue-700 font-medium">${c.temp}</div>
-              <div class="text-slate-400 text-[11px] truncate max-w-xs">${c.address || '-'}</div>
-            </td>
-            <td class="px-3 py-2.5 text-right">
-              <button onclick="prefillShippingForChannel('${c.name}', '${c.temp}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1 rounded shadow-sm">
-                快速出貨 ➔
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function prefillShippingForChannel(channelName, temp) {
-      switchTab('shipping');
-      const channelSelect = document.getElementById('ship-channel');
-      const tempSelect = document.getElementById('ship-temp');
-      if (channelSelect) channelSelect.value = channelName;
-      if (tempSelect) tempSelect.value = temp;
-    }
-
     function populateChannelDropdowns() {
-      const channelSelect = document.getElementById('ship-channel');
-      if (!channelSelect) return;
-      channelSelect.innerHTML = '<option value="">-- 請選擇合作通路 / 客戶 --</option>';
-      state.channels.forEach(c => {
-        channelSelect.innerHTML += `<option value="${c.name}">${c.name} (${c.type})</option>`;
-      });
-    }
-
-    function renderShippingTable() {
-      const body = document.getElementById('shipping-list');
-      if (!body) return;
-      body.innerHTML = '';
-
-      if(state.shipping.length === 0) {
-        body.innerHTML = `<tr><td colspan="5" class="px-3 py-4 text-center text-slate-400 italic">無出貨銷帳紀錄</td></tr>`;
-        return;
-      }
-
-      state.shipping.forEach(s => {
-        let itemsSummary = '';
-        if (s.items && Array.isArray(s.items)) {
-          itemsSummary = s.items.map(i => `<span class="inline-block bg-slate-100 border border-slate-200 text-slate-800 px-2 py-0.5 rounded text-[11px] mr-1 mb-1"><strong>${i.vegType}</strong>: ${i.count}${i.unit} (${i.calculatedKg.toFixed(1)}kg)</span>`).join('');
-        } else {
-          itemsSummary = `<span class="text-slate-400">標準出貨明細</span>`;
-        }
-
-        body.innerHTML += `
-          <tr class="hover:bg-slate-50 text-xs">
-            <td class="px-3 py-2.5 font-mono font-bold text-blue-800">${s.shipNo}</td>
-            <td class="px-3 py-2.5 font-bold text-slate-800">${s.customer}</td>
-            <td class="px-3 py-2.5">${itemsSummary}</td>
-            <td class="px-3 py-2.5 font-bold text-emerald-700">${(s.totalKg || 0).toFixed(1)} kg</td>
-            <td class="px-3 py-2.5">
-              <div>${s.date}</div>
-              <div class="text-slate-400 text-[11px]">${s.temp}</div>
-            </td>
-          </tr>
-        `;
-      });
+      const select = document.getElementById('ship-channel');
+      if (!select) return;
+      select.innerHTML = state.channels.map(c => `<option value="${c.name}">${c.name} (${c.type})</option>`).join('');
     }
 
     function renderStats() {
-      let totalRawWeight = 0;
-      state.rawInbound.forEach(r => {
-        totalRawWeight += getRawRemainingWeight(r.lotNo);
-      });
-      const elRaw = document.getElementById('stat-raw-weight');
-      if (elRaw) elRaw.innerText = `${totalRawWeight.toFixed(1)} kg`;
+      let totalRaw = 0;
+      state.rawInbound.forEach(r => totalRaw += getRawRemainingWeight(r.lotNo));
 
-      let totalShippedCount = 0;
-      state.shipping.forEach(s => {
-        if(s.items) {
-          s.items.forEach(i => totalShippedCount += i.count);
-        }
-      });
-      const elFin = document.getElementById('stat-finished-count');
-      if (elFin) elFin.innerText = `${totalShippedCount} 件`;
-
-      const elLoss = document.getElementById('stat-loss-rate');
-      if (elLoss) elLoss.innerText = `${state.shipping.length} 筆`;
+      let totalShipped = 0;
+      state.shipping.forEach(s => totalShipped += (s.totalKg || 0));
 
       let warningCount = 0;
       state.rawInbound.forEach(r => {
@@ -1052,45 +1087,100 @@ function doPost(e) {
           warningCount++;
         }
       });
+
+      const elRaw = document.getElementById('stat-raw-weight');
+      const elCount = document.getElementById('stat-finished-count');
+      const elShipped = document.getElementById('stat-shipped-weight');
       const elWarn = document.getElementById('stat-warning-count');
+
+      if (elRaw) elRaw.innerText = `${totalRaw.toFixed(1)} kg`;
+      if (elCount) elCount.innerText = `${state.shipping.length} 筆`;
+      if (elShipped) elShipped.innerText = `${totalShipped.toFixed(1)} kg`;
       if (elWarn) elWarn.innerText = `${warningCount} 批次`;
     }
 
     function renderDashboardWarningTable() {
-      const body = document.getElementById('dashboard-warning-table');
-      if (!body) return;
-      body.innerHTML = '';
+      const table = document.getElementById('dashboard-warning-table');
+      if (!table) return;
+      table.innerHTML = '';
 
-      const activeBatches = state.rawInbound.filter(r => getRawRemainingWeight(r.lotNo) > 0);
-      if (activeBatches.length === 0) {
-        body.innerHTML = `<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400 italic">目前冷藏庫無未處理原料</td></tr>`;
+      const activeRaw = state.rawInbound.filter(r => getRawRemainingWeight(r.lotNo) > 0);
+
+      if (activeRaw.length === 0) {
+        table.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-xs text-slate-400">尚無冷藏在庫原料</td></tr>`;
         return;
       }
 
-      activeBatches.forEach(r => {
+      activeRaw.forEach(r => {
         const days = getDaysInStorage(r.date);
         const rem = getRawRemainingWeight(r.lotNo);
-        let badge = `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs">${days} 天</span>`;
-        if (days >= 5) {
-          badge = `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-xs animate-pulse">${days} 天 (告急)</span>`;
-        } else if (days >= 3) {
-          badge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-xs">${days} 天 (預警)</span>`;
-        }
+        let badgeClass = 'bg-emerald-100 text-emerald-800';
+        if (days >= 5) badgeClass = 'bg-rose-100 text-rose-800 font-bold';
+        else if (days >= 3) badgeClass = 'bg-amber-100 text-amber-800';
+
+        table.innerHTML += `
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2 font-mono font-bold text-slate-700">${r.lotNo}</td>
+            <td class="px-3 py-2">
+              <span class="font-bold text-slate-800">${r.item}</span>
+              <span class="text-slate-400">(${r.source})</span>
+            </td>
+            <td class="px-3 py-2 text-slate-600">${r.zone}</td>
+            <td class="px-3 py-2 font-bold font-mono text-brand-700">${rem.toFixed(1)} kg</td>
+            <td class="px-3 py-2"><span class="px-2 py-0.5 rounded ${badgeClass}">${days} 天</span></td>
+            <td class="px-3 py-2 text-right">
+              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-qrcode"></i> 標籤
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderFieldRecordsTable() {
+      const body = document.getElementById('field-records-list');
+      if (!body) return;
+      body.innerHTML = '';
+
+      state.fieldRecords.forEach(f => {
+        const h1Weight = f.harvestWeight1 || f.harvestWeight || 0;
+        const h2Weight = f.harvestWeight2 || 0;
+
+        let actionBtn1 = f.isTransferred1
+          ? `<span class="text-[11px] text-emerald-600 font-semibold block mb-1"><i class="fa-solid fa-circle-check mr-1"></i>採1已轉入</span>`
+          : (h1Weight > 0 
+              ? `<button onclick="transferFieldToInbound(${f.id}, 1)" class="text-[11px] bg-brand-600 hover:bg-brand-700 text-white px-2 py-0.5 rounded shadow-sm block mb-1">轉入冷藏(採1) ➔</button>`
+              : `<span class="text-[11px] text-slate-400 block mb-1">採1無數量</span>`);
+
+        let actionBtn2 = f.isTransferred2
+          ? `<span class="text-[11px] text-emerald-600 font-semibold block"><i class="fa-solid fa-circle-check mr-1"></i>採2已轉入</span>`
+          : (h2Weight > 0 
+              ? `<button onclick="transferFieldToInbound(${f.id}, 2)" class="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded shadow-sm block">轉入冷藏(採2) ➔</button>`
+              : `<span class="text-[11px] text-slate-400 block">採2無數量</span>`);
 
         body.innerHTML += `
           <tr class="hover:bg-slate-50 text-xs">
-            <td class="px-3 py-2 font-mono font-bold text-slate-800">${r.lotNo}</td>
-            <td class="px-3 py-2">
-              <div class="font-semibold text-slate-800">${r.item}</div>
-              <div class="text-slate-400">${r.source || '田區未填'}</div>
+            <td class="px-3 py-2 font-medium text-slate-800">
+              <div class="font-bold text-sm text-brand-800">${f.vegType}</div>
+              <div class="text-slate-400">${f.plot}</div>
             </td>
-            <td class="px-3 py-2 text-slate-600">${r.zone}</td>
-            <td class="px-3 py-2 font-bold text-brand-700">${rem.toFixed(1)} kg</td>
-            <td class="px-3 py-2">${badge}</td>
+            <td class="px-3 py-2">
+              <div>種植: ${f.datePlant || '-'}</div>
+              <div class="text-slate-400">施肥: ${f.dateFertilize || '-'}</div>
+            </td>
+            <td class="px-3 py-2">
+              <div>用藥(1): ${f.datePesticide1 || '無'}</div>
+              <div class="text-slate-400">用藥(2): ${f.datePesticide2 || '無'}</div>
+            </td>
+            <td class="px-3 py-2">
+              <div class="font-bold text-slate-700">採1 (${f.dateHarvest || '-'}): <span class="text-brand-700">${h1Weight ? h1Weight + 'kg' : '-'}</span></div>
+              <div class="font-bold text-slate-700 mt-1">採2 (${f.dateHarvest2 || '-'}): <span class="text-emerald-700">${h2Weight ? h2Weight + 'kg' : '-'}</span></div>
+            </td>
+            <td class="px-3 py-2 font-medium text-blue-700">${f.dateColdExpiry || '-'}</td>
             <td class="px-3 py-2 text-right">
-              <button onclick="switchTab('shipping')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">
-                出貨
-              </button>
+              ${actionBtn1}
+              ${actionBtn2}
             </td>
           </tr>
         `;
@@ -1106,21 +1196,18 @@ function doPost(e) {
         const rem = getRawRemainingWeight(r.lotNo);
         body.innerHTML += `
           <tr class="hover:bg-slate-50 text-xs">
-            <td class="px-3 py-2 font-mono font-bold text-brand-800">${r.lotNo}</td>
-            <td class="px-3 py-2">
+            <td class="px-3 py-2.5 font-mono font-bold text-brand-800">${r.lotNo}</td>
+            <td class="px-3 py-2.5">
               <div class="font-bold text-slate-800">${r.item}</div>
               <div class="text-slate-400">${r.source}</div>
             </td>
-            <td class="px-3 py-2">${r.date}</td>
-            <td class="px-3 py-2 font-semibold text-slate-700">${r.weight} kg</td>
-            <td class="px-3 py-2 font-bold text-emerald-600">${rem.toFixed(1)} kg</td>
-            <td class="px-3 py-2 text-slate-600">${r.zone}</td>
-            <td class="px-3 py-2 text-right space-x-1">
-              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-2 py-1 rounded text-xs">
-                <i class="fa-solid fa-barcode mr-1"></i>標籤
-              </button>
-              <button onclick="switchTab('shipping')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">
-                出貨
+            <td class="px-3 py-2.5">${r.date}</td>
+            <td class="px-3 py-2.5 font-mono">${r.weight} kg</td>
+            <td class="px-3 py-2.5 font-mono font-bold ${rem > 0 ? 'text-emerald-600' : 'text-slate-400'}">${rem.toFixed(1)} kg</td>
+            <td class="px-3 py-2.5">${r.zone}</td>
+            <td class="px-3 py-2.5 text-right">
+              <button onclick="openBarcodeModal('${r.lotNo}', '${r.item}', '${r.zone}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded">
+                <i class="fa-solid fa-barcode mr-1"></i>條碼
               </button>
             </td>
           </tr>
@@ -1128,71 +1215,63 @@ function doPost(e) {
       });
     }
 
-    function renderFieldRecordsTable() {
-      const body = document.getElementById('field-records-list');
-      if(!body) return;
+    function renderShippingTable() {
+      const body = document.getElementById('shipping-list');
+      if (!body) return;
       body.innerHTML = '';
 
-      state.fieldRecords.forEach(f => {
-        let actionBtn = f.isTransferred 
-          ? `<span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>已轉入庫</span>`
-          : `<button onclick="transferFieldToInbound(${f.id})" class="text-xs bg-brand-600 hover:bg-brand-700 text-white px-2.5 py-1 rounded shadow-sm">
-               轉入冷藏 ➔
-             </button>`;
+      state.shipping.forEach(s => {
+        let itemsSummary = '';
+        if (s.items && Array.isArray(s.items)) {
+          itemsSummary = s.items.map(i => `${i.vegType} (${i.count}${i.unit} / ${i.calculatedKg}kg)`).join('<br>');
+        }
 
         body.innerHTML += `
           <tr class="hover:bg-slate-50 text-xs">
-            <td class="px-3 py-2 font-medium text-slate-800">
-              <div class="font-bold text-sm text-brand-800">${f.vegType}</div>
-              <div class="text-slate-400">${f.plot}</div>
-            </td>
-            <td class="px-3 py-2">
-              <div>種植: ${f.datePlant || '-'}</div>
-              <div class="text-slate-400">施肥: ${f.dateFertilize || '-'}</div>
-            </td>
-            <td class="px-3 py-2">
-              <div>用藥(1): ${f.datePesticide1 || '-'}</div>
-              <div class="text-slate-400">用藥(2): ${f.datePesticide2 || '-'}</div>
-            </td>
-            <td class="px-3 py-2">
-              <div class="font-bold text-slate-700">${f.dateHarvest || '未採收'}</div>
-              <div class="font-semibold text-brand-700">${f.harvestWeight ? f.harvestWeight + ' kg' : '-'}</div>
-            </td>
-            <td class="px-3 py-2 text-right">
-              ${actionBtn}
+            <td class="px-3 py-2.5 font-mono font-bold text-blue-700">${s.shipNo}</td>
+            <td class="px-3 py-2.5 font-bold text-slate-800">${s.customer}</td>
+            <td class="px-3 py-2.5 text-slate-600 leading-relaxed">${itemsSummary}</td>
+            <td class="px-3 py-2.5 font-mono font-bold text-blue-800">${(s.totalKg || 0).toFixed(1)} kg</td>
+            <td class="px-3 py-2.5">
+              <div>${s.date}</div>
+              <div class="text-slate-400">${s.temp}</div>
             </td>
           </tr>
         `;
       });
     }
 
-    function renderUnitConversions() {
-      const container = document.getElementById('unit-conversion-cards');
-      if(!container) return;
-      container.innerHTML = '';
+    function renderChannelsTable() {
+      const body = document.getElementById('channels-list');
+      if (!body) return;
+      body.innerHTML = '';
 
-      Object.keys(state.unitConversions).forEach(unit => {
-        const val = state.unitConversions[unit];
-        container.innerHTML += `
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-800 text-sm">單位: ${unit}</span>
-              <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono font-bold">${val} kg</span>
-            </div>
-            <div class="flex items-center space-x-1">
-              <input type="number" step="0.01" value="${val}" id="unit-val-${unit}" class="w-full text-xs border border-slate-300 rounded p-1.5">
-              <button onclick="updateUnitConversion('${unit}', document.getElementById('unit-val-${unit}').value)" class="bg-slate-700 text-white text-xs px-2 py-1.5 rounded hover:bg-slate-800">
-                修改
+      state.channels.forEach(c => {
+        body.innerHTML += `
+          <tr class="hover:bg-slate-50 text-xs">
+            <td class="px-3 py-2.5 font-bold text-slate-800">${c.name}</td>
+            <td class="px-3 py-2.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${c.type}</span></td>
+            <td class="px-3 py-2.5">
+              <div>${c.contact || '-'}</div>
+              <div class="text-slate-400">${c.phone || '-'}</div>
+            </td>
+            <td class="px-3 py-2.5">
+              <div>${c.temp}</div>
+              <div class="text-slate-400 truncate max-w-xs">${c.address || '-'}</div>
+            </td>
+            <td class="px-3 py-2.5 text-right">
+              <button onclick="switchTab('shipping'); document.getElementById('ship-channel').value='${c.name}';" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded border border-emerald-200">
+                出貨 ➔
               </button>
-            </div>
-          </div>
+            </td>
+          </tr>
         `;
       });
     }
 
     function renderColdStorageGrid() {
       const grid = document.getElementById('cold-storage-grid');
-      if(!grid) return;
+      if (!grid) return;
       grid.innerHTML = '';
 
       const zones = ['A區冷藏庫-架01', 'A區冷藏庫-架02', 'B區預冷室-棧01', 'C區低溫保鮮庫'];
@@ -1219,8 +1298,8 @@ function doPost(e) {
             const days = getDaysInStorage(item.date);
             const rem = getRawRemainingWeight(item.lotNo);
             let borderClass = 'border-emerald-300 bg-emerald-50';
-            if(days >= 5) borderClass = 'border-rose-400 bg-rose-50';
-            else if(days >= 3) borderClass = 'border-amber-300 bg-amber-50';
+            if (days >= 5) borderClass = 'border-rose-400 bg-rose-50';
+            else if (days >= 3) borderClass = 'border-amber-300 bg-amber-50';
 
             cardHtml += `
               <div class="p-2.5 rounded-lg border ${borderClass} text-xs space-y-1">
@@ -1246,36 +1325,28 @@ function doPost(e) {
       });
     }
 
-    function renderAll() {
-      renderStats();
-      renderDashboardWarningTable();
-      renderFieldRecordsTable();
-      renderRawInboundTable();
-      renderShippingTable();
-      renderChannelsTable();
-      renderColdStorageGrid();
-      renderUnitConversions();
-      populateChannelDropdowns();
-    }
+    function renderUnitConversions() {
+      const container = document.getElementById('unit-conversion-cards');
+      if (!container) return;
+      container.innerHTML = '';
 
-    function transferFieldToInbound(fieldId) {
-      const rec = state.fieldRecords.find(f => f.id === fieldId);
-      if(!rec) return;
-
-      if (!rec.harvestWeight || rec.harvestWeight <= 0) {
-        showToast("請先輸入採收重量 (kg) 後再進行轉入冷藏！", "warning");
-        return;
-      }
-
-      switchTab('inbound');
-      document.getElementById('inbound-item').value = rec.vegType;
-      document.getElementById('inbound-source').value = rec.plot;
-      document.getElementById('inbound-weight').value = rec.harvestWeight;
-      document.getElementById('inbound-date').value = rec.dateHarvest || new Date().toISOString().split('T')[0];
-
-      rec.isTransferred = true;
-      renderAll();
-      showToast(`已載入採收資料：${rec.vegType} ${rec.harvestWeight}kg，請確認冷藏儲位後存檔！`);
+      Object.keys(state.unitConversions).forEach(unit => {
+        const val = state.unitConversions[unit];
+        container.innerHTML += `
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-800 text-sm">單位: ${unit}</span>
+              <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono font-bold">${val} kg</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <input type="number" step="0.01" value="${val}" id="unit-val-${unit}" class="w-full text-xs border border-slate-300 rounded p-1.5">
+              <button onclick="updateUnitConversion('${unit}', document.getElementById('unit-val-${unit}').value)" class="bg-slate-700 text-white text-xs px-2 py-1.5 rounded hover:bg-slate-800">
+                修改
+              </button>
+            </div>
+          </div>
+        `;
+      });
     }
 
     function updateUnitConversion(unit, weight) {
@@ -1288,12 +1359,24 @@ function doPost(e) {
       const fieldSelect = document.getElementById('field-veg-type');
       const inboundSelect = document.getElementById('inbound-item');
       
-      if(fieldSelect) {
+      if (fieldSelect) {
         fieldSelect.innerHTML = state.vegetableTypes.map(v => `<option value="${v}">${v}</option>`).join('');
       }
-      if(inboundSelect) {
+      if (inboundSelect) {
         inboundSelect.innerHTML = state.vegetableTypes.map(v => `<option value="${v}">${v}</option>`).join('');
       }
+    }
+
+    function renderAll() {
+      renderStats();
+      renderDashboardWarningTable();
+      renderFieldRecordsTable();
+      renderRawInboundTable();
+      renderShippingTable();
+      renderChannelsTable();
+      renderColdStorageGrid();
+      renderUnitConversions();
+      populateChannelDropdowns();
     }
 
     function saveGasUrl() {
@@ -1301,37 +1384,32 @@ function doPost(e) {
       if (!url) return;
       localStorage.setItem('gas_app_url', url);
       state.gasUrl = url;
-      updateSyncStatus(true, "已成功連線試算表 API");
+      updateSyncStatus(true);
       showToast("Google Sheets 網址已儲存！");
     }
 
     function syncToGoogleSheets(action, payload) {
       if (!state.gasUrl) return;
-
       fetch(state.gasUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, ...payload })
-      }).then(() => {
-        console.log("Synced to Google Sheets successfully");
-      }).catch(err => {
-        console.error("Sync failed", err);
-      });
+      }).catch(err => console.error("Sync error", err));
     }
 
     function syncData() {
-      if(!state.gasUrl) {
+      if (!state.gasUrl) {
         showToast("請先至「Google Sheets 設定」頁面綁定 URL", "warning");
       } else {
         showToast("已成功與雲端試算表同步資料！");
       }
     }
 
-    function updateSyncStatus(isLive, message) {
+    function updateSyncStatus(isLive) {
       const badge = document.getElementById('sync-status');
       const text = document.getElementById('sync-text');
-      if(isLive && badge && text) {
+      if (isLive && badge && text) {
         badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/30";
         badge.querySelector('span').className = "w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse";
         text.innerText = "Google Sheets 連線中";
@@ -1364,9 +1442,7 @@ function doPost(e) {
       if (!toast || !toastMsg || !toastIcon) return;
 
       toastMsg.innerText = msg;
-      if(type === 'error') {
-        toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
-      } else if (type === 'warning') {
+      if (type === 'warning') {
         toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
       } else {
         toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
@@ -1378,21 +1454,21 @@ function doPost(e) {
       }, 3000);
     }
 
-    // --- Initialization ---
     window.onload = function() {
       const today = new Date().toISOString().split('T')[0];
-      if(document.getElementById('inbound-date')) document.getElementById('inbound-date').value = today;
-      if(document.getElementById('ship-date')) document.getElementById('ship-date').value = today;
-      if(document.getElementById('field-date-plant')) document.getElementById('field-date-plant').value = today;
+      if (document.getElementById('inbound-date')) document.getElementById('inbound-date').value = today;
+      if (document.getElementById('ship-date')) document.getElementById('ship-date').value = today;
+      if (document.getElementById('field-date-plant')) document.getElementById('field-date-plant').value = today;
 
-      if(state.gasUrl) {
+      if (state.gasUrl) {
         const gasInput = document.getElementById('gas-url-input');
         if (gasInput) gasInput.value = state.gasUrl;
-        updateSyncStatus(true, "已設定 Google Sheets API");
+        updateSyncStatus(true);
       }
 
       initVegetableDropdowns();
-      addShipmentItemRow(); // Add default item row for shipping
+      autoFillSchedule();
+      addShipmentItemRow();
       renderAll();
     };
   </script>
