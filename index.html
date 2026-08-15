@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>義勝農場 - 冷藏履歷與進出庫管理系統</title>
-  <!-- Tailwind CSS -->
+  <title>義勝農場 - 冷藏履歷與進出庫管理系統 (Google 試算表純雲端版)</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
   <!-- Top Navigation Header -->
-  <header class="bg-emerald-800 text-white shadow-md">
+  <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
       <div class="flex items-center space-x-3">
         <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,16 +27,22 @@
         </svg>
         <div>
           <h1 class="text-xl font-bold tracking-wide">義勝農場</h1>
-          <p class="text-xs text-emerald-200">冷藏履歷與進出庫管理系統</p>
+          <p class="text-xs text-emerald-200">冷藏履歷與進出庫管理系統 (Google Sheets 雲端連線版)</p>
         </div>
       </div>
       
-      <div class="flex items-center space-x-3 text-xs sm:text-sm">
+      <div class="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
+        <button onclick="fetchFromGas(true)" id="refreshBtn" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 shadow-sm">
+          <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          <span id="refreshBtnText">同步試算表</span>
+        </button>
+
         <span id="gasStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
           <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Google Sheets 連線中
+          連線就緒
         </span>
-        <button id="adminLoginBtn" onclick="toggleAdminModal()" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1 shadow-sm">
+
+        <button id="adminLoginBtn" onclick="toggleAdminModal()" class="bg-emerald-900/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           <span id="adminBtnText">管理者登入</span>
         </button>
@@ -45,7 +51,7 @@
   </header>
 
   <!-- Navigation Tabs -->
-  <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+  <nav class="bg-white border-b border-slate-200 sticky top-14 z-20 shadow-sm">
     <div class="max-w-7xl mx-auto px-2 sm:px-4 flex overflow-x-auto no-scrollbar">
       <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-active py-3 px-4 text-sm font-medium whitespace-nowrap transition flex items-center gap-1.5">
         📊 概覽與儀表板
@@ -75,27 +81,36 @@
 
     <!-- VIEW 0: Dashboard -->
     <section id="view-dashboard" class="space-y-6">
+      <!-- Sync notification banner -->
+      <div id="syncBanner" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2.5 rounded-xl text-xs flex justify-between items-center">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span id="syncBannerText">數據來源：正在連線讀取 Google 試算表最新資料...</span>
+        </span>
+        <button onclick="fetchFromGas(true)" class="underline font-semibold hover:text-blue-900">手動重新整理</button>
+      </div>
+
       <!-- KPI Stats Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏原料在庫總重</p>
           <h3 id="statTotalRawKg" class="text-2xl font-bold text-emerald-600 mt-1">0 kg</h3>
-          <p class="text-xs text-slate-400 mt-1">待加工/分裝原料</p>
+          <p class="text-xs text-slate-400 mt-1">來自試算表 RawInbound</p>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">本月出貨總重</p>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">出貨累計總重</p>
           <h3 id="statMonthShipKg" class="text-2xl font-bold text-blue-600 mt-1">0 kg</h3>
-          <p class="text-xs text-slate-400 mt-1">含各通路配送量</p>
+          <p class="text-xs text-slate-400 mt-1">來自試算表 Shipping</p>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">田間進行中地塊</p>
-          <h3 id="statActiveFields" class="text-2xl font-bold text-amber-600 mt-1">0 區</h3>
-          <p class="text-xs text-slate-400 mt-1">栽培管理中作物</p>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">田間紀錄總數</p>
+          <h3 id="statActiveFields" class="text-2xl font-bold text-amber-600 mt-1">0 筆</h3>
+          <p class="text-xs text-slate-400 mt-1">來自試算表 FieldRecords</p>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">冷藏在庫天數警告</p>
           <h3 id="statWarningLots" class="text-2xl font-bold text-rose-600 mt-1">0 批</h3>
-          <p class="text-xs text-slate-400 mt-1">超過 7 天未完成分裝</p>
+          <p class="text-xs text-slate-400 mt-1">超過 7 天未完全出貨</p>
         </div>
       </div>
 
@@ -113,7 +128,7 @@
             📦 新增出貨單
           </button>
           <button onclick="openGoogleSheet()" class="p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-sm font-semibold transition text-center border border-slate-300">
-            📊 查看線上 Google Sheet
+            📊 開啟 Google 試算表
           </button>
         </div>
       </div>
@@ -237,16 +252,17 @@
             <input type="text" id="fieldNotes" placeholder="有機肥用量、氣候異常記錄等" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
           </div>
 
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
-            💾 儲存田間管理紀錄
+          <button type="submit" id="saveFieldBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+            <span>💾 儲存並同步至 Google 試算表</span>
           </button>
         </form>
       </div>
 
       <!-- Field Records Table -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-4 bg-slate-50 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">📋 田間栽培與採收紀錄歷史</h3>
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">📋 田間栽培與採收紀錄歷史 (Google 試算表 FieldRecords)</h3>
+          <button onclick="fetchFromGas(true)" class="text-xs text-emerald-700 hover:underline">🔄 重新整理</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -323,8 +339,8 @@
             </div>
           </div>
 
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
-            ❄️ 建立採收入庫與庫存登記
+          <button type="submit" id="saveRawBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+            <span>❄️ 建立入庫並同步至 Google 試算表</span>
           </button>
         </form>
       </div>
@@ -332,8 +348,8 @@
       <!-- Raw Inbound Stock Table -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-          <h3 class="font-bold text-slate-800">📦 冷藏庫存原料明細表</h3>
-          <span class="text-xs text-slate-500">自動計算各批次剩餘重量</span>
+          <h3 class="font-bold text-slate-800">📦 冷藏庫存原料明細表 (Google 試算表 RawInbound)</h3>
+          <span class="text-xs text-slate-500">自動扣除出貨重量計算即時餘額</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -344,7 +360,7 @@
                 <th class="p-3">田區</th>
                 <th class="p-3">入庫日期</th>
                 <th class="p-3">原始重量</th>
-                <th class="p-3">已分裝/出貨</th>
+                <th class="p-3">已出貨銷帳</th>
                 <th class="p-3">剩餘庫存</th>
                 <th class="p-3">儲位</th>
                 <th class="p-3">狀態</th>
@@ -411,7 +427,7 @@
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-100 text-slate-600 text-xs">
                   <tr>
-                    <th class="p-2">選擇冷藏原料批次</th>
+                    <th class="p-2">選擇冷藏原料批次 (來自試算表)</th>
                     <th class="p-2">蔬菜種類</th>
                     <th class="p-2">出貨包裝單位</th>
                     <th class="p-2">數量</th>
@@ -432,16 +448,17 @@
             </div>
           </div>
 
-          <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
-            🚀 確定出貨並執行扣庫
+          <button type="submit" id="saveShipBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-2">
+            <span>🚀 確定出貨並同步至 Google 試算表</span>
           </button>
         </form>
       </div>
 
       <!-- Shipping History Table -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-4 bg-slate-50 border-b border-slate-200">
-          <h3 class="font-bold text-slate-800">🚚 訂單出貨歷史與銷帳紀錄</h3>
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">🚚 訂單出貨歷史與銷帳紀錄 (Google 試算表 Shipping)</h3>
+          <button onclick="fetchFromGas(true)" class="text-xs text-purple-700 hover:underline">🔄 重新整理</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -515,7 +532,7 @@
           </div>
 
           <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
-            💾 新增/儲存通路資料
+            💾 儲存通路資料
           </button>
         </form>
       </div>
@@ -570,7 +587,7 @@
     <section id="view-gas" class="hidden space-y-6">
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
         <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span>🔒 Google Sheets 後端串接與資料庫管理</span>
+          <span>🔒 Google Sheets 雲端連線設定</span>
         </h2>
 
         <form id="gasConfigForm" onsubmit="event.preventDefault(); saveGasConfig();" class="space-y-4">
@@ -586,13 +603,10 @@
 
           <div class="flex flex-wrap gap-3">
             <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm">
-              💾 儲存串接設定
+              💾 儲存設定並重新同步
             </button>
             <button type="button" onclick="openGoogleSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm flex items-center gap-1">
-              🔗 開啟試算表
-            </button>
-            <button type="button" onclick="clearDatabase()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm ml-auto">
-              🗑️ 清空本地資料庫
+              🔗 開啟 Google 試算表
             </button>
           </div>
         </form>
@@ -615,7 +629,7 @@
   </div>
 
   <script>
-    // System Rules Table for Vegetable Crop Scheduling
+    // 蔬菜田間作業推算規則表
     const CROP_SCHEDULE_RULES = {
       "小白菜": { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 46 },
       "油菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 57 },
@@ -628,98 +642,158 @@
       "莧菜":   { fert: 5, pest1: 8, pest2: 15, h1: 25, h2: 32, expiry: 45 }
     };
 
-    // State Store
+    // 系統狀態：純讀取 Google 試算表
     let state = {
       isAdminLoggedIn: false,
       pendingTargetTab: null,
       gasUrl: localStorage.getItem("gas_app_url") || "https://script.google.com/macros/s/AKfycbwkcSYoJ3hHM97UX0CpB-bwNZzEqzMlb_kBmOstFRLw0lyVPbaxlP-74rQRa_gVH07mAA/exec",
       gasSheetUrl: localStorage.getItem("gas_sheet_url") || "https://docs.google.com/spreadsheets/d/1iAE6GgEGsL-oabPWQpUZ5FUWXQivMpabwPYTk0QGq2s/edit?gid=0#gid=0",
-      units: JSON.parse(localStorage.getItem("farm_units")) || {
-        "包": 0.3,
-        "把": 0.25,
-        "斤": 0.6,
-        "籃": 12.0,
-        "袋": 5.0,
-        "kg": 1.0
-      },
-      channels: JSON.parse(localStorage.getItem("farm_channels")) || [
-        { id: 1, name: "全聯-高雄總倉", type: "連鎖超市", contact: "張經理", phone: "0912-345678", temp: "冷藏 (2℃~7℃)", address: "高雄市仁武區物流路1號" },
-        { id: 2, name: "主婦聯盟-台中分社", type: "有機/合作社", contact: "李專員", phone: "0923-456789", temp: "冷藏 (2℃~7℃)", address: "台中市西區自由路100號" }
-      ],
-      fields: JSON.parse(localStorage.getItem("farm_fields")) || [
-        {
-          id: "A1區",
-          vegType: "小白菜",
-          plantDate: "2026-08-01",
-          fertDate: "2026-08-06",
-          pest1Date: "2026-08-09",
-          pest2Date: "2026-08-16",
-          harvest1Date: "2026-08-26",
-          harvest1Kg: 120,
-          harvest2Date: "2026-09-02",
-          harvest2Kg: 80,
-          expiryDate: "2026-09-16",
-          notes: "溫室有機小白菜"
-        }
-      ],
-      rawInbound: JSON.parse(localStorage.getItem("farm_rawInbound")) || [
-        {
-          rawLotNo: "RAW-20260812-001",
-          vegType: "小白菜",
-          source: "A1區",
-          inDate: "2026-08-12",
-          weightKg: 150,
-          storageLoc: "A區冷藏-01"
-        }
-      ],
-      shipping: JSON.parse(localStorage.getItem("farm_shipping")) || [
-        {
-          shipNo: "OUT-20260814-001",
-          shipDate: "2026-08-14",
-          customer: "全聯-高雄總倉",
-          temp: "冷藏 (2℃~7℃)",
-          logistics: "黑貓冷藏 8812",
-          totalKg: 90,
-          items: [
-            { rawLotNo: "RAW-20260812-001", vegType: "小白菜", unit: "包", count: 300, unitKg: 0.3, calculatedKg: 90 }
-          ]
-        }
-      ]
+      units: JSON.parse(localStorage.getItem("farm_units") || JSON.stringify({
+        "包": 0.3, "把": 0.25, "斤": 0.6, "籃": 12.0, "袋": 5.0, "kg": 1.0
+      })),
+      channels: localStorage.getItem("farm_channels") ? JSON.parse(localStorage.getItem("farm_channels")) : [],
+      // 以下全部來自試算表雲端
+      fields: [],
+      rawInbound: [],
+      shipping: []
     };
 
     let shippingItemsState = [];
 
-    // Initialize App
+    // 初始化
     window.onload = function() {
-      // Set Default Input Dates
       const todayStr = new Date().toISOString().split('T')[0];
       document.getElementById("fieldPlantDate").value = todayStr;
       document.getElementById("rawInDate").value = todayStr;
       document.getElementById("shipDate").value = todayStr;
 
-      // Fill Config Inputs
       document.getElementById("gasUrlInput").value = state.gasUrl;
       document.getElementById("gasSheetUrlInput").value = state.gasSheetUrl;
 
-      // Auto Fill Default Schedule
       autoFillSchedule();
       generateNewRawLotNo();
       generateNewShipNo();
-      addShippingItemRow();
+      renderUnitConfigForm();
+      populateCustomerDropdown();
 
-      // Initial Render
-      renderAll();
+      // 立即自 Google 試算表拉取最新數據
+      fetchFromGas(false);
     };
 
-    // Save State
-    function saveState() {
-      localStorage.setItem("farm_units", JSON.stringify(state.units));
-      localStorage.setItem("farm_channels", JSON.stringify(state.channels));
-      localStorage.setItem("farm_fields", JSON.stringify(state.fields));
-      localStorage.setItem("farm_rawInbound", JSON.stringify(state.rawInbound));
-      localStorage.setItem("farm_shipping", JSON.stringify(state.shipping));
-      localStorage.setItem("gas_app_url", state.gasUrl);
-      localStorage.setItem("gas_sheet_url", state.gasSheetUrl);
+    // 關鍵函式：從 Google Apps Script GET 讀取試算表所有資料
+    async function fetchFromGas(showUserAlert = false) {
+    //  if (!state.gasUrl) {
+    //    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
+   //     return;
+   //   }
+
+   //   setLoadingUI(true);
+   //   document.getElementById("syncBannerText").innerText = "🔄 正在從 Google 試算表拉取最新資料...";
+
+  //    try {
+   //     const res = await fetch(state.gasUrl, { method: "GET" });
+   //     const json = await res.json();
+
+   //     if (json.status === "success") {
+  //        state.fields = json.fields || [];
+   //       state.rawInbound = json.rawInbound || [];
+   //       state.shipping = json.shipping || [];
+
+  //        renderAll();
+  //        document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
+  //        if (showUserAlert) alert("✅ 已成功同步最新 Google 試算表資料！");
+   //     } else {
+  //        document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
+  //      }
+  //    } catch (err) {
+  //      console.error("Fetch GAS Error:", err);
+  //      document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表資料，請確認 Apps Script 是否已部署最新版本並設為所有人。";
+  //    } finally {
+ //       setLoadingUI(false);
+  //    }
+
+window.handleGasResponse = function(json) {
+  setLoadingUI(false);
+  if (json && json.status === "success") {
+    state.fields = json.fields || [];
+    state.rawInbound = json.rawInbound || [];
+    state.shipping = json.shipping || [];
+
+    renderAll();
+    document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
+    if (window._showUserAlert) {
+      alert("✅ 已成功同步最新 Google 試算表資料！");
+      window._showUserAlert = false;
+    }
+  } else {
+    document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
+  }
+};
+
+// 透過 JSONP 標籤安全拉取資料（免受 CORS 限制）
+function fetchFromGas(showUserAlert = false) {
+  if (!state.gasUrl) {
+    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
+    return;
+  }
+
+  window._showUserAlert = showUserAlert;
+  setLoadingUI(true);
+  document.getElementById("syncBannerText").innerText = "🔄 正在自 Google 試算表抓取最新資料...";
+
+  // 移除舊的 script 標籤
+  const oldScript = document.getElementById("gasJsonpScript");
+  if (oldScript) oldScript.remove();
+
+  // 動態建立 script 標籤
+  const script = document.createElement("script");
+  script.id = "gasJsonpScript";
+  const urlWithCallback = state.gasUrl + (state.gasUrl.includes("?") ? "&" : "?") + "callback=handleGasResponse&t=" + Date.now();
+  script.src = urlWithCallback;
+  script.onerror = function() {
+    setLoadingUI(false);
+    document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表，請確認 Apps Script 已部署為新版本且存取權設為「所有人」。";
+  };
+
+  document.body.appendChild(script);
+}
+      
+    }
+
+    function setLoadingUI(isLoading) {
+      const icon = document.getElementById("refreshIcon");
+      const badge = document.getElementById("gasStatusBadge");
+      if (isLoading) {
+        icon.classList.add("animate-spin");
+        badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800";
+        badge.innerHTML = `<span class="w-2 h-2 mr-1.5 rounded-full bg-blue-500 animate-ping"></span> 讀取試算表中...`;
+      } else {
+        icon.classList.remove("animate-spin");
+        badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800";
+        badge.innerHTML = `<span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-500"></span> 連線就緒`;
+      }
+    }
+
+    // 發送資料至 GAS 並在寫入後自動拉取最新資料
+    async function syncDataToGasAndRefresh(sheetName, payload) {
+      if (!state.gasUrl) return;
+      document.getElementById("syncBannerText").innerText = `📤 正在寫入資料至試算表 ${sheetName}...`;
+      
+      try {
+        await fetch(state.gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetName: sheetName, data: payload })
+        });
+        
+        // 延遲 1.2 秒等待 Google Sheets 完成寫入，隨後立刻拉取最新試算表內容
+        setTimeout(() => {
+          fetchFromGas(false);
+        }, 1200);
+      } catch (err) {
+        console.error("Sync to GAS error:", err);
+      }
     }
 
     function switchTab(tabName) {
@@ -758,7 +832,7 @@
       const pwd = document.getElementById("adminPasswordInput").value;
       if (pwd === "admin") {
         state.isAdminLoggedIn = true;
-        document.getElementById("adminBtnText").innerText = "管理者已登入 (登出)";
+        document.getElementById("adminBtnText").innerText = "管理者 (登出)";
         document.getElementById("adminPasswordInput").value = "";
         closeAdminModal();
         if (state.pendingTargetTab) {
@@ -776,7 +850,6 @@
       switchTab("dashboard");
     }
 
-    // Helper Date Calculation
     function addDaysToDate(dateStr, days) {
       if (!dateStr || days === null || days === undefined) return "";
       const d = new Date(dateStr);
@@ -805,11 +878,13 @@
 
       let usedKg = 0;
       state.shipping.forEach(ship => {
-        ship.items.forEach(item => {
-          if (item.rawLotNo === rawLotNo) {
-            usedKg += parseFloat(item.calculatedKg || 0);
-          }
-        });
+        if (ship.items && Array.isArray(ship.items)) {
+          ship.items.forEach(item => {
+            if (item.rawLotNo === rawLotNo) {
+              usedKg += parseFloat(item.calculatedKg || 0);
+            }
+          });
+        }
       });
 
       return Math.max(0, raw.weightKg - usedKg);
@@ -853,11 +928,8 @@
         notes: document.getElementById("fieldNotes").value
       };
 
-      state.fields.unshift(record);
-      saveState();
-      syncDataToGas("FieldRecords", record);
-      renderAll();
-      alert("✅ 田間管理紀錄已成功儲存！");
+      syncDataToGasAndRefresh("FieldRecords", record);
+      alert("✅ 已送出田間紀錄至 Google 試算表！系統正在同步中...");
     }
 
     function transferHarvestToInbound(fieldId, harvestIndex) {
@@ -868,7 +940,7 @@
       const harvestDate = harvestIndex === 1 ? field.harvest1Date : field.harvest2Date;
 
       if (!harvestKg || harvestKg <= 0) {
-        alert("請先填寫實際採收數量！");
+        alert("該次採收數量為 0 或尚未填寫！");
         return;
       }
 
@@ -890,23 +962,20 @@
         storageLoc: document.getElementById("rawStorageLoc").value
       };
 
-      state.rawInbound.unshift(raw);
-      saveState();
-      syncDataToGas("RawInbound", raw);
+      syncDataToGasAndRefresh("RawInbound", raw);
       generateNewRawLotNo();
-      renderAll();
-      alert("✅ 採收入庫資料已建立！");
+      alert("✅ 已建立採收入庫資料並送往 Google 試算表！");
     }
 
-    // Dynamic Shipping Items Management
     function addShippingItemRow() {
+      const firstRaw = state.rawInbound.find(r => getRawRemainingKg(r.rawLotNo) > 0);
       shippingItemsState.push({
-        rawLotNo: state.rawInbound.length > 0 ? state.rawInbound[0].rawLotNo : "",
-        vegType: state.rawInbound.length > 0 ? state.rawInbound[0].vegType : "小白菜",
+        rawLotNo: firstRaw ? firstRaw.rawLotNo : "",
+        vegType: firstRaw ? firstRaw.vegType : "小白菜",
         unit: "包",
-        count: 100,
+        count: 0,
         unitKg: state.units["包"] || 0.3,
-        calculatedKg: 30
+        calculatedKg: 0
       });
       renderShippingItemsTable();
     }
@@ -961,15 +1030,12 @@
         items: [...shippingItemsState]
       };
 
-      state.shipping.unshift(ship);
-      saveState();
-      syncDataToGas("Shipping", ship);
+      syncDataToGasAndRefresh("Shipping", ship);
 
       shippingItemsState = [];
       generateNewShipNo();
-      addShippingItemRow();
-      renderAll();
-      alert("🚀 出貨單發送成功！冷藏庫存已自動扣除！");
+      renderShippingItemsTable();
+      alert("🚀 出貨單已送出並寫入 Google 試算表！");
     }
 
     function saveChannel() {
@@ -984,16 +1050,19 @@
       };
 
       state.channels.push(chan);
-      saveState();
-      renderAll();
+      localStorage.setItem("farm_channels", JSON.stringify(state.channels));
+      document.getElementById("channelForm").reset();
+      renderChannelsTable();
+      populateCustomerDropdown();
       alert("✅ 出貨通路已新增！");
     }
 
     function deleteChannel(id) {
       if (confirm("確定要刪除此出貨通路嗎？")) {
         state.channels = state.channels.filter(c => c.id !== id);
-        saveState();
-        renderAll();
+        localStorage.setItem("farm_channels", JSON.stringify(state.channels));
+        renderChannelsTable();
+        populateCustomerDropdown();
       }
     }
 
@@ -1007,16 +1076,18 @@
         const val = parseFloat(document.getElementById(`unitInput_${unit}`).value);
         if (!isNaN(val)) state.units[unit] = val;
       });
-      saveState();
-      renderAll();
+      localStorage.setItem("farm_units", JSON.stringify(state.units));
+      renderUnitConfigForm();
       alert("✅ 單位換算對應表已更新！");
     }
 
     function saveGasConfig() {
       state.gasUrl = document.getElementById("gasUrlInput").value;
       state.gasSheetUrl = document.getElementById("gasSheetUrlInput").value;
-      saveState();
-      alert("✅ Google Sheets 串接設定已更新！");
+      localStorage.setItem("gas_app_url", state.gasUrl);
+      localStorage.setItem("gas_sheet_url", state.gasSheetUrl);
+      alert("✅ Google Sheets 串接設定已更新！即將重新同步試算表...");
+      fetchFromGas(true);
     }
 
     function openGoogleSheet() {
@@ -1027,23 +1098,6 @@
       }
     }
 
-    function clearDatabase() {
-      if (confirm("⚠️ 警告：確定要清空本機所有資料嗎？此動作不可逆！")) {
-        localStorage.clear();
-        location.reload();
-      }
-    }
-
-    function syncDataToGas(sheetName, payload) {
-      if (!state.gasUrl) return;
-      fetch(state.gasUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetName: sheetName, data: payload })
-      }).catch(err => console.log("GAS Sync Notice:", err));
-    }
-
     function renderAll() {
       renderStats();
       renderDashboardWarningTable();
@@ -1052,8 +1106,9 @@
       renderShippingItemsTable();
       renderShippingHistoryTable();
       renderChannelsTable();
-      renderUnitConfigForm();
       populateCustomerDropdown();
+      generateNewRawLotNo();
+      generateNewShipNo();
     }
 
     function renderStats() {
@@ -1062,10 +1117,10 @@
       document.getElementById("statTotalRawKg").innerText = `${totalRaw.toFixed(1)} kg`;
 
       let monthShip = 0;
-      state.shipping.forEach(s => monthShip += s.totalKg);
+      state.shipping.forEach(s => monthShip += (Number(s.totalKg) || 0));
       document.getElementById("statMonthShipKg").innerText = `${monthShip.toFixed(1)} kg`;
 
-      document.getElementById("statActiveFields").innerText = `${state.fields.length} 區`;
+      document.getElementById("statActiveFields").innerText = `${state.fields.length} 筆`;
 
       let warningCount = 0;
       state.rawInbound.forEach(r => {
@@ -1083,7 +1138,7 @@
       const activeLots = state.rawInbound.filter(r => getRawRemainingKg(r.rawLotNo) > 0);
 
       if (activeLots.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">目前沒有在庫庫存批次</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">目前試算表無在庫庫存批次</td></tr>`;
         return;
       }
 
@@ -1121,11 +1176,26 @@
       tbody.innerHTML = "";
 
       if (state.fields.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">尚無田間紀錄</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">試算表無田間紀錄</td></tr>`;
         return;
       }
 
       state.fields.forEach(f => {
+        // 判斷採收 1 與採收 2 是否已存在於冷藏庫存 (RawInbound) 或已標記轉入
+        const isTransferred1 = f.transferred1 === true || f.transferred1 === "已轉入" || f.transferred1 === "true" ||
+          state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採1") || r.source.includes("採收1")));
+
+        const isTransferred2 = f.transferred2 === true || f.transferred2 === "已轉入" || f.transferred2 === "true" ||
+          state.rawInbound.some(r => r.source && r.source.includes(f.id) && (r.source.includes("採2") || r.source.includes("採收2")));
+
+        const btn1 = isTransferred1 
+          ? `<button onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-pink-200 hover:bg-pink-300 text-pink-800 border border-pink-300 px-2 py-1 rounded font-semibold transition" title="已於冷藏庫建立批號">已轉入 (採1)</button>`
+          : `<button onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded transition">轉入(採1)</button>`;
+
+        const btn2 = isTransferred2
+          ? `<button onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-pink-200 hover:bg-pink-300 text-pink-800 border border-pink-300 px-2 py-1 rounded font-semibold transition" title="已於冷藏庫建立批號">已轉入 (採2)</button>`
+          : `<button onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded transition">轉入(採2)</button>`;
+
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-bold text-slate-700">${f.id}</td>
@@ -1135,8 +1205,8 @@
             <td class="p-3">${f.harvest2Kg} kg <span class="text-xs text-slate-400">(${f.harvest2Date})</span></td>
             <td class="p-3 text-slate-500">${f.expiryDate || '-'}</td>
             <td class="p-3 space-x-1">
-              <button onclick="transferHarvestToInbound('${f.id}', 1)" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded">轉入(採1)</button>
-              <button onclick="transferHarvestToInbound('${f.id}', 2)" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded">轉入(採2)</button>
+              ${btn1}
+              ${btn2}
             </td>
           </tr>
         `;
@@ -1148,7 +1218,7 @@
       tbody.innerHTML = "";
 
       if (state.rawInbound.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">尚無冷藏原料紀錄</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">試算表無冷藏原料紀錄</td></tr>`;
         return;
       }
 
@@ -1177,6 +1247,12 @@
       const tbody = document.getElementById("shippingItemsTable");
       tbody.innerHTML = "";
 
+      if (shippingItemsState.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">尚未新增出貨品項，請點擊右上角「+ 新增品項」</td></tr>`;
+        document.getElementById("shipTotalKgText").innerText = "0 kg";
+        return;
+      }
+
       let totalKg = 0;
 
       shippingItemsState.forEach((item, idx) => {
@@ -1188,7 +1264,7 @@
           .join("");
 
         if (!rawOptions) {
-          rawOptions = `<option value="">(無庫存原料，請先建立採收入庫)</option>`;
+          rawOptions = `<option value="">(試算表中無在庫原料，請先建立採收入庫)</option>`;
         }
 
         let unitOptions = Object.keys(state.units)
@@ -1230,12 +1306,15 @@
       tbody.innerHTML = "";
 
       if (state.shipping.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">尚無出貨銷帳紀錄</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">試算表無出貨銷帳紀錄</td></tr>`;
         return;
       }
 
       state.shipping.forEach(s => {
-        let itemsSummary = s.items.map(i => `${i.vegType} (${i.count}${i.unit} = ${i.calculatedKg}kg)`).join("<br>");
+        let itemsSummary = s.summaryText || "";
+        if (!itemsSummary && s.items && Array.isArray(s.items)) {
+          itemsSummary = s.items.map(i => `${i.vegType} (${i.count}${i.unit} = ${i.calculatedKg}kg)`).join("<br>");
+        }
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
@@ -1253,6 +1332,11 @@
     function renderChannelsTable() {
       const tbody = document.getElementById("channelsTable");
       tbody.innerHTML = "";
+
+      if (state.channels.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">尚無合作出貨通路名單，請由上方新增</td></tr>`;
+        return;
+      }
 
       state.channels.forEach(c => {
         tbody.innerHTML += `
@@ -1291,7 +1375,7 @@
       select.innerHTML = "";
 
       if (state.channels.length === 0) {
-        select.innerHTML = `<option value="一般散客/零售">一般散客/零售</option>`;
+        select.innerHTML = `<option value="一般散客/現場零售">一般散客/現場零售</option>`;
         return;
       }
 
