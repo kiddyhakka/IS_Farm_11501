@@ -682,35 +682,82 @@
 
     // 關鍵函式：從 Google Apps Script GET 讀取試算表所有資料
     async function fetchFromGas(showUserAlert = false) {
-      if (!state.gasUrl) {
-        document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
-        return;
-      }
+    //  if (!state.gasUrl) {
+    //    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
+   //     return;
+   //   }
 
-      setLoadingUI(true);
-      document.getElementById("syncBannerText").innerText = "🔄 正在從 Google 試算表拉取最新資料...";
+   //   setLoadingUI(true);
+   //   document.getElementById("syncBannerText").innerText = "🔄 正在從 Google 試算表拉取最新資料...";
 
-      try {
-        const res = await fetch(state.gasUrl, { method: "GET" });
-        const json = await res.json();
+  //    try {
+   //     const res = await fetch(state.gasUrl, { method: "GET" });
+   //     const json = await res.json();
 
-        if (json.status === "success") {
-          state.fields = json.fields || [];
-          state.rawInbound = json.rawInbound || [];
-          state.shipping = json.shipping || [];
+   //     if (json.status === "success") {
+  //        state.fields = json.fields || [];
+   //       state.rawInbound = json.rawInbound || [];
+   //       state.shipping = json.shipping || [];
 
-          renderAll();
-          document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
-          if (showUserAlert) alert("✅ 已成功同步最新 Google 試算表資料！");
-        } else {
-          document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
-        }
-      } catch (err) {
-        console.error("Fetch GAS Error:", err);
-        document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表資料，請確認 Apps Script 是否已部署最新版本並設為所有人。";
-      } finally {
-        setLoadingUI(false);
-      }
+  //        renderAll();
+  //        document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
+  //        if (showUserAlert) alert("✅ 已成功同步最新 Google 試算表資料！");
+   //     } else {
+  //        document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
+  //      }
+  //    } catch (err) {
+  //      console.error("Fetch GAS Error:", err);
+  //      document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表資料，請確認 Apps Script 是否已部署最新版本並設為所有人。";
+  //    } finally {
+ //       setLoadingUI(false);
+  //    }
+
+window.handleGasResponse = function(json) {
+  setLoadingUI(false);
+  if (json && json.status === "success") {
+    state.fields = json.fields || [];
+    state.rawInbound = json.rawInbound || [];
+    state.shipping = json.shipping || [];
+
+    renderAll();
+    document.getElementById("syncBannerText").innerText = `✅ 試算表同步完成 (最後更新時間：${json.timestamp})`;
+    if (window._showUserAlert) {
+      alert("✅ 已成功同步最新 Google 試算表資料！");
+      window._showUserAlert = false;
+    }
+  } else {
+    document.getElementById("syncBannerText").innerText = "⚠️ 試算表讀取失敗：" + (json.message || "未知錯誤");
+  }
+};
+
+// 透過 JSONP 標籤安全拉取資料（免受 CORS 限制）
+function fetchFromGas(showUserAlert = false) {
+  if (!state.gasUrl) {
+    document.getElementById("syncBannerText").innerText = "⚠️ 尚未設定 Google Apps Script API 網址";
+    return;
+  }
+
+  window._showUserAlert = showUserAlert;
+  setLoadingUI(true);
+  document.getElementById("syncBannerText").innerText = "🔄 正在自 Google 試算表抓取最新資料...";
+
+  // 移除舊的 script 標籤
+  const oldScript = document.getElementById("gasJsonpScript");
+  if (oldScript) oldScript.remove();
+
+  // 動態建立 script 標籤
+  const script = document.createElement("script");
+  script.id = "gasJsonpScript";
+  const urlWithCallback = state.gasUrl + (state.gasUrl.includes("?") ? "&" : "?") + "callback=handleGasResponse&t=" + Date.now();
+  script.src = urlWithCallback;
+  script.onerror = function() {
+    setLoadingUI(false);
+    document.getElementById("syncBannerText").innerText = "⚠️ 無法讀取試算表，請確認 Apps Script 已部署為新版本且存取權設為「所有人」。";
+  };
+
+  document.body.appendChild(script);
+}
+      
     }
 
     function setLoadingUI(isLoading) {
